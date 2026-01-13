@@ -1,0 +1,28 @@
+package com.i11usion.skilltracker.data.auth.remote
+
+import com.i11usion.skilltracker.data.auth.remote.model.LoginRequestDto
+import com.i11usion.skilltracker.data.auth.remote.model.LoginResponse
+import com.i11usion.skilltracker.data.auth.remote.model.RegisterRequest
+import com.i11usion.skilltracker.data.auth.remote.model.UserDto
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+
+interface AuthService {
+
+    @POST("/api/auth/register")
+    suspend fun register(
+        @Body request: RegisterRequest
+    )
+
+    @POST("/api/auth/login")
+    suspend fun login(
+        @Body request: LoginRequestDto
+    ): LoginResponse
+
+    @POST("/api/auth/logout")
+    suspend fun logout()
+
+    @GET("/api/auth/me")
+    suspend fun me(): UserDto
+}
