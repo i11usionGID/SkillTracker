@@ -41,14 +41,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.skilltracker.R
+import com.i11usion.skilltracker.di.LocalViewModelFactory
 
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
-    viewModel: AuthViewModel,
     onSuccessAuth: () -> Unit
 ) {
+    val viewModel: AuthViewModel = viewModel(factory = LocalViewModelFactory.current)
     val state = viewModel.state.collectAsState().value
 
     LaunchedEffect(Unit) {

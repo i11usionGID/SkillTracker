@@ -12,7 +12,7 @@ class AuthInterceptor(
         val request = chain.request()
         val path = request.url.encodedPath
 
-        val isAuthEndpoint = path.startsWith("/api/auth")
+        val isAuthEndpoint = path.startsWith("/api/auth") && !path.endsWith("me")
 
         if (isAuthEndpoint) {
             return chain.proceed(request)
