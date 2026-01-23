@@ -4,16 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
+import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.theme.SkillTrackerTheme
+import com.i11usion.di.ViewModelFactory
+import com.i11usion.feature.auth.presentation.AuthScreen
+import com.i11usion.feature.main.presentation.HomeRoute
 import com.i11usion.skilltracker.SkillTrackerApp
-import com.i11usion.skilltracker.di.LocalViewModelFactory
-import com.i11usion.skilltracker.di.ViewModelFactory
 import com.i11usion.skilltracker.navigation.AppNavGraph
 import com.i11usion.skilltracker.navigation.rememberNavigationState
-import com.i11usion.skilltracker.presentation.screen.authentication.AuthScreen
-import com.i11usion.skilltracker.presentation.screen.home.HomeRoute
-import com.i11usion.skilltracker.presentation.ui.theme.SkillTrackerTheme
 import javax.inject.Inject
 
 
@@ -43,9 +42,9 @@ class MainActivity : ComponentActivity() {
                             AuthScreen(onSuccessAuth = onSuccess)
                         },
                         dashboardScreen = { HomeRoute() },
-                        tasksScreen = { Text("Tasks") },
-                        usersScreen = { Text("Users") },
-                        testsScreen = { Text("Tests") }
+                        tasksScreen = {  },
+                        usersScreen = {  },
+                        testsScreen = {  }
                     )
                 }
             }
@@ -85,13 +84,13 @@ class MainActivity : ComponentActivity() {
 //import androidx.compose.runtime.collectAsState
 //import androidx.compose.runtime.getValue
 //import com.i11usion.skilltracker.SkillTrackerApp
-//import com.i11usion.skilltracker.di.ViewModelFactory
+//import com.i11usion.core.di.ViewModelFactory
 //import com.i11usion.skilltracker.navigation.AppNavGraph
 //import com.i11usion.skilltracker.navigation.NavGraph
 //import com.i11usion.skilltracker.navigation.rememberNavigationState
-//import com.i11usion.skilltracker.presentation.screen.authentication.AuthScreen
-//import com.i11usion.skilltracker.presentation.screen.home.HomeScreen
-//import com.i11usion.skilltracker.presentation.screen.home.HomeViewModel
+//import com.i11usion.feature.auth.presentation.AuthScreen
+//import com.i11usion.feature.main.presentation.HomeScreen
+//import com.i11usion.feature.main.presentation.HomeViewModel
 //import com.i11usion.skilltracker.presentation.ui.theme.SkillTrackerTheme
 //import javax.inject.Inject
 //

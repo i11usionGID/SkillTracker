@@ -3,6 +3,7 @@ package com.i11usion.skilltracker.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.i11usion.core.navigation.Screen
 
 @Composable
 fun AppNavGraph(
