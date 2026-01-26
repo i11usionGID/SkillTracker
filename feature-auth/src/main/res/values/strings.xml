@@ -1,6 +1,5 @@
 <resources>
     <string name="log_in_to_your_acc">Войдите в свой аккаунт</string>
-    <string name="application_logo">Логотип приложения</string>
     <string name="loading">Загрузка...</string>
     <string name="login">Войти</string>
     <string name="password">Пароль</string>

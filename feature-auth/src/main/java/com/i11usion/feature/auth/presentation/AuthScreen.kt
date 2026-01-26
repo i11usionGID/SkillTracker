@@ -1,6 +1,5 @@
 package com.i11usion.feature.auth.presentation
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -43,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.model.Logo
 import com.i11usion.feature.auth.R
 
 @Composable
@@ -55,7 +54,7 @@ fun AuthScreen(
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
-            when(event) {
+            when (event) {
                 AuthEvent.Success -> onSuccessAuth()
             }
         }
@@ -68,21 +67,7 @@ fun AuthScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = Modifier
-                .size(72.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(percent = 40)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(com.i11usion.core.ui.R.drawable.ic_logo),
-                contentDescription = stringResource(R.string.application_logo),
-                modifier = Modifier.size(36.dp),
-            )
-        }
+        Logo()
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = stringResource(com.i11usion.core.ui.R.string.application_name),

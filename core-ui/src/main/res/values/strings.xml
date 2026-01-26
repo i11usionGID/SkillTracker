@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">SkillTracker</string>
     <string name="application_name">SkillTracker</string>
+    <string name="cd_application_logo">Логотип приложения</string>
 </resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cd_notification">Уведомления</string>
+    <string name="cd_logout">Выход из учетной записи</string>
+    <string name="cd_menu">Меню</string>
+    <string name="cd_menu_item">Элемент меню</string>
+</resources>

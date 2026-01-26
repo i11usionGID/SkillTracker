@@ -30,10 +30,10 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onDrawerItemClick(screen: Screen) {
-        viewModelScope.launch {
-            _events.emit(HomeEvent.Navigate(screen))
-        }
+        _state.update { it.copy(selectedScreen = screen) }
+        viewModelScope.launch { _events.emit(HomeEvent.Navigate(screen)) }
     }
+
 
     fun onLogoutClick() {
         viewModelScope.launch {
@@ -46,12 +46,12 @@ class HomeViewModel @Inject constructor(
             val user = loadProfileUseCase()
 
             _state.update {
+                val filtered = DrawerConfig.items.filter { user.role in it.allowedRoles }
                 it.copy(
                     userName = user.name,
                     role = user.role,
-                    drawerItems = DrawerConfig.items.filter {
-                        user.role in it.allowedRoles
-                    }
+                    drawerItems = filtered,
+                    selectedScreen = filtered.firstOrNull()?.screen
                 )
             }
         }
@@ -62,7 +62,8 @@ class HomeViewModel @Inject constructor(
 data class HomeUiState(
     val userName: String = "",
     val role: Role? = null,
-    val drawerItems: List<DrawerItem> = emptyList()
+    val drawerItems: List<DrawerItem> = emptyList(),
+    val selectedScreen: Screen? = null
 )
 
 sealed interface HomeEvent {
