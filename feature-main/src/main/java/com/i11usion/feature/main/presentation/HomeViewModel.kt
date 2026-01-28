@@ -4,70 +4,83 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i11usion.core.domain.model.Role
 import com.i11usion.core.domain.usecase.LoadProfileUseCase
-import com.i11usion.core.navigation.Screen
+import com.i11usion.core.domain.usecase.LogoutUseCase
 import com.i11usion.feature.main.presentation.drawer.DrawerConfig
 import com.i11usion.feature.main.presentation.drawer.DrawerItem
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
-    private val loadProfileUseCase: LoadProfileUseCase
+    private val loadProfileUseCase: LoadProfileUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HomeUiState())
+    private val _state = MutableStateFlow<HomeState>(HomeState.Initial)
     val state = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<HomeEvent>()
     val events = _events.asSharedFlow()
 
     init {
+        _state.value = HomeState.Loading
         loadUser()
     }
 
-    fun onDrawerItemClick(screen: Screen) {
-        _state.update { it.copy(selectedScreen = screen) }
-        viewModelScope.launch { _events.emit(HomeEvent.Navigate(screen)) }
-    }
-
-
     fun onLogoutClick() {
+        _state.value = HomeState.Loading
         viewModelScope.launch {
-            _events.emit(HomeEvent.Logout)
+            runCatching { logoutUseCase() }
+                .onSuccess {
+                    _events.emit(HomeEvent.Logout)
+                }
+                .onFailure { e ->
+                    _state.value = HomeState.Error(message = "ERROR")
+                }
         }
     }
 
     private fun loadUser() {
         viewModelScope.launch {
-            val user = loadProfileUseCase()
-
-            _state.update {
-                val filtered = DrawerConfig.items.filter { user.role in it.allowedRoles }
-                it.copy(
-                    userName = user.name,
-                    role = user.role,
-                    drawerItems = filtered,
-                    selectedScreen = filtered.firstOrNull()?.screen
-                )
-            }
+            runCatching { loadProfileUseCase() }
+                .onSuccess { user ->
+                    val filtered = DrawerConfig.items.filter { user.role in it.allowedRoles }
+                    _state.value = HomeState.Content(
+                        userName = user.name,
+                        role = user.role,
+                        drawerItems = filtered
+                    )
+                }
+                .onFailure {
+                    _state.value = HomeState.Error(message = "ERROR")
+                }
         }
     }
 }
 
 
-data class HomeUiState(
-    val userName: String = "",
-    val role: Role? = null,
-    val drawerItems: List<DrawerItem> = emptyList(),
-    val selectedScreen: Screen? = null
-)
+sealed interface HomeState {
+
+    data object Initial : HomeState
+
+    data object Loading : HomeState
+
+    data class Content(
+        val userName: String = "",
+        val role: Role = Role.EMPLOYEE,
+        val drawerItems: List<DrawerItem> = emptyList(),
+        val selectedScreenRoute: String? = null
+    ) : HomeState
+
+    data class Error(
+        val message: String
+    ) : HomeState
+}
 
 sealed interface HomeEvent {
-    data class Navigate(val screen: Screen) : HomeEvent
     object Logout : HomeEvent
 }
 

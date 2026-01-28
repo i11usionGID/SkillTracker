@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="dashboard_manager_employee">Дашборд</string>
+    <string name="tasks_manager_employee">Задачи</string>
+    <string name="users_manager">Пользователи</string>
+    <string name="tests_manager">Тесты</string>
+    <string name="tests_employee">Мои тесты</string>
+    <string name="unknown_role">Роль пользователя неизвестна</string>
     <string name="cd_notification">Уведомления</string>
     <string name="cd_logout">Выход из учетной записи</string>
     <string name="cd_menu">Меню</string>

@@ -3,34 +3,30 @@ package com.i11usion.skilltracker.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.i11usion.core.navigation.Screen
+import com.i11usion.core.navigation.RootRoute
 
 @Composable
 fun AppNavGraph(
     navigationState: NavigationState,
     authScreen: @Composable (onAuthSuccess: () -> Unit) -> Unit,
-    dashboardScreen: @Composable () -> Unit,
-    tasksScreen: @Composable () -> Unit,
-    usersScreen: @Composable () -> Unit,
-    testsScreen: @Composable () -> Unit
+    homeScreen: @Composable (onLogout: () -> Unit) -> Unit
 ) {
     NavHost(
         navController = navigationState.navController,
-        startDestination = Screen.Auth.route
+        startDestination = RootRoute.AUTH
     ) {
 
-        composable(Screen.Auth.route) {
+        composable(RootRoute.AUTH) {
             authScreen {
-                navigationState.navigateAndClearBackStack(
-                    Screen.Home.Dashboard.route
-                )
+                navigationState.navigateAndClearBackStack(RootRoute.HOME)
             }
         }
 
-        composable(Screen.Home.Dashboard.route) { dashboardScreen() }
-        composable(Screen.Home.Tasks.route) { tasksScreen() }
-        composable(Screen.Home.Users.route) { usersScreen() }
-        composable(Screen.Home.Tests.route) { testsScreen() }
+        composable(RootRoute.HOME) {
+            homeScreen {
+                navigationState.navigateAndClearBackStack(RootRoute.AUTH)
+            }
+        }
     }
 }
 

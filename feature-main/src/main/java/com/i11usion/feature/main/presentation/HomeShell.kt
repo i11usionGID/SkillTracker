@@ -37,17 +37,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.i11usion.core.navigation.Screen
 import com.i11usion.core.ui.R
 import com.i11usion.core.ui.model.Logo
 import com.i11usion.feature.main.presentation.drawer.DrawerContent
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(
-    state: HomeUiState,
-    onDrawerItemClick: (Screen) -> Unit,
-    onLogoutClick: () -> Unit
+fun HomeShell(
+    state: HomeState.Content,
+    onDrawerItemClick: (String) -> Unit,
+    onLogoutClick: () -> Unit,
+    content: @Composable () -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -95,20 +95,20 @@ fun HomeScreen(
                 ) {
                     DrawerContent(
                         items = state.drawerItems,
-                        selectedScreen = state.selectedScreen,
-                        onItemClick = { screen ->
-                            onDrawerItemClick(screen)
+                        selectedRoute = state.selectedScreenRoute,
+                        userRole = state.role,
+                        onItemClick = { route ->
+                            onDrawerItemClick(route)
                             scope.launch { drawerState.close() }
                         }
                     )
                 }
             }
         ) {
-            Box(Modifier.padding(padding)) { Text("Контент") }
+            Box(Modifier.padding(padding)) { content() }
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -183,4 +183,3 @@ private fun CustomIconButton(
         )
     }
 }
-

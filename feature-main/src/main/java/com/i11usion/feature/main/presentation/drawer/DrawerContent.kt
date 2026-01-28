@@ -18,14 +18,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.i11usion.core.navigation.Screen
+import com.i11usion.core.domain.model.Role
 import com.i11usion.feature.main.R
 
 @Composable
 fun DrawerContent(
     items: List<DrawerItem>,
-    selectedScreen: Screen?,
-    onItemClick: (Screen) -> Unit
+    selectedRoute: String?,
+    userRole: Role,
+    onItemClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -33,12 +34,13 @@ fun DrawerContent(
             .padding(16.dp)
     ) {
         items.forEach { item ->
-            val selected = item.screen == selectedScreen
+            val selected = item.screenRoute == selectedRoute
 
             NavigationDrawerItem(
                 label = {
+                    val titleRes = item.titleResByRole[userRole] ?: R.string.unknown_role
                     Text(
-                        text = item.title,
+                        text = stringResource(titleRes),
                         fontWeight = FontWeight.Normal,
                         fontSize = 18.sp
                     )
@@ -51,7 +53,7 @@ fun DrawerContent(
                     )
                 },
                 selected = selected,
-                onClick = { onItemClick(item.screen) },
+                onClick = { onItemClick(item.screenRoute) },
                 shape = if (selected) {
                     RoundedCornerShape(16.dp)
                 } else {
