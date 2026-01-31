@@ -2,18 +2,12 @@ package com.i11usion.core.network.auth
 
 import com.i11usion.core.network.model.auth.LoginRequestDto
 import com.i11usion.core.network.model.auth.LoginResponse
-import com.i11usion.core.network.model.auth.RegisterRequest
 import com.i11usion.core.network.model.user.UserDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface AuthService {
-
-    @POST("/api/auth/register")
-    suspend fun register(
-        @Body request: RegisterRequest
-    )
 
     @POST("/api/auth/login")
     suspend fun login(
