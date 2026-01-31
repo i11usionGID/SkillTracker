@@ -43,7 +43,6 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:common"))
     implementation(project(":core:di"))
-    implementation(project(":core:network"))
     implementation(project(":core:domain"))
     implementation(project(":core:navigation"))
     implementation(libs.dagger2)

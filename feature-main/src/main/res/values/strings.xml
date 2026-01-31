@@ -10,4 +10,18 @@
     <string name="cd_logout">Выход из учетной записи</string>
     <string name="cd_menu">Меню</string>
     <string name="cd_menu_item">Элемент меню</string>
+    <string name="subtitle_employee">Ваши текущие задачи</string>
+    <string name="subtitle_manager">Вы управляете проектами</string>
+    <string name="total_task">Всего задач</string>
+    <string name="cd_total_task">Количество всех задач</string>
+    <string name="in_work">В работе</string>
+    <string name="cd_task_in_work">Количество задач в работе</string>
+    <string name="task_done">Завершено</string>
+    <string name="cd_task_done">Количество выполненных задач</string>
+    <string name="cd_task_waitting">Количество задачи со статусом \"Ожидают\"</string>
+    <string name="task_waitting">Ожидают</string>
+    <string name="latest_tasks">Последние задачи</string>
+    <string name="check_all">Посмотреть все</string>
+    <string name="check_all_tasks">Посмотреть все задачи</string>
+    <string name="no_task_yet">Пока нет задач</string>
 </resources>

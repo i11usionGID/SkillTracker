@@ -1,0 +1,18 @@
+package com.i11usion.core.domain.mapper
+
+import com.i11usion.core.domain.model.DashboardStats
+import com.i11usion.core.domain.model.Task
+import com.i11usion.core.domain.model.TaskStatus
+
+fun List<Task>.toStats(): DashboardStats {
+    val pending = count { it.status == TaskStatus.PENDING }
+    val inProgress = count { it.status == TaskStatus.IN_PROGRESS }
+    val done = count { it.status == TaskStatus.DONE }
+
+    return DashboardStats(
+        total = size,
+        pending = pending,
+        inProgress = inProgress,
+        done = done
+    )
+}

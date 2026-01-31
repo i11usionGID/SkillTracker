@@ -103,6 +103,7 @@ fun AuthScreen(
 
                 InputField(
                     placeholderText = "username",
+                    isLoading = state.isLoading,
                     isPassword = false,
                     query = state.username,
                     onQueryChanged = { viewModel.onUsernameChange(it) }
@@ -115,6 +116,7 @@ fun AuthScreen(
 
                 InputField(
                     placeholderText = "••••••••",
+                    isLoading = state.isLoading,
                     isPassword = true,
                     query = state.password,
                     onQueryChanged = { viewModel.onPasswordChange(it) }
@@ -184,6 +186,7 @@ fun AuthScreen(
 @Composable
 private fun InputField(
     modifier: Modifier = Modifier,
+    isLoading: Boolean,
     isPassword: Boolean,
     placeholderText: String,
     query: String,
@@ -196,6 +199,7 @@ private fun InputField(
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChanged,
+        enabled = !isLoading,
         placeholder = {
             if (!isFocused) {
                 Text(text = placeholderText)
@@ -209,9 +213,9 @@ private fun InputField(
             PasswordVisualTransformation()
         } else VisualTransformation.None,
         colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = MaterialTheme.colorScheme.surface,
+            unfocusedBorderColor = MaterialTheme.colorScheme.surfaceBright,
             focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedPlaceholderColor = MaterialTheme.colorScheme.surface,
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.surfaceBright,
         )
     )
 }

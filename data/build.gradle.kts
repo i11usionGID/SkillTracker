@@ -13,6 +13,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 }
 
@@ -26,7 +27,7 @@ dependencies {
     api(project(":core:domain"))
     implementation(project(":core:network"))
     implementation(project(":core:di"))
-
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.androidx.core.ktx)
     implementation(libs.dagger2)
     ksp(libs.dagger2.compiler)

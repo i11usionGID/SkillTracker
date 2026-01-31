@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.i11usion.core.navigation.HomeRoutes
+import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
 
 @Composable
 fun HomeTabsNavHost(
@@ -15,7 +16,12 @@ fun HomeTabsNavHost(
         navController = navController,
         startDestination = HomeRoutes.DASHBOARD
     ) {
-        composable(HomeRoutes.DASHBOARD) { Text("DASHBOARD") }
+        composable(HomeRoutes.DASHBOARD) {
+            DashboardScreen(
+                onCheckAllTaskClick = {},
+                onTaskCardClick = {}
+            )
+        }
         composable(HomeRoutes.TASKS) { Text("TASKS") }
         composable(HomeRoutes.USERS) { Text("USERS") }
         composable(HomeRoutes.TESTS) { Text("TESTS") }
