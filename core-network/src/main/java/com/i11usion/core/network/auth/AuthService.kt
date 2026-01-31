@@ -1,9 +1,9 @@
-package com.i11usion.core.network
+package com.i11usion.core.network.auth
 
-import com.i11usion.core.network.model.LoginRequestDto
-import com.i11usion.core.network.model.LoginResponse
-import com.i11usion.core.network.model.RegisterRequest
-import com.i11usion.core.network.model.UserDto
+import com.i11usion.core.network.model.auth.LoginRequestDto
+import com.i11usion.core.network.model.auth.LoginResponse
+import com.i11usion.core.network.model.auth.RegisterRequest
+import com.i11usion.core.network.model.user.UserDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

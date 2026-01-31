@@ -1,11 +1,11 @@
-package com.i11usion.core.network
+package com.i11usion.core.network.auth
 
-import com.i11usion.core.domain.repository.TokenRepository
+import com.i11usion.core.domain.usecase.GetAccessTokenUseCase
 import okhttp3.Interceptor
 import okhttp3.Response
 
 class AuthInterceptor(
-    private val tokenRepository: TokenRepository
+    private val getAccessTokenUseCase: GetAccessTokenUseCase
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -18,7 +18,7 @@ class AuthInterceptor(
             return chain.proceed(request)
         }
 
-        val token = tokenRepository.getAccessToken()
+        val token = getAccessTokenUseCase()
 
         val authorizedRequest = if (token != null) {
             request.newBuilder()

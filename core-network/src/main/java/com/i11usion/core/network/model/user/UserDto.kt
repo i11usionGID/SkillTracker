@@ -1,4 +1,4 @@
-package com.i11usion.core.network.model
+package com.i11usion.core.network.model.user
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

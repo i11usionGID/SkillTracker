@@ -3,7 +3,7 @@ package com.i11usion.feature.main.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i11usion.core.domain.model.Role
-import com.i11usion.core.domain.usecase.LoadProfileUseCase
+import com.i11usion.core.domain.usecase.GetUserInfoUseCase
 import com.i11usion.core.domain.usecase.LogoutUseCase
 import com.i11usion.feature.main.presentation.drawer.DrawerConfig
 import com.i11usion.feature.main.presentation.drawer.DrawerItem
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
-    private val loadProfileUseCase: LoadProfileUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase,
     private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
@@ -44,19 +44,15 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadUser() {
-        viewModelScope.launch {
-            runCatching { loadProfileUseCase() }
-                .onSuccess { user ->
-                    val filtered = DrawerConfig.items.filter { user.role in it.allowedRoles }
-                    _state.value = HomeState.Content(
-                        userName = user.name,
-                        role = user.role,
-                        drawerItems = filtered
-                    )
-                }
-                .onFailure {
-                    _state.value = HomeState.Error(message = "ERROR")
-                }
+        getUserInfoUseCase()?.let { user ->
+            val filtered = DrawerConfig.items.filter { user.role in it.allowedRoles }
+            _state.value = HomeState.Content(
+                userName = user.name,
+                role = user.role,
+                drawerItems = filtered
+            )
+        } ?: {
+            _state.value = HomeState.Error(message = "ERROR")
         }
     }
 }

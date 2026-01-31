@@ -1,5 +1,6 @@
-package com.i11usion.core.network.model
+package com.i11usion.core.network.model.auth
 
+import com.i11usion.core.network.model.user.UserDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

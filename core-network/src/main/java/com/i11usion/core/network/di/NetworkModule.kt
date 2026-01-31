@@ -1,8 +1,9 @@
 package com.i11usion.core.network.di
 
-import com.i11usion.core.domain.repository.TokenRepository
-import com.i11usion.core.network.AuthInterceptor
-import com.i11usion.core.network.AuthService
+import com.i11usion.core.domain.usecase.GetAccessTokenUseCase
+import com.i11usion.core.network.auth.AuthInterceptor
+import com.i11usion.core.network.auth.AuthService
+import com.i11usion.core.network.task.TaskService
 import com.i11usion.di.ApplicationScope
 import dagger.Module
 import dagger.Provides
@@ -23,9 +24,9 @@ object NetworkModule {
     @ApplicationScope
     @Provides
     fun provideAuthInterceptor(
-        tokenRepository: TokenRepository
+        getAccessTokenUseCase: GetAccessTokenUseCase
     ): AuthInterceptor =
-        AuthInterceptor(tokenRepository)
+        AuthInterceptor(getAccessTokenUseCase)
 
     @ApplicationScope
     @Provides
@@ -51,8 +52,15 @@ object NetworkModule {
 
     @ApplicationScope
     @Provides
-    fun provideAuthApi(
+    fun provideAuthService(
         retrofit: Retrofit
     ): AuthService =
         retrofit.create(AuthService::class.java)
+
+    @ApplicationScope
+    @Provides
+    fun provideTaskService(
+        retrofit: Retrofit
+    ): TaskService =
+        retrofit.create(TaskService::class.java)
 }

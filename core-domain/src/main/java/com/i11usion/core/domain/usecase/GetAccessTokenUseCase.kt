@@ -1,10 +1,10 @@
 package com.i11usion.core.domain.usecase
 
-import com.i11usion.core.domain.repository.TokenRepository
+import com.i11usion.core.domain.repository.SessionRepository
 import javax.inject.Inject
 
 class GetAccessTokenUseCase @Inject constructor(
-    val repository: TokenRepository
+    val repository: SessionRepository
 ) {
 
     operator fun invoke(): String? {

@@ -1,4 +1,4 @@
-package com.i11usion.core.network.model
+package com.i11usion.core.network.model.auth
 
 import kotlinx.serialization.Serializable
 
