@@ -1,6 +1,7 @@
-package com.i11usion.feature.main.presentation.dashboard.model
+package com.i11usion.feature.main.presentation.model
 
 import com.i11usion.core.domain.model.User
+import com.i11usion.feature.main.presentation.dashboard.model.TaskUiStatus
 
 data class TaskUi(
     val id: Int,

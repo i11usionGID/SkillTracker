@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.i11usion.di.ViewModelKey
 import com.i11usion.feature.main.presentation.HomeViewModel
 import com.i11usion.feature.main.presentation.dashboard.DashboardViewModel
+import com.i11usion.feature.main.presentation.task.TaskViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -19,4 +20,9 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(DashboardViewModel::class)
     fun bindDashboardViewModel(vm: DashboardViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TaskViewModel::class)
+    fun bindTaskViewModel(vm: TaskViewModel): ViewModel
 }

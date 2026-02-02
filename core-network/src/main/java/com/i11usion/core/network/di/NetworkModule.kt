@@ -4,6 +4,7 @@ import com.i11usion.core.domain.usecase.GetAccessTokenUseCase
 import com.i11usion.core.network.auth.AuthInterceptor
 import com.i11usion.core.network.auth.AuthService
 import com.i11usion.core.network.task.TaskService
+import com.i11usion.core.network.users.UserService
 import com.i11usion.di.ApplicationScope
 import dagger.Module
 import dagger.Provides
@@ -63,4 +64,11 @@ object NetworkModule {
         retrofit: Retrofit
     ): TaskService =
         retrofit.create(TaskService::class.java)
+
+    @ApplicationScope
+    @Provides
+    fun provideUsersService(
+        retrofit: Retrofit
+    ): UserService =
+        retrofit.create(UserService::class.java)
 }

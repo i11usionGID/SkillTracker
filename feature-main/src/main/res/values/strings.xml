@@ -24,4 +24,17 @@
     <string name="check_all">Посмотреть все</string>
     <string name="check_all_tasks">Посмотреть все задачи</string>
     <string name="no_task_yet">Пока нет задач</string>
+    <string name="tasks">Задачи</string>
+    <string name="manage_task_and_projects">Управление задачами и проектами</string>
+    <string name="cd_add_task">Создать задачу</string>
+    <string name="create_task">Создать задачу</string>
+    <string name="search_text">Поиск по названию или описанию.</string>
+    <string name="cd_search">Поле для поиска задач по названию или описанию</string>
+    <string name="search">Поиск</string>
+    <string name="status">Статус</string>
+    <string name="employees">Сотрудники</string>
+    <string name="cd_tasks_not_found">Задач не найдено</string>
+    <string name="tasks_not_found">Задач не найдено</string>
+    <string name="cd_employee_task">Работник, назначенный на выполнение задачи</string>
+    <string name="cd_deadline_date">Дата дедлайна</string>
 </resources>

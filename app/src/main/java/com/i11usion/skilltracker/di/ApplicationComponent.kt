@@ -13,8 +13,8 @@ import dagger.Component
 @ApplicationScope
 @Component(
     modules = [
-        DataModule::class,
         NetworkModule::class,
+        DataModule::class,
         AuthViewModelModule::class,
         MainViewModelModule::class
     ]

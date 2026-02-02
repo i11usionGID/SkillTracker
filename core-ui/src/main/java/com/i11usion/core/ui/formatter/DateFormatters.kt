@@ -5,10 +5,10 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private val dashboardDateFormatter: DateTimeFormatter =
+private val dateFormatter: DateTimeFormatter =
     DateTimeFormatter
         .ofPattern("d MMMM yyyy 'г.'", Locale.forLanguageTag("ru-RU"))
         .withZone(ZoneId.systemDefault())
 
-fun formatDashboardDate(instant: Instant?): String =
-    instant?.let { dashboardDateFormatter.format(it) } ?: ""
+fun formatInstantToStringData(instant: Instant?): String =
+    instant?.let { dateFormatter.format(it) } ?: ""
