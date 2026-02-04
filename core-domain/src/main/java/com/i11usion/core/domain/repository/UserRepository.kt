@@ -10,4 +10,6 @@ interface UserRepository {
         search: String?,
         role: String?
     ): List<User>
+
+    suspend fun deleteUser(userId: Int)
 }

@@ -1,6 +1,6 @@
 package com.i11usion.core.network.model.user
 
-import kotlinx.serialization.SerialName
+import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -9,5 +9,5 @@ data class UserDto(
     val username: String,
     val name: String,
     val role: String,
-    @SerialName("created_at") val createdAt: String
+    @SerializedName("created_at") val createdAt: String?
 )

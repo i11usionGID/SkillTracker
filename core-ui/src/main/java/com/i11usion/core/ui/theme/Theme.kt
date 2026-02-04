@@ -27,9 +27,10 @@ private val LightColorScheme = lightColorScheme(
     surfaceTint = Gray300,
     surfaceVariant = Gray400,
     onSurfaceVariant = Gray500,
-    error = Red200,
+    error = Red300,
     errorContainer = Red100,
-    onErrorContainer = Red200,
+    onError = Red200,
+    onErrorContainer = Red300,
 )
 
 @Composable

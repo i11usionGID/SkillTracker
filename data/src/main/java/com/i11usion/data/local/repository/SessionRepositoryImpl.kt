@@ -6,6 +6,7 @@ import androidx.core.content.edit
 import com.i11usion.core.domain.model.Role
 import com.i11usion.core.domain.model.User
 import com.i11usion.core.domain.repository.SessionRepository
+import java.time.Instant
 import javax.inject.Inject
 
 class SessionRepositoryImpl @Inject constructor(
@@ -23,12 +24,14 @@ class SessionRepositoryImpl @Inject constructor(
         val role = prefs.getString(USER_ROLE, null)
             ?.let { runCatching { Role.valueOf(it) }.getOrNull() }
             ?: return null
+        val createdAt = prefs.getString(USER_CREATED_AT, null) ?: return null
 
         return User(
             id = prefs.getInt(USER_ID, 0),
             name = name,
             username = username,
-            role = role
+            role = role,
+            createdAt = Instant.parse(createdAt)
         )
     }
 
@@ -38,6 +41,7 @@ class SessionRepositoryImpl @Inject constructor(
             putString(USER_NAME, user.name)
             putString(USER_USERNAME, user.username)
             putString(USER_ROLE, user.role.name)
+            putString(USER_CREATED_AT, user.createdAt.toString())
         }
     }
 
@@ -56,5 +60,6 @@ class SessionRepositoryImpl @Inject constructor(
         private const val USER_NAME = "user_name"
         private const val USER_USERNAME = "user_username"
         private const val USER_ROLE = "user_role"
+        private const val USER_CREATED_AT = "user_created_at"
     }
 }

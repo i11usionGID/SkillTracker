@@ -28,7 +28,7 @@
     <string name="manage_task_and_projects">Управление задачами и проектами</string>
     <string name="cd_add_task">Создать задачу</string>
     <string name="create_task">Создать задачу</string>
-    <string name="search_text">Поиск по названию или описанию.</string>
+    <string name="search_text_task">Поиск по названию или описанию.</string>
     <string name="cd_search">Поле для поиска задач по названию или описанию</string>
     <string name="search">Поиск</string>
     <string name="status">Статус</string>
@@ -37,4 +37,16 @@
     <string name="tasks_not_found">Задач не найдено</string>
     <string name="cd_employee_task">Работник, назначенный на выполнение задачи</string>
     <string name="cd_deadline_date">Дата дедлайна</string>
+    <string name="users">Пользователи</string>
+    <string name="manage_team">Управление командой</string>
+    <string name="add_user">Добавить пользователя</string>
+    <string name="search_text_user">Поиск по имени или username</string>
+    <string name="role">Роль</string>
+    <string name="created_at">"Создан: "</string>
+    <string name="delete">Удалить</string>
+    <string name="delete_user_question">Удалить пользователя?</string>
+    <string name="confirmation_delete_user">Вы уверены, что хотите удалить пользователя @</string>
+    <string name="Cancel">Отмена</string>
+    <string name="user_not_found">Пользователей не найдено</string>
+    <string name="cd_user_not_found">Пользователей не найдено</string>
 </resources>

@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
 import com.i11usion.feature.main.presentation.task.TaskScreen
+import com.i11usion.feature.main.presentation.user.UserScreen
 
 @Composable
 fun HomeTabsNavHost(
@@ -29,7 +30,11 @@ fun HomeTabsNavHost(
                 onTaskCardClick = {}
             )
         }
-        composable(HomeRoutes.USERS) { Text("USERS") }
+        composable(HomeRoutes.USERS) {
+            UserScreen(
+                onCreateUserClick = {}
+            )
+        }
         composable(HomeRoutes.TESTS) { Text("TESTS") }
     }
 }

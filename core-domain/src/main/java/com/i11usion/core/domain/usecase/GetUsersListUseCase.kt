@@ -5,7 +5,7 @@ import com.i11usion.core.domain.repository.UserRepository
 import javax.inject.Inject
 
 class GetUsersListUseCase @Inject constructor(
-    val repository: UserRepository
+    private val repository: UserRepository
 ) {
     suspend operator fun invoke(
         page: Int?,

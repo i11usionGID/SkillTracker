@@ -25,4 +25,8 @@ class UserRepositoryImpl @Inject constructor(
             it.userDtoToUser()
         }
     }
+
+    override suspend fun deleteUser(userId: Int) {
+        userService.deleteUser(userId)
+    }
 }
