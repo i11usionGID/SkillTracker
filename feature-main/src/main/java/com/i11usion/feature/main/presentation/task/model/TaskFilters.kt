@@ -7,4 +7,3 @@ data class TaskFilters(
     val status: TaskStatus? = null,
     val employeeId: Int? = null
 )
-

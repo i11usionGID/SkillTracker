@@ -51,6 +51,7 @@ dependencies {
     implementation(project(":feature:main"))
     implementation(project(":core:ui"))
     implementation(project(":core:di"))
+    implementation(project(":core:domain"))
     implementation(project(":core:network"))
     implementation(project(":core:navigation"))
     implementation(project(":data"))

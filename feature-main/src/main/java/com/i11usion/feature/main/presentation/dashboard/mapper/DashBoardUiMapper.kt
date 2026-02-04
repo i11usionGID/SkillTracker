@@ -2,14 +2,14 @@ package com.i11usion.feature.main.presentation.dashboard.mapper
 
 import com.i11usion.core.domain.model.DashboardData
 import com.i11usion.core.domain.model.DashboardStats
-import com.i11usion.core.ui.formatter.formatInstantToStringData
+import com.i11usion.core.ui.formatter.formatInstantToStringDataNullable
 import com.i11usion.feature.main.presentation.dashboard.model.DashboardDataUi
 import com.i11usion.feature.main.presentation.dashboard.model.DashboardStatsUi
 
 fun DashboardData.dashboardDataToDashboardDataUi(): DashboardDataUi {
     return DashboardDataUi(
         stats = stats.toDashboardStateUi(),
-        latest = latest.map { it.taskToTaskUi { date -> formatInstantToStringData(date) } }
+        latest = latest.map { it.taskToTaskUi { date -> formatInstantToStringDataNullable(date) } }
     )
 }
 

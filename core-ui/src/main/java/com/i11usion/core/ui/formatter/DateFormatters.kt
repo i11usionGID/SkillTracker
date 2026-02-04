@@ -10,5 +10,8 @@ private val dateFormatter: DateTimeFormatter =
         .ofPattern("d MMMM yyyy 'г.'", Locale.forLanguageTag("ru-RU"))
         .withZone(ZoneId.systemDefault())
 
-fun formatInstantToStringData(instant: Instant?): String =
+fun formatInstantToStringDataNullable(instant: Instant?): String =
     instant?.let { dateFormatter.format(it) } ?: ""
+
+fun formatInstantToStringData(instant: Instant): String =
+    dateFormatter.format(instant)

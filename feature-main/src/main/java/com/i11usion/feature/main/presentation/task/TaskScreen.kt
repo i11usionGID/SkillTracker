@@ -100,7 +100,7 @@ fun TaskScreen(
                     FilterCard(
                         role = state.user!!.role,
                         query = state.taskFilters.query,
-                        selectedStatus = state.taskFilters.role,
+                        selectedStatus = state.taskFilters.status,
                         employees = state.employees,
                         selectedEmployeeId = state.taskFilters.employeeId,
                         onQueryChanged = { viewModel.processCommand(TaskCommand.InputSearchQuery(it)) },

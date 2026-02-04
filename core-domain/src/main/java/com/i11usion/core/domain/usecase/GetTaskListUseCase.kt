@@ -7,7 +7,7 @@ import com.i11usion.core.domain.repository.TaskRepository
 import javax.inject.Inject
 
 class GetTaskListUseCase @Inject constructor(
-    val repository: TaskRepository
+    private val repository: TaskRepository
 ) {
     suspend operator fun invoke(
         status: TaskStatus?,

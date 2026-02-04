@@ -62,8 +62,8 @@ class TaskViewModel @Inject constructor(
             }
 
             is TaskCommand.SelectStatus -> {
-                _state.update { st -> st.copy(taskFilters = st.taskFilters.copy(role = command.status)) }
-                filters.update { it.copy(role = command.status) }
+                _state.update { st -> st.copy(taskFilters = st.taskFilters.copy(status = command.status)) }
+                filters.update { it.copy(status = command.status) }
             }
 
             is TaskCommand.SelectEmployee -> {
@@ -130,11 +130,11 @@ class TaskViewModel @Inject constructor(
             .distinctUntilChanged()
             .debounce(300)
 
-        val statusFlow = filters.map { it.role }.distinctUntilChanged()
+        val statusFlow = filters.map { it.status }.distinctUntilChanged()
         val employeeFlow = filters.map { it.employeeId }.distinctUntilChanged()
 
         combine(queryFlow, statusFlow, employeeFlow) { q, s, e ->
-            TaskFilters(query = q, role = s, employeeId = e)
+            TaskFilters(query = q, status = s, employeeId = e)
         }
             .distinctUntilChanged()
             .let { filtersFlow ->
@@ -149,7 +149,7 @@ class TaskViewModel @Inject constructor(
             .mapLatest { currentFilters ->
                 val result = runCatching {
                     getTaskListUseCase(
-                        status = currentFilters.role,
+                        status = currentFilters.status,
                         employeeId = currentFilters.employeeId,
                         search = currentFilters.query
                     ).map { it.taskToTaskUi { date -> formatInstantToStringDataNullable(date) } }
