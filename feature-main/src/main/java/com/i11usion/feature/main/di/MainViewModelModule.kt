@@ -5,6 +5,7 @@ import com.i11usion.di.ViewModelKey
 import com.i11usion.feature.main.presentation.HomeViewModel
 import com.i11usion.feature.main.presentation.dashboard.DashboardViewModel
 import com.i11usion.feature.main.presentation.task.TaskViewModel
+import com.i11usion.feature.main.presentation.user.UserViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -25,4 +26,9 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(TaskViewModel::class)
     fun bindTaskViewModel(vm: TaskViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(UserViewModel::class)
+    fun bindUserViewModel(vm: UserViewModel): ViewModel
 }
