@@ -1,12 +1,12 @@
 package com.i11usion.feature.main.navigation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
+import com.i11usion.feature.main.presentation.quiz.QuizScreen
 import com.i11usion.feature.main.presentation.task.TaskScreen
 import com.i11usion.feature.main.presentation.user.UserScreen
 
@@ -35,6 +35,13 @@ fun HomeTabsNavHost(
                 onCreateUserClick = {}
             )
         }
-        composable(HomeRoutes.TESTS) { Text("TESTS") }
+        composable(HomeRoutes.TESTS) {
+            QuizScreen(
+                onCreateTestClick = {},
+                onOpenQuestionListClick = {},
+                onOpenQuizClick = {},
+                onStartTestingClick = {}
+            )
+        }
     }
 }

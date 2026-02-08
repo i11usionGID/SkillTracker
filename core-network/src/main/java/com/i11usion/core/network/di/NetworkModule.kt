@@ -3,6 +3,7 @@ package com.i11usion.core.network.di
 import com.i11usion.core.domain.usecase.GetAccessTokenUseCase
 import com.i11usion.core.network.auth.AuthInterceptor
 import com.i11usion.core.network.auth.AuthService
+import com.i11usion.core.network.quiz.QuizService
 import com.i11usion.core.network.task.TaskService
 import com.i11usion.core.network.users.UserService
 import com.i11usion.di.ApplicationScope
@@ -71,4 +72,11 @@ object NetworkModule {
         retrofit: Retrofit
     ): UserService =
         retrofit.create(UserService::class.java)
+
+    @ApplicationScope
+    @Provides
+    fun provideQuizService(
+        retrofit: Retrofit
+    ): QuizService =
+        retrofit.create(QuizService::class.java)
 }
