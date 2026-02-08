@@ -219,12 +219,13 @@ fun UserScreen(
 
 @Composable
 private fun UserHeader(
+    modifier: Modifier = Modifier,
     onCreateUserClick: () -> Unit
 ) {
     Spacer(modifier = Modifier.height(16.dp))
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -358,7 +359,7 @@ private fun SearchField(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = stringResource(R.string.cd_search),
+                contentDescription = stringResource(R.string.cd_search_text_user),
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.surfaceVariant
             )

@@ -16,3 +16,12 @@ fun List<Task>.toStats(): DashboardStats {
         done = done
     )
 }
+
+fun TaskStatus.taskStatusToString(): String? {
+    return when(this) {
+        TaskStatus.PENDING -> "pending"
+        TaskStatus.IN_PROGRESS -> "in_progress"
+        TaskStatus.DONE -> "done"
+        TaskStatus.UNKNOWN -> null
+    }
+}

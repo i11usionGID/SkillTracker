@@ -365,7 +365,7 @@ private fun SearchField(
         placeholder = {
             if (!isFocused) {
                 Text(
-                    stringResource(R.string.search_text_task),
+                    stringResource(R.string.search_text_task_or_quiz),
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     fontSize = 16.sp
                 )
@@ -374,7 +374,7 @@ private fun SearchField(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = stringResource(R.string.cd_search),
+                contentDescription = "Поле для поиска",
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.surfaceVariant
             )
