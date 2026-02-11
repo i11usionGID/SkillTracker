@@ -1,7 +1,7 @@
 package com.i11usion.feature.main.presentation.dashboard.mapper
 
-import com.i11usion.core.domain.model.DashboardData
-import com.i11usion.core.domain.model.DashboardStats
+import com.i11usion.core.domain.model.dashboard.DashboardData
+import com.i11usion.core.domain.model.dashboard.DashboardStats
 import com.i11usion.core.ui.formatter.formatInstantToStringDataNullable
 import com.i11usion.feature.main.presentation.dashboard.model.DashboardDataUi
 import com.i11usion.feature.main.presentation.dashboard.model.DashboardStatsUi

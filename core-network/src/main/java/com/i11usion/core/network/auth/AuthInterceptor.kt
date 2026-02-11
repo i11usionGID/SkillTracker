@@ -1,6 +1,6 @@
 package com.i11usion.core.network.auth
 
-import com.i11usion.core.domain.usecase.GetAccessTokenUseCase
+import com.i11usion.core.domain.usecase.session.GetAccessTokenUseCase
 import okhttp3.Interceptor
 import okhttp3.Response
 

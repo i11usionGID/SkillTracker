@@ -2,8 +2,8 @@ package com.i11usion.feature.auth.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.i11usion.core.domain.usecase.CheckAuthUseCase
-import com.i11usion.core.domain.usecase.LoginUseCase
+import com.i11usion.core.domain.usecase.auth.CheckAuthUseCase
+import com.i11usion.core.domain.usecase.auth.LoginUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow

@@ -51,7 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.i11usion.core.domain.model.Role
+import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.ui.di.LocalViewModelFactory
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.user.model.UserUiModel
@@ -199,7 +199,7 @@ fun UserScreen(
                     dismissButton = {
                         Button(
                             onClick = { userToDelete = null },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceBright)
                         ) {
                             Text(stringResource(R.string.Cancel))
                         }

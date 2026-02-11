@@ -1,7 +1,7 @@
 package com.i11usion.feature.main.presentation.dashboard.mapper
 
-import com.i11usion.core.domain.model.Task
-import com.i11usion.core.domain.model.TaskStatus
+import com.i11usion.core.domain.model.task.Task
+import com.i11usion.core.domain.model.task.TaskStatus
 import com.i11usion.feature.main.presentation.dashboard.model.TaskUiStatus
 import com.i11usion.feature.main.presentation.model.TaskUi
 import java.time.Instant
@@ -39,6 +39,6 @@ fun Task.taskToTaskUi(dateFormatter: (Instant?) -> String): TaskUi {
         deadline = dateFormatter(deadline),
         createdAt = dateFormatter(deadline),
         updatedAt = dateFormatter(deadline),
-        employee = employee
+        employee = employee.userToUserUiModel(formatter = dateFormatter)
     )
 }

@@ -2,11 +2,11 @@ package com.i11usion.feature.main.presentation.user
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.i11usion.core.domain.model.Role
-import com.i11usion.core.domain.usecase.DeleteUserUseCase
-import com.i11usion.core.domain.usecase.GetUsersListUseCase
+import com.i11usion.core.domain.model.user.Role
+import com.i11usion.core.domain.usecase.user.DeleteUserUseCase
+import com.i11usion.core.domain.usecase.user.GetUsersListUseCase
 import com.i11usion.core.ui.formatter.formatInstantToStringData
-import com.i11usion.feature.main.presentation.user.mapper.userToUserUiModel
+import com.i11usion.feature.main.presentation.dashboard.mapper.userToUserUiModel
 import com.i11usion.feature.main.presentation.user.model.UserFilters
 import com.i11usion.feature.main.presentation.user.model.UserUiModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -1,7 +1,7 @@
 package com.i11usion.feature.main.presentation.model
 
-import com.i11usion.core.domain.model.User
 import com.i11usion.feature.main.presentation.dashboard.model.TaskUiStatus
+import com.i11usion.feature.main.presentation.user.model.UserUiModel
 
 data class TaskUi(
     val id: Int,
@@ -13,5 +13,5 @@ data class TaskUi(
     val deadline: String?,
     val createdAt: String,
     val updatedAt: String?,
-    val employee: User
+    val employee: UserUiModel
 )

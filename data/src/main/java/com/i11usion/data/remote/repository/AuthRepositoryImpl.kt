@@ -1,6 +1,6 @@
 package com.i11usion.data.remote.repository
 
-import com.i11usion.core.domain.model.User
+import com.i11usion.core.domain.model.user.User
 import com.i11usion.core.domain.repository.AuthRepository
 import com.i11usion.core.domain.repository.SessionRepository
 import com.i11usion.core.network.auth.AuthService

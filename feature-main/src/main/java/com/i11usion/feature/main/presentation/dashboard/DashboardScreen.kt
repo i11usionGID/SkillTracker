@@ -37,7 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.i11usion.core.domain.model.Role
+import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.ui.di.LocalViewModelFactory
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.dashboard.model.TaskUiStatus
@@ -46,7 +46,7 @@ import com.i11usion.feature.main.presentation.dashboard.model.TaskUiStatus
 fun DashboardScreen(
     modifier: Modifier = Modifier,
     onCheckAllTaskClick: () -> Unit,
-    onTaskCardClick: (String) -> Unit
+    onTaskCardClick: (Int) -> Unit
 ) {
     val viewModel: DashboardViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
@@ -198,7 +198,7 @@ fun DashboardScreen(
                         statusText = task.statusText,
                         statusColor = statusColor,
                         statusContainerColor = statusContainerColor,
-                        onTaskCardClick = { onTaskCardClick(task.id.toString()) }
+                        onTaskCardClick = { onTaskCardClick(task.id) }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }

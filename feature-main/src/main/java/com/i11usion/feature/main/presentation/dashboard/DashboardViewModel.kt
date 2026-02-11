@@ -2,9 +2,9 @@ package com.i11usion.feature.main.presentation.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.i11usion.core.domain.model.User
-import com.i11usion.core.domain.usecase.GetDashboardDataUseCase
-import com.i11usion.core.domain.usecase.GetUserInfoUseCase
+import com.i11usion.core.domain.model.user.User
+import com.i11usion.core.domain.usecase.task.GetDashboardDataUseCase
+import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
 import com.i11usion.feature.main.presentation.dashboard.mapper.dashboardDataToDashboardDataUi
 import com.i11usion.feature.main.presentation.dashboard.model.DashboardDataUi
 import kotlinx.coroutines.async

@@ -1,8 +1,8 @@
 package com.i11usion.data.remote.repository
 
 import android.util.Log
-import com.i11usion.core.domain.model.MyQuizAssignment
-import com.i11usion.core.domain.model.Quiz
+import com.i11usion.core.domain.model.quiz.MyQuizAssignment
+import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.repository.QuizRepository
 import com.i11usion.core.network.quiz.QuizService
 import com.i11usion.data.mapper.dtoToDomain

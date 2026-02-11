@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.i11usion.core.domain.model.Role
+import com.i11usion.core.domain.model.user.Role
 import com.i11usion.feature.main.R
 
 @Composable

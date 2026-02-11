@@ -3,8 +3,8 @@ package com.i11usion.data.local.repository
 import android.app.Application
 import android.content.Context
 import androidx.core.content.edit
-import com.i11usion.core.domain.model.Role
-import com.i11usion.core.domain.model.User
+import com.i11usion.core.domain.model.user.Role
+import com.i11usion.core.domain.model.user.User
 import com.i11usion.core.domain.repository.SessionRepository
 import java.time.Instant
 import javax.inject.Inject

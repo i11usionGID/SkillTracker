@@ -1,7 +1,5 @@
 package com.i11usion.feature.main.presentation.task.detail.model
 
-import java.time.Instant
-
 data class AttachmentUiModel(
     val id: Int,
     val taskId: Int,

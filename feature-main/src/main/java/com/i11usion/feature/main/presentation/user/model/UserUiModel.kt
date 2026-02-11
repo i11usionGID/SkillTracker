@@ -1,6 +1,6 @@
 package com.i11usion.feature.main.presentation.user.model
 
-import com.i11usion.core.domain.model.Role
+import com.i11usion.core.domain.model.user.Role
 
 data class UserUiModel(
     val id: Int,

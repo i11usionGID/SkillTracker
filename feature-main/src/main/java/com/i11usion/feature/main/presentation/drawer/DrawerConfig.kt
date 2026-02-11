@@ -5,7 +5,7 @@ import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.People
-import com.i11usion.core.domain.model.Role
+import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.feature.main.R
 

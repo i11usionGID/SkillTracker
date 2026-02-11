@@ -1,7 +1,7 @@
 package com.i11usion.data.mapper
 
-import com.i11usion.core.domain.model.Role
-import com.i11usion.core.domain.model.User
+import com.i11usion.core.domain.model.user.Role
+import com.i11usion.core.domain.model.user.User
 import com.i11usion.core.network.model.user.UserDto
 import java.time.Instant
 

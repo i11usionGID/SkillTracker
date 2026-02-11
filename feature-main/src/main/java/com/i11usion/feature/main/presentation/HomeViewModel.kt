@@ -2,9 +2,9 @@ package com.i11usion.feature.main.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.i11usion.core.domain.model.Role
-import com.i11usion.core.domain.usecase.GetUserInfoUseCase
-import com.i11usion.core.domain.usecase.LogoutUseCase
+import com.i11usion.core.domain.model.user.Role
+import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
+import com.i11usion.core.domain.usecase.auth.LogoutUseCase
 import com.i11usion.feature.main.presentation.drawer.DrawerConfig
 import com.i11usion.feature.main.presentation.drawer.DrawerItem
 import kotlinx.coroutines.flow.MutableSharedFlow

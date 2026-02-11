@@ -1,7 +1,11 @@
 package com.i11usion.data.mapper
 
-import com.i11usion.core.domain.model.Task
-import com.i11usion.core.domain.model.TaskStatus
+import com.i11usion.core.domain.model.task.Attachment
+import com.i11usion.core.domain.model.task.Comment
+import com.i11usion.core.domain.model.task.Task
+import com.i11usion.core.domain.model.task.TaskStatus
+import com.i11usion.core.network.model.task.AttachmentDto
+import com.i11usion.core.network.model.task.CommentDto
 import com.i11usion.core.network.model.task.TaskDto
 import java.time.Instant
 
@@ -12,12 +16,30 @@ fun TaskDto.taskDtoToTask(): Task =
         description = description,
         status = status.toTaskStatus(),
         progress = progress,
-        deadline = deadline.toInstantOrNull(),
-        createdAt = createdAt.toInstantOrNull()
-            ?: error("Task.createdAt must not be null"),
-        updatedAt = updatedAt.toInstantOrNull()
-            ?: createdAt.toInstantOrNull(),
+        deadline = deadline?.let { Instant.parse(it) },
+        createdAt = Instant.parse(createdAt),
+        updatedAt = Instant.parse(updatedAt),
         employee = employee.userDtoToUser()
+    )
+
+fun CommentDto.dtoToDomain(): Comment = Comment(
+        id = id,
+        taskId = taskId,
+        userId = userId,
+        text = text,
+        createdAt = Instant.parse(createdAt),
+        author = author.userDtoToUser()
+    )
+
+fun AttachmentDto.dtoToDomain(): Attachment =
+    Attachment(
+        id = id,
+        taskId = taskId,
+        uploadedById = uploadedById,
+        storedPath = storedPath,
+        originalFileName = originalFileName,
+        contentType = contentType,
+        createdAt = Instant.parse(createdAt)
     )
 
 fun String.toTaskStatus(): TaskStatus =
@@ -27,10 +49,4 @@ fun String.toTaskStatus(): TaskStatus =
         "done" -> TaskStatus.DONE
         else -> TaskStatus.UNKNOWN
     }
-
-private fun String?.toInstantOrNull(): Instant? =
-    this?.let {
-        runCatching { Instant.parse(it) }.getOrNull()
-    }
-
 

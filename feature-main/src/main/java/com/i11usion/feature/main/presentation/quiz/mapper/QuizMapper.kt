@@ -1,8 +1,8 @@
 package com.i11usion.feature.main.presentation.quiz.mapper
 
-import com.i11usion.core.domain.model.MyQuizAssignment
-import com.i11usion.core.domain.model.Quiz
-import com.i11usion.core.domain.model.QuizStatus
+import com.i11usion.core.domain.model.quiz.MyQuizAssignment
+import com.i11usion.core.domain.model.quiz.Quiz
+import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.feature.main.presentation.quiz.model.QuizEmployeeUiModel
 import com.i11usion.feature.main.presentation.quiz.model.QuizManagerUiModel
 import java.time.Instant

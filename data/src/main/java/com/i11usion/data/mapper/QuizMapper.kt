@@ -1,9 +1,9 @@
 package com.i11usion.data.mapper
 
-import com.i11usion.core.domain.model.MyQuizAssignment
-import com.i11usion.core.domain.model.Quiz
-import com.i11usion.core.domain.model.QuizAssignment
-import com.i11usion.core.domain.model.QuizStatus
+import com.i11usion.core.domain.model.quiz.MyQuizAssignment
+import com.i11usion.core.domain.model.quiz.Quiz
+import com.i11usion.core.domain.model.quiz.QuizAssignment
+import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.core.network.model.quiz.MyQuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuizDto

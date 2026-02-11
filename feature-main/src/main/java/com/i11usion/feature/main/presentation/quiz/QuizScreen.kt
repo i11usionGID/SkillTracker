@@ -52,8 +52,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.i11usion.core.domain.model.QuizStatus
-import com.i11usion.core.domain.model.Role
+import com.i11usion.core.domain.model.quiz.QuizStatus
+import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.ui.di.LocalViewModelFactory
 import com.i11usion.feature.main.R
 

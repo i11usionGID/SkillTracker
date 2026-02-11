@@ -1,8 +1,8 @@
 package com.i11usion.core.domain.mapper
 
-import com.i11usion.core.domain.model.DashboardStats
-import com.i11usion.core.domain.model.Task
-import com.i11usion.core.domain.model.TaskStatus
+import com.i11usion.core.domain.model.dashboard.DashboardStats
+import com.i11usion.core.domain.model.task.Task
+import com.i11usion.core.domain.model.task.TaskStatus
 
 fun List<Task>.toStats(): DashboardStats {
     val pending = count { it.status == TaskStatus.PENDING }
