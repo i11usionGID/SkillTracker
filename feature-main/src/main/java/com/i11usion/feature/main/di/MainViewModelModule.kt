@@ -5,7 +5,8 @@ import com.i11usion.di.ViewModelKey
 import com.i11usion.feature.main.presentation.HomeViewModel
 import com.i11usion.feature.main.presentation.dashboard.DashboardViewModel
 import com.i11usion.feature.main.presentation.quiz.QuizViewModel
-import com.i11usion.feature.main.presentation.task.TaskViewModel
+import com.i11usion.feature.main.presentation.task.detail.TaskDetailViewModel
+import com.i11usion.feature.main.presentation.task.list.TaskViewModel
 import com.i11usion.feature.main.presentation.user.UserViewModel
 import dagger.Binds
 import dagger.Module
@@ -37,4 +38,9 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(QuizViewModel::class)
     fun bindQuizViewModel(vm: QuizViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TaskDetailViewModel::class)
+    fun bindTaskDetailViewModel(vm: TaskDetailViewModel): ViewModel
 }

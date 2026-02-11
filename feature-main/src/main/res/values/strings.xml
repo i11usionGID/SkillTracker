@@ -73,4 +73,23 @@
     <string name="edit">Редактировать</string>
     <string name="no_attempts">Попытки закончились</string>
     <string name="cd_required_quiz">Этот тест необходим для прохождения</string>
+    <string name="cd_back">Кнопка назад</string>
+    <string name="back">Назад</string>
+    <string name="delete_task">Удалить задачу</string>
+    <string name="cd_delete_task">Удалить задачу</string>
+    <string name="worker">Исполнитель</string>
+    <string name="deadline">Срок выполнения</string>
+    <string name="progress">Прогресс</string>
+    <string name="update_progress">Обновить прогресс</string>
+    <string name="percent_complited">% выполнено</string>
+    <string name="cd_upload_attachment">Загрузить файл</string>
+    <string name="upload_attachment">Загрузить файл</string>
+    <string name="attachment">Вложения</string>
+    <string name="no_attacments_yet">Вложений пока нет</string>
+    <string name="cd_attachment">Вложение</string>
+    <string name="comments">Комментарии</string>
+    <string name="add_comment">Добавить комментарий...</string>
+    <string name="send">Отправить</string>
+    <string name="cd_edit_comment">Отредактировать комментарий</string>
+    <string name="cd_delete_comment">Удалить комментарий</string>
 </resources>

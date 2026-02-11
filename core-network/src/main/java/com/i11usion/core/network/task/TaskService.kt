@@ -1,7 +1,16 @@
 package com.i11usion.core.network.task
 
+import com.i11usion.core.network.model.task.AttachmentDto
+import com.i11usion.core.network.model.task.CommentDto
 import com.i11usion.core.network.model.task.TaskDto
+import com.i11usion.core.network.model.task.UpdateProgressRequest
+import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TaskService {
@@ -13,4 +22,50 @@ interface TaskService {
         @Query("employee_id") employeeId: Int? = null,
         @Query("search") search: String? = null
     ): List<TaskDto>
+
+    @GET("/api/tasks/{task_id}")
+    suspend fun getTaskById(
+        @Path("task_id") taskId: Int
+    ): TaskDto
+
+    @PATCH("/api/tasks/{task_id}/progress")
+    suspend fun updateProgress(
+        @Path("task_id") taskId: Int,
+        @Body body: UpdateProgressRequest
+    ): TaskDto
+
+    @GET("/api/tasks/{task_id}/comments")
+    suspend fun getTaskComments(
+        @Path("task_id") taskId: Int
+    ): List<CommentDto>
+
+    @GET("/api/tasks/{task_id}/attachments")
+    suspend fun getTaskAttachments(
+        @Path("task_id") taskId: Int
+    ): List<AttachmentDto>
+
+    @DELETE("/api/tasks/{task_id}/comments/{comment_id}")
+    suspend fun deleteTaskComment(
+        @Path("task_id") taskId: Int,
+        @Path("comment_id") commentId: Int
+    )
+
+    @DELETE("/api/tasks/{task_id}/attachments/{attachment_id}")
+    suspend fun deleteTaskAttachment(
+        @Path("task_id") taskId: Int,
+        @Path("attachment_id") attachmentId: Int
+    )
+
+    @POST("/api/tasks/{task_id}/comments")
+    suspend fun addComment(
+        @Path("task_id") taskId: Int,
+        @Body body: String
+    ): CommentDto
+
+    @PUT("/api/tasks/{task_id}/comments/{comment_id}")
+    suspend fun updateComment(
+        @Path("task_id") taskId: Int,
+        @Path("comment_id") commentId: Int,
+        @Body body: String
+    ): CommentDto
 }
