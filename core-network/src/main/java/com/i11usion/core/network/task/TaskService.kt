@@ -2,8 +2,9 @@ package com.i11usion.core.network.task
 
 import com.i11usion.core.network.model.task.AttachmentDto
 import com.i11usion.core.network.model.task.CommentDto
+import com.i11usion.core.network.model.task.CommentRequestDto
 import com.i11usion.core.network.model.task.TaskDto
-import com.i11usion.core.network.model.task.UpdateProgressRequest
+import com.i11usion.core.network.model.task.UpdateProgressRequestDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -31,7 +32,7 @@ interface TaskService {
     @PATCH("/api/tasks/{task_id}/progress")
     suspend fun updateProgress(
         @Path("task_id") taskId: Int,
-        @Body body: UpdateProgressRequest
+        @Body body: UpdateProgressRequestDto
     ): TaskDto
 
     @GET("/api/tasks/{task_id}/comments")
@@ -59,13 +60,13 @@ interface TaskService {
     @POST("/api/tasks/{task_id}/comments")
     suspend fun addComment(
         @Path("task_id") taskId: Int,
-        @Body body: String
+        @Body body: CommentRequestDto
     ): CommentDto
 
     @PUT("/api/tasks/{task_id}/comments/{comment_id}")
     suspend fun updateComment(
         @Path("task_id") taskId: Int,
         @Path("comment_id") commentId: Int,
-        @Body body: String
+        @Body body: CommentRequestDto
     ): CommentDto
 }

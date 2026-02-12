@@ -32,7 +32,9 @@ fun HomeTabsNavHost(
                 },
                 onTaskCardClick = {
                         taskId ->
-                    navController.navigate(HomeRoutes.taskDetail(taskId))
+                    navController.navigate(HomeRoutes.taskDetail(taskId)) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -40,7 +42,9 @@ fun HomeTabsNavHost(
             TaskScreen(
                 onCreateTaskClick = {},
                 onTaskCardClick = { taskId ->
-                    navController.navigate(HomeRoutes.taskDetail(taskId))
+                    navController.navigate(HomeRoutes.taskDetail(taskId)) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }

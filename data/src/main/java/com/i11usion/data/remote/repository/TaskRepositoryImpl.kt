@@ -5,7 +5,8 @@ import com.i11usion.core.domain.model.task.Comment
 import com.i11usion.core.domain.model.task.Task
 import com.i11usion.core.domain.model.task.TaskStatus
 import com.i11usion.core.domain.repository.TaskRepository
-import com.i11usion.core.network.model.task.UpdateProgressRequest
+import com.i11usion.core.network.model.task.CommentRequestDto
+import com.i11usion.core.network.model.task.UpdateProgressRequestDto
 import com.i11usion.core.network.task.TaskService
 import com.i11usion.data.mapper.dtoToDomain
 import com.i11usion.data.mapper.taskDtoToTask
@@ -41,7 +42,7 @@ class TaskRepositoryImpl @Inject constructor(
         progress: Int,
         status: TaskStatus?
     ): Task {
-        val requestBody = UpdateProgressRequest(
+        val requestBody = UpdateProgressRequestDto(
             progress = progress,
             status = when (status) {
                 TaskStatus.PENDING -> "pending"
@@ -74,7 +75,7 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addComment(taskId: Int, text: String): Comment {
-        return taskService.addComment(taskId = taskId, body = text).dtoToDomain()
+        return taskService.addComment(taskId = taskId, body = CommentRequestDto(text)).dtoToDomain()
     }
 
     override suspend fun updateComment(
@@ -85,7 +86,7 @@ class TaskRepositoryImpl @Inject constructor(
         return taskService.updateComment(
             taskId = taskId,
             commentId = commentId,
-            body = text
+            body = CommentRequestDto(text)
         ).dtoToDomain()
     }
 }

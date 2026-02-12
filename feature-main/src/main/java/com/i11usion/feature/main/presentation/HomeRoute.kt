@@ -16,6 +16,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.i11usion.core.navigation.HomeRoutes
+import com.i11usion.core.navigation.HomeRoutes.TOP_LEVEL
 import com.i11usion.core.ui.di.LocalViewModelFactory
 import com.i11usion.feature.main.navigation.HomeTabsNavHost
 
@@ -57,6 +58,12 @@ fun HomeRoute(
             HomeShell(
                 state = contentState,
                 onDrawerItemClick = { route ->
+
+                    while (homeNavController.currentBackStackEntry?.destination?.route !in TOP_LEVEL) {
+                        val popped = homeNavController.popBackStack()
+                        if (!popped) break
+                    }
+
                     homeNavController.navigate(route) {
                         popUpTo(homeNavController.graph.findStartDestination().id) {
                             saveState = true

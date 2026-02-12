@@ -6,6 +6,12 @@ object RootRoute {
 }
 
 object HomeRoutes {
+    val TOP_LEVEL = setOf(
+        HomeRoutes.DASHBOARD,
+        HomeRoutes.TASKS,
+        HomeRoutes.USERS,
+        HomeRoutes.TESTS
+    )
     const val DASHBOARD = "home/dashboard"
     const val TASKS = "home/tasks"
     const val USERS = "home/users"

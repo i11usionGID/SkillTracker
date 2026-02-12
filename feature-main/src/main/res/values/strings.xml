@@ -92,4 +92,6 @@
     <string name="send">Отправить</string>
     <string name="cd_edit_comment">Отредактировать комментарий</string>
     <string name="cd_delete_comment">Удалить комментарий</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
 </resources>

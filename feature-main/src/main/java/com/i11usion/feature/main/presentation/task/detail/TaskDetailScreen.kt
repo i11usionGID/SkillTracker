@@ -1,7 +1,10 @@
 package com.i11usion.feature.main.presentation.task.detail
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -32,13 +36,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -77,6 +82,19 @@ fun TaskDetailScreen(
     val viewModel: TaskDetailViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
+
+    val pickFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            viewModel.processCommand(
+                TaskDetailCommand.UploadAttachment(
+                    taskId = taskId,
+                    uri = uri
+                )
+            )
+        }
+    }
 
     LaunchedEffect(taskId) {
         viewModel.processCommand(TaskDetailCommand.Init(taskId))
@@ -124,6 +142,8 @@ fun TaskDetailScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 item {
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     TaskDetailHeader(
                         userRole = state.user.role,
                         statusText = state.task.statusText,
@@ -177,10 +197,9 @@ fun TaskDetailScreen(
                                         taskId = state.task.id
                                     )
                                 )
+                                showProgressDialog = false
                             }
                         )
-
-                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
 
@@ -188,7 +207,9 @@ fun TaskDetailScreen(
                     AttachmentsCard(
                         attachmentsList = state.attachments,
                         userId = state.user.id,
-                        onUploadFileClick = { TODO() },
+                        onUploadFileClick = {
+                            pickFileLauncher.launch(arrayOf("*/*"))
+                        },
                         onDeleteAttachmentClick = { attachmentId ->
                             viewModel.processCommand(TaskDetailCommand.DeleteAttachment(attachmentId))
                         },
@@ -269,9 +290,11 @@ private fun TaskDetailHeader(
     ) {
         Button(
             onClick = onBack,
+            modifier = Modifier.height(32.dp),
             colors = ButtonDefaults.buttonColors()
                 .copy(containerColor = MaterialTheme.colorScheme.surfaceBright),
-            shape = RoundedCornerShape(32.dp)
+            shape = RoundedCornerShape(32.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -310,14 +333,15 @@ private fun TaskDetailHeader(
         }
 
         if (userRole == Role.MANAGER) {
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                modifier = Modifier.weight(1f),
+                onClick = onDeleteTaskClick,
+                modifier = Modifier.height(32.dp),
                 colors = ButtonDefaults.buttonColors()
                     .copy(containerColor = MaterialTheme.colorScheme.onError),
                 shape = RoundedCornerShape(32.dp),
-                onClick = onDeleteTaskClick
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -325,7 +349,7 @@ private fun TaskDetailHeader(
                     Icon(
                         painter = painterResource(R.drawable.ic_trash),
                         contentDescription = stringResource(R.string.cd_delete_task),
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -398,7 +422,7 @@ private fun TaskDetailCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(54.dp)
                             .background(
                                 color = MaterialTheme.colorScheme.surfaceBright,
                                 shape = CircleShape
@@ -412,16 +436,18 @@ private fun TaskDetailCard(
                             fontSize = 24.sp
                         )
                     }
+
                     Spacer(modifier = Modifier.width(8.dp))
+
                     Column {
                         Text(
                             text = name,
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 20.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
                             text = "@$userName",
@@ -483,9 +509,11 @@ private fun ProgressBlock(
 
             Button(
                 onClick = onUpdateProgressClick,
+                modifier = Modifier.height(32.dp),
                 colors = ButtonDefaults.buttonColors()
                     .copy(containerColor = MaterialTheme.colorScheme.surfaceBright),
-                shape = RoundedCornerShape(32.dp)
+                shape = RoundedCornerShape(32.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
             ) {
                 Text(
                     text = stringResource(R.string.update_progress),
@@ -495,7 +523,7 @@ private fun ProgressBlock(
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         LineProgress(progress = progress)
 
@@ -534,6 +562,7 @@ private fun LineProgress(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun UpdateProgressDialog(
     progress: Int,
@@ -567,7 +596,7 @@ private fun UpdateProgressDialog(
         text = {
             Column {
                 Text(
-                    text = "Прогресс: $progress%",
+                    text = stringResource(R.string.progress) + ": $progress%",
                     style = MaterialTheme.typography.bodyLarge
                 )
 
@@ -576,28 +605,71 @@ private fun UpdateProgressDialog(
                 Slider(
                     value = progress.toFloat(),
                     onValueChange = { onProgressChange(it.toInt()) },
-                    valueRange = 0f..100f
-                )
-
-                LineProgress(
-                    progress = progress.toString()
+                    modifier = Modifier.fillMaxWidth(),
+                    valueRange = 0f..100f,
+                    colors = SliderDefaults.colors(
+                        activeTrackColor = Color.Transparent,
+                        inactiveTrackColor = Color.Transparent,
+                        thumbColor = Color.Transparent,
+                        activeTickColor = Color.Transparent,
+                        inactiveTickColor = Color.Transparent
+                    ),
+                    thumb = {
+                        Box(
+                            modifier = Modifier
+                                .size(30.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    shape = CircleShape
+                                )
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                            )
+                        }
+                    },
+                    track = { _ ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(6.dp)
+                                .clip(RoundedCornerShape(100))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(progress / 100f)
+                                .height(6.dp)
+                                .clip(RoundedCornerShape(100))
+                                .background(MaterialTheme.colorScheme.primary)
+                        )
+                    }
                 )
             }
         },
         confirmButton = {
             Button(
                 onClick = onSaveClick,
-                shape = RoundedCornerShape(50)
+                modifier = Modifier.height(32.dp),
+                colors = ButtonDefaults.buttonColors()
+                    .copy(containerColor = MaterialTheme.colorScheme.primary),
+                shape = RoundedCornerShape(32.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
             ) {
-                Text("Сохранить")
-            }
-        },
-        dismissButton = {
-            OutlinedButton(
-                onClick = onDismiss,
-                shape = RoundedCornerShape(50)
-            ) {
-                Text("Отмена")
+                Text(
+                    text = stringResource(R.string.save),
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     )
@@ -644,14 +716,16 @@ private fun AttachmentsCard(
 
             Button(
                 onClick = onUploadFileClick,
+                modifier = Modifier.height(32.dp),
                 colors = ButtonDefaults.buttonColors()
                     .copy(containerColor = MaterialTheme.colorScheme.surfaceBright),
-                shape = RoundedCornerShape(32.dp)
+                shape = RoundedCornerShape(32.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_attachment),
                     contentDescription = stringResource(R.string.cd_upload_attachment),
-                    modifier = Modifier.size(14.dp),
+                    modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
 
@@ -669,12 +743,12 @@ private fun AttachmentsCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(72.dp),
+                    .height(88.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = stringResource(R.string.no_attacments_yet),
-                    color = MaterialTheme.colorScheme.surfaceBright,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     fontSize = 16.sp
                 )
             }
@@ -837,7 +911,9 @@ private fun CommentsCard(
                 onClick = onSendCommentClick,
                 colors = ButtonDefaults.buttonColors()
                     .copy(containerColor = MaterialTheme.colorScheme.primary),
+                modifier = Modifier.height(32.dp),
                 shape = RoundedCornerShape(32.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                 enabled = !isCommentsLoading
             ) {
                 Text(
@@ -898,12 +974,16 @@ private fun InputFieldComment(
         enabled = !isLoading,
         placeholder = {
             if (!isFocused) {
-                Text(text = stringResource(R.string.add_comment))
+                Text(
+                    text = stringResource(R.string.add_comment),
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.surfaceBright
+                )
             }
         },
         modifier = modifier
             .fillMaxWidth()
-            .height(48.dp),
+            .height(80.dp),
         shape = RoundedCornerShape(20.dp),
         interactionSource = interactionSource,
         colors = OutlinedTextFieldDefaults.colors(
@@ -929,9 +1009,11 @@ private fun CommentItem(
     onStartEditCommentClick: () -> Unit,
     onDeleteCommentClick: () -> Unit
 ) {
-    Row(modifier = modifier
-        .fillMaxWidth()
-        .height(IntrinsicSize.Min)) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
@@ -975,9 +1057,37 @@ private fun CommentItem(
                 Spacer(Modifier.height(12.dp))
 
                 Row {
-                    Button(onClick = onSaveEditClick) { Text("Сохранить") }
+                    Button(
+                        onClick = onSaveEditClick,
+                        colors = ButtonDefaults.buttonColors()
+                            .copy(containerColor = MaterialTheme.colorScheme.primary),
+                        modifier = Modifier.height(32.dp),
+                        shape = RoundedCornerShape(32.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.save),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontSize = 14.sp
+                        )
+                    }
+
                     Spacer(Modifier.width(8.dp))
-                    OutlinedButton(onClick = onCancelEditClick) { Text("Отмена") }
+
+                    Button(
+                        onClick = onCancelEditClick,
+                        colors = ButtonDefaults.buttonColors()
+                            .copy(containerColor = MaterialTheme.colorScheme.surfaceBright),
+                        modifier = Modifier.height(32.dp),
+                        shape = RoundedCornerShape(32.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.cancel),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
         }

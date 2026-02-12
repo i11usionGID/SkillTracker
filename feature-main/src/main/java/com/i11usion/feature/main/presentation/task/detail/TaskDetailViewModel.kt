@@ -1,5 +1,6 @@
 package com.i11usion.feature.main.presentation.task.detail
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i11usion.core.domain.model.task.TaskStatus
@@ -76,15 +77,22 @@ class TaskDetailViewModel @Inject constructor(
             is TaskDetailCommand.DeleteComment -> deleteComment(command.commentId)
 
             is TaskDetailCommand.StartEditComment -> startEditComment(command.commentId)
+
             is TaskDetailCommand.EditCommentTextChanged -> editCommentTextChanged(command.text)
+
             TaskDetailCommand.CancelEditComment -> cancelEditComment()
+
             TaskDetailCommand.FinishEditComment -> finishEditComment()
 
-            TaskDetailCommand.Retry -> retry()
+            is TaskDetailCommand.UploadAttachment -> uploadAttachment(command.taskId, command.uri)
 
-            is TaskDetailCommand.DeleteAttachment,
-            is TaskDetailCommand.DownloadAttachment,
-            is TaskDetailCommand.DeleteTask -> Unit
+            is TaskDetailCommand.DeleteAttachment -> {}
+
+            is TaskDetailCommand.DownloadAttachment -> {}
+
+            is TaskDetailCommand.DeleteTask -> {}
+
+            TaskDetailCommand.Retry -> retry()
         }
     }
 
@@ -115,7 +123,10 @@ class TaskDetailViewModel @Inject constructor(
                     commentList = domainComments.map { it.domainToUi() }
                 )
 
-                attachments.value = emptyList()
+                val attachmentList = getTaskAttachmentsUseCase(taskId)
+                attachments.value = attachmentList.map {
+                    it.domainToUi()
+                }
 
                 publishContentIfReady()
             } catch (t: Throwable) {
@@ -185,7 +196,7 @@ class TaskDetailViewModel @Inject constructor(
 
                 val created = addTaskCommentUseCase(taskId = taskId, text = text)
 
-                val newList = listOf(created.domainToUi()) + commentsBlock.value.commentList
+                val newList = commentsBlock.value.commentList + created.domainToUi()
 
                 commentsBlock.value = commentsBlock.value.copy(
                     isLoading = false,
@@ -284,12 +295,17 @@ class TaskDetailViewModel @Inject constructor(
             }
         }
     }
+
+    private fun uploadAttachment(taskId: Int, uri: Uri) {
+    }
+
 }
 
 sealed interface TaskDetailCommand {
     data class Init(val taskId: Int) : TaskDetailCommand
     data class DeleteTask(val taskId: Int) : TaskDetailCommand
     data class UpdateProgress(val newProgress: Int, val taskId: Int) : TaskDetailCommand
+    data class UploadAttachment(val taskId: Int, val uri: Uri) : TaskDetailCommand
     data class DeleteAttachment(val attachmentId: Int) : TaskDetailCommand
     data class DownloadAttachment(val attachmentId: Int) : TaskDetailCommand
     data class InputCommentQuery(val query: String) : TaskDetailCommand
