@@ -94,4 +94,16 @@
     <string name="cd_delete_comment">Удалить комментарий</string>
     <string name="save">Сохранить</string>
     <string name="cancel">Отмена</string>
+    <string name="create_new_task_and_send_employee">Создайте новую задачу и назначте её сотруднику</string>
+    <string name="task_name">Название задачи</string>
+    <string name="example_develop_new_function">Например: Разработать новую функцию</string>
+    <string name="description">Описание</string>
+    <string name="describe_task">Опишите задачу подробнее</string>
+    <string name="choose_employee">Выберите сотрудника</string>
+    <string name="appoint_employee">Назначить сотрудника</string>
+    <string name="progress_percent">Прогресс (%)</string>
+    <string name="create">Создать</string>
+    <string name="set_progress">Установите прогресс</string>
+    <string name="choose_date">Выберите дату</string>
+    <string name="done">Готово</string>
 </resources>

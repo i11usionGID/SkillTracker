@@ -4,6 +4,7 @@ import com.i11usion.core.network.model.task.AttachmentDto
 import com.i11usion.core.network.model.task.CommentDto
 import com.i11usion.core.network.model.task.CommentRequestDto
 import com.i11usion.core.network.model.task.TaskDto
+import com.i11usion.core.network.model.task.TaskRequestDto
 import com.i11usion.core.network.model.task.UpdateProgressRequestDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -69,4 +70,9 @@ interface TaskService {
         @Path("comment_id") commentId: Int,
         @Body body: CommentRequestDto
     ): CommentDto
+
+    @POST("/api/tasks")
+    suspend fun createTask(
+        @Body body: TaskRequestDto
+    )
 }

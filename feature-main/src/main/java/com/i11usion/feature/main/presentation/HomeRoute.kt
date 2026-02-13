@@ -31,7 +31,17 @@ fun HomeRoute(
     val backStackEntry by homeNavController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
-    val selected = currentRoute ?: HomeRoutes.DASHBOARD
+    val selected = when (currentRoute) {
+        HomeRoutes.DASHBOARD -> HomeRoutes.DASHBOARD
+        HomeRoutes.TASKS,
+        HomeRoutes.TASK_DETAIL_ROUTE,
+        HomeRoutes.CREATE_TASK -> HomeRoutes.TASKS
+
+        HomeRoutes.USERS -> HomeRoutes.USERS
+        HomeRoutes.TESTS -> HomeRoutes.TESTS
+
+        else -> HomeRoutes.DASHBOARD
+    }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->

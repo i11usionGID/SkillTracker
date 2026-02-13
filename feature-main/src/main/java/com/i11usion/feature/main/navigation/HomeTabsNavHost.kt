@@ -1,6 +1,7 @@
 package com.i11usion.feature.main.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -9,9 +10,10 @@ import androidx.navigation.navArgument
 import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
 import com.i11usion.feature.main.presentation.quiz.QuizScreen
+import com.i11usion.feature.main.presentation.task.create.CreateTaskScreen
 import com.i11usion.feature.main.presentation.task.detail.TaskDetailScreen
 import com.i11usion.feature.main.presentation.task.list.TaskScreen
-import com.i11usion.feature.main.presentation.user.UserScreen
+import com.i11usion.feature.main.presentation.user.list.UserScreen
 
 @Composable
 fun HomeTabsNavHost(
@@ -25,13 +27,14 @@ fun HomeTabsNavHost(
             DashboardScreen(
                 onCheckAllTaskClick = {
                     navController.navigate(HomeRoutes.TASKS) {
-                        popUpTo(HomeRoutes.DASHBOARD) {
-                            inclusive = false
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
                         }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 },
-                onTaskCardClick = {
-                        taskId ->
+                onTaskCardClick = { taskId ->
                     navController.navigate(HomeRoutes.taskDetail(taskId)) {
                         launchSingleTop = true
                     }
@@ -40,7 +43,11 @@ fun HomeTabsNavHost(
         }
         composable(HomeRoutes.TASKS) {
             TaskScreen(
-                onCreateTaskClick = {},
+                onCreateTaskClick = {
+                    navController.navigate(HomeRoutes.CREATE_TASK) {
+                        launchSingleTop = true
+                    }
+                },
                 onTaskCardClick = { taskId ->
                     navController.navigate(HomeRoutes.taskDetail(taskId)) {
                         launchSingleTop = true
@@ -70,6 +77,12 @@ fun HomeTabsNavHost(
             TaskDetailScreen(
                 taskId = taskId,
                 onBack = { navController.popBackStack() }
+            )
+        }
+        composable(HomeRoutes.CREATE_TASK) {
+            CreateTaskScreen(
+                onCancelClick = { navController.popBackStack() },
+                onCreateTaskClick = { navController.popBackStack() }
             )
         }
     }

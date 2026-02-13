@@ -6,10 +6,12 @@ import com.i11usion.core.domain.model.task.Task
 import com.i11usion.core.domain.model.task.TaskStatus
 import com.i11usion.core.domain.repository.TaskRepository
 import com.i11usion.core.network.model.task.CommentRequestDto
+import com.i11usion.core.network.model.task.TaskRequestDto
 import com.i11usion.core.network.model.task.UpdateProgressRequestDto
 import com.i11usion.core.network.task.TaskService
 import com.i11usion.data.mapper.dtoToDomain
 import com.i11usion.data.mapper.taskDtoToTask
+import java.time.Instant
 import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(
@@ -88,5 +90,28 @@ class TaskRepositoryImpl @Inject constructor(
             commentId = commentId,
             body = CommentRequestDto(text)
         ).dtoToDomain()
+    }
+
+    override suspend fun createTask(
+        title: String,
+        description: String?,
+        deadline: Instant?,
+        status: TaskStatus,
+        progress: Int,
+        employeeId: Int
+    ) {
+        val body = TaskRequestDto(
+            title = title,
+            description = description,
+            deadline = deadline?.toString(),
+            status = when(status) {
+                TaskStatus.IN_PROGRESS -> "in_progress"
+                TaskStatus.DONE -> "done"
+                else -> "pending"
+            },
+            progress = progress,
+            employeeId = employeeId
+        )
+        taskService.createTask(body)
     }
 }

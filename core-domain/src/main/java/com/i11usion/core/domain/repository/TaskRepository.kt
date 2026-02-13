@@ -4,6 +4,7 @@ import com.i11usion.core.domain.model.task.Attachment
 import com.i11usion.core.domain.model.task.Comment
 import com.i11usion.core.domain.model.task.Task
 import com.i11usion.core.domain.model.task.TaskStatus
+import java.time.Instant
 
 interface TaskRepository {
     suspend fun getTaskList(
@@ -29,4 +30,13 @@ interface TaskRepository {
     suspend fun addComment(taskId: Int, text: String): Comment
 
     suspend fun updateComment(taskId: Int, commentId: Int, text: String): Comment
+
+    suspend fun createTask(
+        title: String,
+        description: String?,
+        deadline: Instant?,
+        status: TaskStatus,
+        progress: Int,
+        employeeId: Int,
+    )
 }

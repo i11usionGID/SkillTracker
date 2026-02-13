@@ -5,9 +5,11 @@ import com.i11usion.di.ViewModelKey
 import com.i11usion.feature.main.presentation.HomeViewModel
 import com.i11usion.feature.main.presentation.dashboard.DashboardViewModel
 import com.i11usion.feature.main.presentation.quiz.QuizViewModel
+import com.i11usion.feature.main.presentation.task.create.CreateTaskViewModel
 import com.i11usion.feature.main.presentation.task.detail.TaskDetailViewModel
 import com.i11usion.feature.main.presentation.task.list.TaskViewModel
-import com.i11usion.feature.main.presentation.user.UserViewModel
+import com.i11usion.feature.main.presentation.user.create.CreateUserViewModel
+import com.i11usion.feature.main.presentation.user.list.UserViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -43,4 +45,14 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(TaskDetailViewModel::class)
     fun bindTaskDetailViewModel(vm: TaskDetailViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(CreateTaskViewModel::class)
+    fun bindCreateTaskViewModel(vm: CreateTaskViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(CreateUserViewModel::class)
+    fun bindCreateUserViewModel(vm: CreateUserViewModel): ViewModel
 }
