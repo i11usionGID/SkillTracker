@@ -1,7 +1,9 @@
 package com.i11usion.core.domain.repository
 
+import android.net.Uri
 import com.i11usion.core.domain.model.task.Attachment
 import com.i11usion.core.domain.model.task.Comment
+import com.i11usion.core.domain.model.task.DownloadedFile
 import com.i11usion.core.domain.model.task.Task
 import com.i11usion.core.domain.model.task.TaskStatus
 import java.time.Instant
@@ -23,6 +25,8 @@ interface TaskRepository {
 
     suspend fun getTaskAttachments(taskId: Int): List<Attachment>
 
+    suspend fun deleteTask(taskId: Int)
+
     suspend fun deleteTaskComment(taskId: Int, commentId: Int)
 
     suspend fun deleteTaskAttachment(taskId: Int, attachmentId: Int)
@@ -39,4 +43,8 @@ interface TaskRepository {
         progress: Int,
         employeeId: Int,
     )
+
+    suspend fun uploadAttachment(taskId: Int, uri: Uri): Attachment
+
+    suspend fun downloadAttachment(taskId: Int, attachmentId: Int): DownloadedFile
 }

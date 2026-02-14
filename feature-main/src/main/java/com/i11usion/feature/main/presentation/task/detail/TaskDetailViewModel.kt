@@ -1,6 +1,8 @@
 package com.i11usion.feature.main.presentation.task.detail
 
+import android.app.Application
 import android.net.Uri
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i11usion.core.domain.model.task.TaskStatus
@@ -9,11 +11,14 @@ import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
 import com.i11usion.core.domain.usecase.task.AddTaskCommentUseCase
 import com.i11usion.core.domain.usecase.task.DeleteTaskAttachmentUseCase
 import com.i11usion.core.domain.usecase.task.DeleteTaskCommentUseCase
+import com.i11usion.core.domain.usecase.task.DeleteTaskUseCase
+import com.i11usion.core.domain.usecase.task.DownloadTaskAttachmentUseCase
 import com.i11usion.core.domain.usecase.task.GetTaskAttachmentsUseCase
 import com.i11usion.core.domain.usecase.task.GetTaskByIdUseCase
 import com.i11usion.core.domain.usecase.task.GetTaskCommentsUseCase
 import com.i11usion.core.domain.usecase.task.UpdateTaskCommentUseCase
 import com.i11usion.core.domain.usecase.task.UpdateTaskProgressUseCase
+import com.i11usion.core.domain.usecase.task.UploadTaskAttachmentUseCase
 import com.i11usion.core.ui.formatter.formatInstantToStringDataNullable
 import com.i11usion.feature.main.presentation.dashboard.mapper.taskToTaskUi
 import com.i11usion.feature.main.presentation.model.TaskUi
@@ -21,22 +26,28 @@ import com.i11usion.feature.main.presentation.task.detail.mapper.domainToUi
 import com.i11usion.feature.main.presentation.task.detail.model.AttachmentUiModel
 import com.i11usion.feature.main.presentation.task.detail.model.CommentBlock
 import com.i11usion.feature.main.presentation.task.detail.model.EditableComment
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class TaskDetailViewModel @Inject constructor(
+    private val application: Application,
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
     private val updateTaskProgressUseCase: UpdateTaskProgressUseCase,
-    private val getTaskCommentsUseCase: GetTaskCommentsUseCase,
     private val getTaskAttachmentsUseCase: GetTaskAttachmentsUseCase,
-    private val deleteTaskCommentUseCase: DeleteTaskCommentUseCase,
+    private val uploadTaskAttachmentUseCase: UploadTaskAttachmentUseCase,
+    private val downloadTaskAttachmentUseCase: DownloadTaskAttachmentUseCase,
     private val deleteTaskAttachmentUseCase: DeleteTaskAttachmentUseCase,
+    private val getTaskCommentsUseCase: GetTaskCommentsUseCase,
     private val addTaskCommentUseCase: AddTaskCommentUseCase,
-    private val updateTaskCommentUseCase: UpdateTaskCommentUseCase
+    private val updateTaskCommentUseCase: UpdateTaskCommentUseCase,
+    private val deleteTaskCommentUseCase: DeleteTaskCommentUseCase
 ) : ViewModel() {
 
     private var currentTaskId: Int? = null
@@ -57,6 +68,10 @@ class TaskDetailViewModel @Inject constructor(
 
     private val _state = MutableStateFlow<TaskDetailUiState>(TaskDetailUiState.Initial)
     val state = _state.asStateFlow()
+
+    private val _events = MutableSharedFlow<TaskDetailEvent>()
+    val events = _events.asSharedFlow()
+
 
     fun processCommand(command: TaskDetailCommand) {
         when (command) {
@@ -86,11 +101,12 @@ class TaskDetailViewModel @Inject constructor(
 
             is TaskDetailCommand.UploadAttachment -> uploadAttachment(command.taskId, command.uri)
 
-            is TaskDetailCommand.DeleteAttachment -> {}
+            is TaskDetailCommand.DeleteAttachment -> deleteTaskAttachment(command.attachmentId)
 
-            is TaskDetailCommand.DownloadAttachment -> {}
+            is TaskDetailCommand.DownloadAttachment -> downloadAttachment(command.attachmentId)
 
-            is TaskDetailCommand.DeleteTask -> {}
+
+            is TaskDetailCommand.DeleteTask -> deleteTask(command.taskId)
 
             TaskDetailCommand.Retry -> retry()
         }
@@ -211,6 +227,18 @@ class TaskDetailViewModel @Inject constructor(
         }
     }
 
+    private fun deleteTask(taskId: Int) {
+        viewModelScope.launch {
+            try {
+                _state.value = TaskDetailUiState.Loading
+                deleteTaskUseCase(taskId)
+                _events.emit(TaskDetailEvent.NavigateBack)
+            } catch (t: Throwable) {
+                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to delete task")
+            }
+        }
+    }
+
     private fun deleteComment(commentId: Int) {
         val content = _state.value as? TaskDetailUiState.Content ?: return
         val taskId = content.task.id
@@ -297,9 +325,69 @@ class TaskDetailViewModel @Inject constructor(
     }
 
     private fun uploadAttachment(taskId: Int, uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val created = uploadTaskAttachmentUseCase(taskId = taskId, uri = uri)
+
+                attachments.update { old ->
+                    old + created.domainToUi()
+                }
+
+                publishContentIfReady()
+            } catch (t: Throwable) {
+                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to upload attachment")
+            }
+        }
     }
 
+    private fun deleteTaskAttachment(attachmentId: Int) {
+        val content = _state.value as? TaskDetailUiState.Content ?: return
+        val taskId = content.task.id
+
+        viewModelScope.launch {
+            val old = attachments.value
+
+            attachments.value = old.filterNot { it.id == attachmentId }
+            publishContentIfReady()
+
+            try {
+                deleteTaskAttachmentUseCase(taskId = taskId, attachmentId = attachmentId)
+            } catch (t: Throwable) {
+                attachments.value = old
+                publishContentIfReady()
+                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to delete attachment")
+            }
+        }
+    }
+
+
+    private fun downloadAttachment(attachmentId: Int) {
+        val content = _state.value as? TaskDetailUiState.Content ?: return
+        val taskId = content.task.id
+
+        viewModelScope.launch {
+            try {
+                val downloaded = downloadTaskAttachmentUseCase(taskId = taskId, attachmentId = attachmentId)
+
+                val uri = FileProvider.getUriForFile(
+                    application,
+                    "${application.packageName}.fileprovider",
+                    downloaded.file
+                )
+
+                _events.emit(TaskDetailEvent.OpenDownloadedFile(uri, downloaded.mimeType))
+            } catch (t: Throwable) {
+                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to download attachment")
+            }
+        }
+    }
 }
+
+sealed interface TaskDetailEvent {
+    data object NavigateBack : TaskDetailEvent
+    data class OpenDownloadedFile(val uri: Uri, val mimeType: String?) : TaskDetailEvent
+}
+
 
 sealed interface TaskDetailCommand {
     data class Init(val taskId: Int) : TaskDetailCommand

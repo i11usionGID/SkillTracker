@@ -1,5 +1,7 @@
 package com.i11usion.feature.main.presentation.task.detail
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -58,12 +60,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.ui.di.LocalViewModelFactory
@@ -79,6 +86,9 @@ fun TaskDetailScreen(
     taskId: Int,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     val viewModel: TaskDetailViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
@@ -87,17 +97,46 @@ fun TaskDetailScreen(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         if (uri != null) {
-            viewModel.processCommand(
-                TaskDetailCommand.UploadAttachment(
-                    taskId = taskId,
-                    uri = uri
-                )
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
+            viewModel.processCommand(TaskDetailCommand.UploadAttachment(taskId, uri))
         }
     }
 
     LaunchedEffect(taskId) {
         viewModel.processCommand(TaskDetailCommand.Init(taskId))
+    }
+
+    LaunchedEffect(Unit) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    TaskDetailEvent.NavigateBack -> onBack()
+
+                    is TaskDetailEvent.OpenDownloadedFile -> {
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(event.uri, event.mimeType ?: "*/*")
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+
+                        val chooser = Intent.createChooser(intent, null)
+                        if (chooser.resolveActivity(context.packageManager) != null) {
+                            context.startActivity(chooser)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Нет приложения для открытия файла",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                    }
+                }
+            }
+        }
     }
 
     when (state) {
@@ -213,7 +252,13 @@ fun TaskDetailScreen(
                         onDeleteAttachmentClick = { attachmentId ->
                             viewModel.processCommand(TaskDetailCommand.DeleteAttachment(attachmentId))
                         },
-                        onDownloadAttachmentClick = { TODO() }
+                        onDownloadAttachmentClick = { attachmentId ->
+                            viewModel.processCommand(
+                                TaskDetailCommand.DownloadAttachment(
+                                    attachmentId
+                                )
+                            )
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -740,10 +785,11 @@ private fun AttachmentsCard(
         }
 
         if (attachmentsList.isEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(88.dp),
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -752,10 +798,13 @@ private fun AttachmentsCard(
                     fontSize = 16.sp
                 )
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
                     .heightIn(max = 500.dp)
             ) {
                 items(
@@ -774,9 +823,11 @@ private fun AttachmentsCard(
                         }
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -791,26 +842,41 @@ private fun AttachmentItem(
     onDownloadAttachmentClick: () -> Unit
 ) {
     Row(
-        modifier = modifier.background(color = MaterialTheme.colorScheme.surface),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .clip(
+                RoundedCornerShape(16.dp)
+            )
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(16.dp)
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(modifier = Modifier.width(8.dp))
+
         Icon(
             painter = painterResource(R.drawable.ic_list),
             contentDescription = stringResource(R.string.cd_attachment),
-            tint = MaterialTheme.colorScheme.surfaceBright,
+            tint = MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier.size(20.dp)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        Column {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp)
+        ) {
             Text(
                 text = attachmentName,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 16.sp
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = createdAt,
@@ -819,39 +885,54 @@ private fun AttachmentItem(
             )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
         if (isAttachmentOwner) {
-            Button(
-                colors = ButtonDefaults.buttonColors()
-                    .copy(containerColor = MaterialTheme.colorScheme.onError),
-                shape = RoundedCornerShape(32.dp),
-                onClick = onDeleteAttachmentClick
+
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(
+                        color = MaterialTheme.colorScheme.onError,
+                        shape = RoundedCornerShape(50)
+                    )
+                    .clickable {
+                        onDeleteAttachmentClick()
+                    },
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_trash),
-                    contentDescription = stringResource(R.string.cd_attachment),
+                    contentDescription = stringResource(R.string.cd_delete_attachment),
                     tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
         }
 
-        Button(
-            colors = ButtonDefaults.buttonColors()
-                .copy(containerColor = MaterialTheme.colorScheme.surfaceBright),
-            shape = RoundedCornerShape(32.dp),
-            onClick = onDownloadAttachmentClick
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(50))
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(50)
+                )
+                .clickable {
+                    onDownloadAttachmentClick()
+                },
+            contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_download),
-                contentDescription = stringResource(R.string.cd_attachment),
+                contentDescription = stringResource(R.string.cd_download_attachment),
                 tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(16.dp)
             )
         }
+
+        Spacer(modifier = Modifier.width(8.dp))
     }
 }
 
