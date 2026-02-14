@@ -1,7 +1,7 @@
 package com.i11usion.feature.main.presentation.model
 
 import com.i11usion.feature.main.presentation.dashboard.model.TaskUiStatus
-import com.i11usion.feature.main.presentation.user.model.UserUiModel
+import com.i11usion.feature.main.presentation.user.list.model.UserUiModel
 
 data class TaskUi(
     val id: Int,

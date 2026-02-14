@@ -1,4 +1,4 @@
-package com.i11usion.feature.main.presentation.user
+package com.i11usion.feature.main.presentation.user.list
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -54,7 +54,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.ui.di.LocalViewModelFactory
 import com.i11usion.feature.main.R
-import com.i11usion.feature.main.presentation.user.model.UserUiModel
+import com.i11usion.feature.main.presentation.user.list.model.UserUiModel
 
 @Composable
 fun UserScreen(
@@ -90,7 +90,7 @@ fun UserScreen(
                 item {
                     UserHeader(
                         onCreateUserClick = {
-                            onCreateUserClick
+                            onCreateUserClick()
                         }
                     )
                 }

@@ -13,6 +13,7 @@ import com.i11usion.feature.main.presentation.quiz.QuizScreen
 import com.i11usion.feature.main.presentation.task.create.CreateTaskScreen
 import com.i11usion.feature.main.presentation.task.detail.TaskDetailScreen
 import com.i11usion.feature.main.presentation.task.list.TaskScreen
+import com.i11usion.feature.main.presentation.user.create.CreateUserScreen
 import com.i11usion.feature.main.presentation.user.list.UserScreen
 
 @Composable
@@ -57,7 +58,11 @@ fun HomeTabsNavHost(
         }
         composable(HomeRoutes.USERS) {
             UserScreen(
-                onCreateUserClick = {}
+                onCreateUserClick = {
+                    navController.navigate(HomeRoutes.CREATE_USER) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
         composable(HomeRoutes.TESTS) {
@@ -83,6 +88,11 @@ fun HomeTabsNavHost(
             CreateTaskScreen(
                 onCancelClick = { navController.popBackStack() },
                 onCreateTaskClick = { navController.popBackStack() }
+            )
+        }
+        composable(HomeRoutes.CREATE_USER) {
+            CreateUserScreen(
+                onBack = { navController.popBackStack() }
             )
         }
     }

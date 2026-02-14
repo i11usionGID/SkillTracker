@@ -106,4 +106,12 @@
     <string name="set_progress">Установите прогресс</string>
     <string name="choose_date">Выберите дату</string>
     <string name="done">Готово</string>
+    <string name="cd_delete_attachment">Удалить вложение</string>
+    <string name="cd_download_attachment">Скачать вложение</string>
+    <string name="create_user">Создать пользователя</string>
+    <string name="username">Имя пользователя</string>
+    <string name="ph_username">username</string>
+    <string name="name">Полное имя</string>
+    <string name="sample_name">Иванов Иван Иванович</string>
+    <string name="password">Пароль</string>
 </resources>

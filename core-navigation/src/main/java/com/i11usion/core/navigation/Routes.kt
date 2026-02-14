@@ -18,6 +18,7 @@ object HomeRoutes {
     const val TESTS = "home/tests"
     const val TASK_DETAIL_ROUTE = "home/tasks/detail/{taskId}"
     const val CREATE_TASK = "home/tasks/create"
+    const val CREATE_USER = "home/users/create"
 
     fun taskDetail(taskId: Int) = "home/tasks/detail/$taskId"
 }

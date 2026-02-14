@@ -1,4 +1,4 @@
-package com.i11usion.feature.main.presentation.user.model
+package com.i11usion.feature.main.presentation.user.list.model
 
 import com.i11usion.core.domain.model.user.Role
 

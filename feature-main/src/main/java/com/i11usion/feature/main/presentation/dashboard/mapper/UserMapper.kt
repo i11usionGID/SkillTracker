@@ -2,7 +2,7 @@ package com.i11usion.feature.main.presentation.dashboard.mapper
 
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.domain.model.user.User
-import com.i11usion.feature.main.presentation.user.model.UserUiModel
+import com.i11usion.feature.main.presentation.user.list.model.UserUiModel
 import java.time.Instant
 
 fun User.userToUserUiModel(formatter: (Instant) -> String): UserUiModel {

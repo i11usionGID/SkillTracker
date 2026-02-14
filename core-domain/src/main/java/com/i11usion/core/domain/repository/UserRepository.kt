@@ -12,4 +12,6 @@ interface UserRepository {
     ): List<User>
 
     suspend fun deleteUser(userId: Int)
+
+    suspend fun createUser(username: String, name: String, role: String, password: String)
 }
