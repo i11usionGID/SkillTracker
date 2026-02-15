@@ -2,9 +2,12 @@ package com.i11usion.core.network.quiz
 
 import com.i11usion.core.network.model.quiz.MyQuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuestionDto
+import com.i11usion.core.network.model.quiz.QuestionRequestDto
 import com.i11usion.core.network.model.quiz.QuizDto
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -34,5 +37,10 @@ interface QuizService {
     @DELETE("/api/quizzes/questions/{question_id}")
     suspend fun deleteQuestion(
         @Path("question_id") questionId: Int
+    )
+
+    @POST("/api/quizzes/questions")
+    suspend fun createQuestion(
+        @Body body: QuestionRequestDto
     )
 }

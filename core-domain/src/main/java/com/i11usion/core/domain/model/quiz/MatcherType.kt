@@ -6,6 +6,7 @@ enum class MatcherType {
     ICONTAINS;
 
     companion object {
+
         fun fromApi(value: String): MatcherType = when (value.lowercase()) {
             "equals" -> EQUALS
             "contains" -> CONTAINS

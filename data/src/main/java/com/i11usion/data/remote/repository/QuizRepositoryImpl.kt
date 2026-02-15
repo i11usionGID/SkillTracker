@@ -7,6 +7,7 @@ import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.repository.QuizRepository
 import com.i11usion.core.network.quiz.QuizService
+import com.i11usion.data.mapper.domainToDto
 import com.i11usion.data.mapper.dtoToDomain
 import com.i11usion.data.mapper.quizDtoToQuiz
 import javax.inject.Inject
@@ -69,5 +70,10 @@ class QuizRepositoryImpl @Inject constructor(
 
     override suspend fun deleteQuestion(questionId: Int) {
         quizService.deleteQuestion(questionId)
+    }
+
+    override suspend fun createQuestion(question: Question) {
+        val body = question.domainToDto()
+        quizService.createQuestion(body)
     }
 }

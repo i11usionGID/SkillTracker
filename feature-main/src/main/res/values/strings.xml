@@ -125,4 +125,14 @@
     <string name="cd_right_answer">Правильный ответ</string>
     <string name="cd_wrong_answer">Неправильный ответ</string>
     <string name="explanation">"Объяснение: "</string>
+    <string name="question_type">Тип вопроса</string>
+    <string name="question_text">Текст вопроса</string>
+    <string name="input_text_question">Введите текст вопроса</string>
+    <string name="explanation_not_required">Объяснение (необязательно)</string>
+    <string name="explain_right_answer">Объясните правильный ответ</string>
+    <string name="add_answer">Добавить ответ</string>
+    <string name="add_option">Добавить вариант</string>
+    <string name="right_answers">Правильные ответы:</string>
+    <string name="option">Вариант</string>
+    <string name="right_answer">Правильный ответ</string>
 </resources>

@@ -12,6 +12,9 @@ import com.i11usion.core.domain.model.quiz.TextAnswer
 import com.i11usion.core.network.model.quiz.MyQuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuestionDto
 import com.i11usion.core.network.model.quiz.QuestionOptionDto
+import com.i11usion.core.network.model.quiz.QuestionOptionRequestDto
+import com.i11usion.core.network.model.quiz.QuestionRequestDto
+import com.i11usion.core.network.model.quiz.QuestionTextAnswerRequestDto
 import com.i11usion.core.network.model.quiz.QuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuizDto
 import com.i11usion.core.network.model.quiz.TextAnswerDto
@@ -93,3 +96,24 @@ fun TextAnswerDto.dtoToDomain(): TextAnswer {
         value = value
     )
 }
+
+fun Question.domainToDto(): QuestionRequestDto =
+    QuestionRequestDto(
+        text = text,
+        type = QuestionType.toApi(type),
+        explanation = explanation,
+        options = options.map { it.domainToDto() },
+        textAnswers = textAnswers.map { it.domainToDto() }
+    )
+
+fun QuestionOption.domainToDto(): QuestionOptionRequestDto =
+    QuestionOptionRequestDto(
+        text = text.trim(),
+        isCorrect = isCorrect
+    )
+
+fun TextAnswer.domainToDto(): QuestionTextAnswerRequestDto =
+    QuestionTextAnswerRequestDto(
+        matcherType = MatcherType.toApi(matcherType),
+        value = value.trim()
+    )
