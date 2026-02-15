@@ -2,6 +2,8 @@ package com.i11usion.data.remote.repository
 
 import android.util.Log
 import com.i11usion.core.domain.model.quiz.MyQuizAssignment
+import com.i11usion.core.domain.model.quiz.Question
+import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.repository.QuizRepository
 import com.i11usion.core.network.quiz.QuizService
@@ -51,5 +53,21 @@ class QuizRepositoryImpl @Inject constructor(
 
     override suspend fun deleteQuiz(quizId: Int) {
         quizService.deleteQuiz(quizId)
+    }
+
+    override suspend fun getQuestions(questionType: QuestionType?): List<Question> {
+        val type = when (questionType) {
+            QuestionType.SINGLE -> "single"
+            QuestionType.MULTIPLE -> "multiple"
+            QuestionType.TEXT -> "text"
+            null -> null
+        }
+        return quizService.getQuestions(type).map {
+            it.dtoToDomain()
+        }
+    }
+
+    override suspend fun deleteQuestion(questionId: Int) {
+        quizService.deleteQuestion(questionId)
     }
 }

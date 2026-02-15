@@ -1,14 +1,12 @@
-package com.i11usion.feature.main.presentation.quiz.mapper
+package com.i11usion.feature.main.presentation.quiz.list.mapper
 
 import com.i11usion.core.domain.model.quiz.MyQuizAssignment
 import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.model.quiz.QuizStatus
-import com.i11usion.feature.main.presentation.quiz.model.QuizEmployeeUiModel
-import com.i11usion.feature.main.presentation.quiz.model.QuizManagerUiModel
 import java.time.Instant
 
-fun Quiz.quizToQuizManagerUi(formatter: (Instant) -> String): QuizManagerUiModel {
-    return QuizManagerUiModel(
+fun Quiz.quizToQuizManagerUi(formatter: (Instant) -> String): com.i11usion.feature.main.presentation.quiz.list.model.QuizManagerUiModel {
+    return _root_ide_package_.com.i11usion.feature.main.presentation.quiz.list.model.QuizManagerUiModel(
         id = id,
         title = title,
         description = description,
@@ -24,8 +22,8 @@ fun Quiz.quizToQuizManagerUi(formatter: (Instant) -> String): QuizManagerUiModel
     )
 }
 
-fun MyQuizAssignment.quizToQuizEmployeeUi(formatter: (Instant?) -> String): QuizEmployeeUiModel {
-    return QuizEmployeeUiModel(
+fun MyQuizAssignment.quizToQuizEmployeeUi(formatter: (Instant?) -> String): com.i11usion.feature.main.presentation.quiz.list.model.QuizEmployeeUiModel {
+    return _root_ide_package_.com.i11usion.feature.main.presentation.quiz.list.model.QuizEmployeeUiModel(
         id = quiz.id,
         title = quiz.title,
         description = quiz.description,
@@ -38,7 +36,11 @@ fun MyQuizAssignment.quizToQuizEmployeeUi(formatter: (Instant?) -> String): Quiz
         } else {
             null
         },
-        isNoAttempts = isNoAttempts(assignment.maxAttempts, assignment.attemptsTaken, assignment.remainingAttempts),
+        isNoAttempts = isNoAttempts(
+            assignment.maxAttempts,
+            assignment.attemptsTaken,
+            assignment.remainingAttempts
+        ),
         isFirstAttempt = assignment.maxAttempts?.let { assignment.attemptsTaken == 0 }
     )
 }

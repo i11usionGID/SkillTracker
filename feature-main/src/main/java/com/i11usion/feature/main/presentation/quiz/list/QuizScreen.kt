@@ -1,4 +1,4 @@
-package com.i11usion.feature.main.presentation.quiz
+package com.i11usion.feature.main.presentation.quiz.list
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -286,7 +286,7 @@ private fun QuizHeader(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -623,7 +623,7 @@ private fun QuizCardManager(
                     onClick = onOpenQuizClick
                 ) {
                     Text(
-                        text = stringResource(R.string.edit),
+                        text = stringResource(R.string.open),
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )

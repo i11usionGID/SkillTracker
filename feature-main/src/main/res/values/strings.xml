@@ -114,4 +114,15 @@
     <string name="name">Полное имя</string>
     <string name="sample_name">Иванов Иван Иванович</string>
     <string name="password">Пароль</string>
+    <string name="back_to_tests">Вернуться к тестам</string>
+    <string name="all_questions">Банк вопросов</string>
+    <string name="create_and_manage_questions_for_quiz">Создавайте и управляйте вопросами для тестов</string>
+    <string name="create_question">Создать вопрос</string>
+    <string name="cd_update_question">Отредактировать вопрос</string>
+    <string name="delete_question">Удалить вопрос</string>
+    <string name="right_questions">Правильные ответы:</string>
+    <string name="answer_options">Варианты ответов:</string>
+    <string name="cd_right_answer">Правильный ответ</string>
+    <string name="cd_wrong_answer">Неправильный ответ</string>
+    <string name="explanation">"Объяснение: "</string>
 </resources>

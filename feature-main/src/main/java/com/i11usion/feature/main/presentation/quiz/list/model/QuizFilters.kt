@@ -1,4 +1,4 @@
-package com.i11usion.feature.main.presentation.quiz.model
+package com.i11usion.feature.main.presentation.quiz.list.model
 
 import com.i11usion.core.domain.model.quiz.QuizStatus
 

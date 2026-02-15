@@ -1,4 +1,4 @@
-package com.i11usion.feature.main.presentation.quiz.model
+package com.i11usion.feature.main.presentation.quiz.list.model
 
 data class QuizEmployeeUiModel(
     val id: Int,

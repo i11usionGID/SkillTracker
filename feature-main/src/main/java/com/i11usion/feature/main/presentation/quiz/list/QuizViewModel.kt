@@ -1,4 +1,4 @@
-package com.i11usion.feature.main.presentation.quiz
+package com.i11usion.feature.main.presentation.quiz.list
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -12,11 +12,11 @@ import com.i11usion.core.domain.usecase.quiz.GetQuizListUseCase
 import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
 import com.i11usion.core.ui.formatter.formatInstantToStringData
 import com.i11usion.core.ui.formatter.formatInstantToStringDataNullable
-import com.i11usion.feature.main.presentation.quiz.mapper.quizToQuizEmployeeUi
-import com.i11usion.feature.main.presentation.quiz.mapper.quizToQuizManagerUi
-import com.i11usion.feature.main.presentation.quiz.model.QuizEmployeeUiModel
-import com.i11usion.feature.main.presentation.quiz.model.QuizFilters
-import com.i11usion.feature.main.presentation.quiz.model.QuizManagerUiModel
+import com.i11usion.feature.main.presentation.quiz.list.mapper.quizToQuizEmployeeUi
+import com.i11usion.feature.main.presentation.quiz.list.mapper.quizToQuizManagerUi
+import com.i11usion.feature.main.presentation.quiz.list.model.QuizEmployeeUiModel
+import com.i11usion.feature.main.presentation.quiz.list.model.QuizFilters
+import com.i11usion.feature.main.presentation.quiz.list.model.QuizManagerUiModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -73,8 +73,7 @@ class QuizViewModel @Inject constructor(
                         isListLoading = true
                     )
                     reloadQuizzes.tryEmit(Unit)
-                }
-                ,
+                },
                 onFailure = { t ->
                     _state.value = QuizUiState.Error(
                         message = t.message ?: "Не удалось загрузить данные"
@@ -181,7 +180,8 @@ class QuizViewModel @Inject constructor(
                         Triple(user, ui, emptyList())
                     } else {
                         val assignments = getMyQuizAssignmentsUseCase()
-                        val ui = assignments.map { it.quizToQuizEmployeeUi(::formatInstantToStringDataNullable) }
+                        val ui =
+                            assignments.map { it.quizToQuizEmployeeUi(::formatInstantToStringDataNullable) }
                         Triple(user, emptyList<QuizManagerUiModel>(), ui)
                     }
                 }
@@ -191,7 +191,10 @@ class QuizViewModel @Inject constructor(
                     onSuccess = { (user, managerQuizzes, employeeAssignments) ->
                         _state.update { st ->
                             val uiFilters = (st as? QuizUiState.Content)?.quizFilters
-                                ?: QuizFilters(query = filters.value.query, status = filters.value.status)
+                                ?: QuizFilters(
+                                    query = filters.value.query,
+                                    status = filters.value.status
+                                )
 
                             QuizUiState.Content(
                                 user = user,

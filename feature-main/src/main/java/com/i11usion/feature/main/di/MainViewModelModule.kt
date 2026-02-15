@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import com.i11usion.di.ViewModelKey
 import com.i11usion.feature.main.presentation.HomeViewModel
 import com.i11usion.feature.main.presentation.dashboard.DashboardViewModel
-import com.i11usion.feature.main.presentation.quiz.QuizViewModel
+import com.i11usion.feature.main.presentation.quiz.list.QuizViewModel
+import com.i11usion.feature.main.presentation.quiz.question.list.QuestionViewModel
 import com.i11usion.feature.main.presentation.task.create.CreateTaskViewModel
 import com.i11usion.feature.main.presentation.task.detail.TaskDetailViewModel
 import com.i11usion.feature.main.presentation.task.list.TaskViewModel
@@ -55,4 +56,9 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(CreateUserViewModel::class)
     fun bindCreateUserViewModel(vm: CreateUserViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(QuestionViewModel::class)
+    fun bindQuestionViewModel(vm: QuestionViewModel): ViewModel
 }
