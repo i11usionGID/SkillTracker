@@ -135,4 +135,5 @@
     <string name="right_answers">Правильные ответы:</string>
     <string name="option">Вариант</string>
     <string name="right_answer">Правильный ответ</string>
+    <string name="update_question">Редактировать вопрос</string>
 </resources>

@@ -8,6 +8,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -41,6 +42,17 @@ interface QuizService {
 
     @POST("/api/quizzes/questions")
     suspend fun createQuestion(
+        @Body body: QuestionRequestDto
+    )
+
+    @GET("/api/quizzes/questions/{question_id}")
+    suspend fun getQuestionById(
+        @Path("question_id") questionId: Int
+    ): QuestionDto
+
+    @PUT("/api/quizzes/questions/{question_id}")
+    suspend fun updateQuestion(
+        @Path("question_id") questionId: Int,
         @Body body: QuestionRequestDto
     )
 }

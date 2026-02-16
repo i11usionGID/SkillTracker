@@ -76,4 +76,16 @@ class QuizRepositoryImpl @Inject constructor(
         val body = question.domainToDto()
         quizService.createQuestion(body)
     }
+
+    override suspend fun getQuestionById(questionId: Int): Question {
+        return quizService.getQuestionById(questionId).dtoToDomain()
+    }
+
+    override suspend fun updateQuestion(
+        questionId: Int,
+        question: Question
+    ) {
+        val body = question.domainToDto()
+        quizService.updateQuestion(questionId = questionId, body = body)
+    }
 }

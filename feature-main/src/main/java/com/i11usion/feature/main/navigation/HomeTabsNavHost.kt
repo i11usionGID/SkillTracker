@@ -12,6 +12,7 @@ import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
 import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionScreen
+import com.i11usion.feature.main.presentation.quiz.question.update.UpdateQuestionScreen
 import com.i11usion.feature.main.presentation.task.create.CreateTaskScreen
 import com.i11usion.feature.main.presentation.task.detail.TaskDetailScreen
 import com.i11usion.feature.main.presentation.task.list.TaskScreen
@@ -109,11 +110,26 @@ fun HomeTabsNavHost(
                         launchSingleTop = true
                     }
                 },
-                onUpdateQuestionClick = { TODO() }
+                onUpdateQuestionClick = { questionId ->
+                    navController.navigate(HomeRoutes.updateQuestion(questionId)) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
         composable(HomeRoutes.CREATE_QUESTION) {
             CreateQuestionScreen(
+                onCancelClick = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = HomeRoutes.UPDATE_QUESTION,
+            arguments = listOf(navArgument("questionId") { type = NavType.IntType })
+        ) { entry ->
+            val questionId = entry.arguments?.getInt("questionId") ?: return@composable
+
+            UpdateQuestionScreen (
+                questionId = questionId,
                 onCancelClick = { navController.popBackStack() }
             )
         }

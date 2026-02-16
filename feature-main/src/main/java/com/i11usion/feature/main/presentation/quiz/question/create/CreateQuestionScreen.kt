@@ -701,12 +701,6 @@ private fun InputField(
     )
 }
 
-private fun matcherTitle(type: MatcherType): String = when (type) {
-    MatcherType.EQUALS -> "Точно"
-    MatcherType.CONTAINS -> "Содержит"
-    MatcherType.ICONTAINS -> "Содержит (без регистра)"
-}
-
 private data class TypeOption(val title: String, val value: QuestionType)
 
 private fun typeOptions(): List<TypeOption> = listOf(

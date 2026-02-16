@@ -12,4 +12,6 @@ interface QuizRepository {
     suspend fun getQuestions(questionType: QuestionType?): List<Question>
     suspend fun deleteQuestion(questionId: Int)
     suspend fun createQuestion(question: Question)
+    suspend fun getQuestionById(questionId: Int): Question
+    suspend fun updateQuestion(questionId: Int, question: Question)
 }

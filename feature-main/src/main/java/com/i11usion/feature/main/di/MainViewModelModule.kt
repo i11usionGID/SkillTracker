@@ -7,6 +7,7 @@ import com.i11usion.feature.main.presentation.dashboard.DashboardViewModel
 import com.i11usion.feature.main.presentation.quiz.list.QuizViewModel
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionViewModel
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionViewModel
+import com.i11usion.feature.main.presentation.quiz.question.update.UpdateQuestionViewModel
 import com.i11usion.feature.main.presentation.task.create.CreateTaskViewModel
 import com.i11usion.feature.main.presentation.task.detail.TaskDetailViewModel
 import com.i11usion.feature.main.presentation.task.list.TaskViewModel
@@ -67,4 +68,9 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(CreateQuestionViewModel::class)
     fun bindCreateQuestionViewModel(vm: CreateQuestionViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(UpdateQuestionViewModel::class)
+    fun bindUpdateQuestionViewModel(vm: UpdateQuestionViewModel): ViewModel
 }
