@@ -5,6 +5,7 @@ import com.i11usion.core.domain.model.quiz.MyQuizAssignment
 import com.i11usion.core.domain.model.quiz.Question
 import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.Quiz
+import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.repository.QuizRepository
 import com.i11usion.core.network.quiz.QuizService
 import com.i11usion.data.mapper.domainToDto
@@ -32,25 +33,10 @@ class QuizRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getMyAssignments(): List<MyQuizAssignment> {
-        return try {
-            Log.d("QuizRepo", "start")
-            val dto = quizService.getMyAssignments()
-            Log.d("QuizRepo", "dto size=${dto.size}")
-            dto.mapIndexed { idx, item ->
-                try {
-                    item.dtoToDomain()
-                } catch (t: Throwable) {
-                    Log.e("QuizRepo", "mapping failed at index=$idx item=$item", t)
-                    throw t
-                }
-            }
-        } catch (t: Throwable) {
-            Log.e("QuizRepo", "getMyAssignments failed: ${t::class.java.name}", t)
-            throw t
-        }
+    override suspend fun createQuiz(quiz: QuizCreate) {
+        val body = quiz.domainToDto()
+        quizService.createQuiz(body)
     }
-
 
     override suspend fun deleteQuiz(quizId: Int) {
         quizService.deleteQuiz(quizId)
@@ -87,5 +73,24 @@ class QuizRepositoryImpl @Inject constructor(
     ) {
         val body = question.domainToDto()
         quizService.updateQuestion(questionId = questionId, body = body)
+    }
+
+    override suspend fun getMyAssignments(): List<MyQuizAssignment> {
+        return try {
+            Log.d("QuizRepo", "start")
+            val dto = quizService.getMyAssignments()
+            Log.d("QuizRepo", "dto size=${dto.size}")
+            dto.mapIndexed { idx, item ->
+                try {
+                    item.dtoToDomain()
+                } catch (t: Throwable) {
+                    Log.e("QuizRepo", "mapping failed at index=$idx item=$item", t)
+                    throw t
+                }
+            }
+        } catch (t: Throwable) {
+            Log.e("QuizRepo", "getMyAssignments failed: ${t::class.java.name}", t)
+            throw t
+        }
     }
 }

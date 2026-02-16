@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
+import com.i11usion.feature.main.presentation.quiz.create.CreateQuizScreen
 import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionScreen
@@ -70,7 +71,11 @@ fun HomeTabsNavHost(
         }
         composable(HomeRoutes.TESTS) {
             QuizScreen(
-                onCreateTestClick = { TODO() },
+                onCreateTestClick = {
+                    navController.navigate(HomeRoutes.CREATE_QUIZ) {
+                        launchSingleTop = true
+                    }
+                },
                 onOpenQuestionListClick = {
                     navController.navigate(HomeRoutes.QUESTIONS) {
                         launchSingleTop = true
@@ -130,6 +135,11 @@ fun HomeTabsNavHost(
 
             UpdateQuestionScreen (
                 questionId = questionId,
+                onCancelClick = { navController.popBackStack() }
+            )
+        }
+        composable(HomeRoutes.CREATE_QUIZ) {
+            CreateQuizScreen(
                 onCancelClick = { navController.popBackStack() }
             )
         }

@@ -7,6 +7,7 @@ import com.i11usion.core.domain.model.quiz.QuestionOption
 import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.model.quiz.QuizAssignment
+import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.core.domain.model.quiz.TextAnswer
 import com.i11usion.core.network.model.quiz.MyQuizAssignmentDto
@@ -16,6 +17,7 @@ import com.i11usion.core.network.model.quiz.QuestionOptionRequestDto
 import com.i11usion.core.network.model.quiz.QuestionRequestDto
 import com.i11usion.core.network.model.quiz.QuestionTextAnswerRequestDto
 import com.i11usion.core.network.model.quiz.QuizAssignmentDto
+import com.i11usion.core.network.model.quiz.QuizCreateRequestDto
 import com.i11usion.core.network.model.quiz.QuizDto
 import com.i11usion.core.network.model.quiz.TextAnswerDto
 import java.time.Instant
@@ -47,6 +49,19 @@ fun QuizDto.quizDtoToQuiz(): Quiz {
         updatedAt = Instant.parse(updatedAt)
     )
 }
+
+fun QuizCreate.domainToDto(): QuizCreateRequestDto =
+    QuizCreateRequestDto(
+        title = title,
+        description = description,
+        passPercent = passPercent,
+        timeLimitSeconds = timeLimitSeconds,
+        shuffleQuestions = shuffleQuestions,
+        shuffleAnswers = shuffleAnswers,
+        allowReview = allowReview,
+        maxAttempts = maxAttempts,
+        publish = publish
+    )
 
 fun QuizAssignmentDto.dtoToDomain(): QuizAssignment {
     return QuizAssignment(

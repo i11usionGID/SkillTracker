@@ -88,7 +88,7 @@
     <string name="no_attacments_yet">Вложений пока нет</string>
     <string name="cd_attachment">Вложение</string>
     <string name="comments">Комментарии</string>
-    <string name="add_comment">Добавить комментарий...</string>
+    <string name="add_comment">Добавить комментарий…</string>
     <string name="send">Отправить</string>
     <string name="cd_edit_comment">Отредактировать комментарий</string>
     <string name="cd_delete_comment">Удалить комментарий</string>
@@ -98,6 +98,7 @@
     <string name="task_name">Название задачи</string>
     <string name="example_develop_new_function">Например: Разработать новую функцию</string>
     <string name="description">Описание</string>
+    <string name="description_not_required">Описание (необязательно)</string>
     <string name="describe_task">Опишите задачу подробнее</string>
     <string name="choose_employee">Выберите сотрудника</string>
     <string name="appoint_employee">Назначить сотрудника</string>
@@ -136,4 +137,21 @@
     <string name="option">Вариант</string>
     <string name="right_answer">Правильный ответ</string>
     <string name="update_question">Редактировать вопрос</string>
+    <string name="create_quiz">Создать тест</string>
+    <string name="title_name">Название</string>
+    <string name="enter_quiz_name">Введите название теста</string>
+    <string name="describe_test">Опишите тест</string>
+    <string name="passing_score_percent">Проходной балл (%)</string>
+    <string name="pass_percent_for_successful_complete_quiz">Процент правильных ответов для прохождения теста</string>
+    <string name="time_limit_for_completing_test">Ограничение времени на прохождение теста</string>
+    <string name="publish_immediately">Опубликовать сразу</string>
+    <string name="shiffle_questions">Перемешать вопросы</string>
+    <string name="shuffle_answers">Перемешать ответы</string>
+    <string name="allow_review">Разрешить просмотр результатов</string>
+    <string name="hours">Часы</string>
+    <string name="minutes">Mинуты</string>
+    <string name="seconds">Секунды</string>
+    <string name="max_attempts_not_required">Максимум попыток (необязательно)</string>
+    <string name="time_limit_not_required">Ограничение времени (необязательно)</string>
+    <string name="max_attempts_test_hit">Ограничение попыток на повторное прохождение теста</string>
 </resources>
