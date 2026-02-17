@@ -43,7 +43,9 @@
     <string name="add_user">Добавить пользователя</string>
     <string name="search_text_user">Поиск по имени или username</string>
     <string name="role">Роль</string>
-    <string name="created_at">"Создан: "</string>
+    <string name="created_at_with_colon">"Создан: "</string>
+    <string name="deadline_with_colon">"Срок: "</string>
+    <string name="created_at">"Создан"</string>
     <string name="delete">Удалить</string>
     <string name="delete_user_question">Удалить пользователя?</string>
     <string name="confirmation_delete_user">Вы уверены, что хотите удалить пользователя @</string>
@@ -65,6 +67,7 @@
     <string name="cd_time_limit_seconds_on_quiz">Ограничение по времени на прохождение теста</string>
     <string name="cd_max_attempts_on_quiz">Ограничение по попыткам</string>
     <string name="cd_delete_test">Удалить тест</string>
+    <string name="time_limit">Ограничение по времени</string>
     <string name="open">Открыть</string>
     <string name="cd_pass_percent">Процент правильных ответов для прохождения теста</string>
     <string name="cd_quiz_attempts">Попытки прохождения теста</string>
@@ -91,6 +94,7 @@
     <string name="add_comment">Добавить комментарий…</string>
     <string name="send">Отправить</string>
     <string name="cd_edit_comment">Отредактировать комментарий</string>
+    <string name="cd_edit_quiz">Отредактировать тест</string>
     <string name="cd_delete_comment">Удалить комментарий</string>
     <string name="save">Сохранить</string>
     <string name="cancel">Отмена</string>
@@ -108,6 +112,7 @@
     <string name="choose_date">Выберите дату</string>
     <string name="done">Готово</string>
     <string name="cd_delete_attachment">Удалить вложение</string>
+    <string name="cd_delete_assignment">Удалить назначение</string>
     <string name="cd_download_attachment">Скачать вложение</string>
     <string name="create_user">Создать пользователя</string>
     <string name="username">Имя пользователя</string>
@@ -142,6 +147,7 @@
     <string name="enter_quiz_name">Введите название теста</string>
     <string name="describe_test">Опишите тест</string>
     <string name="passing_score_percent">Проходной балл (%)</string>
+    <string name="passing_score">Проходной балл</string>
     <string name="pass_percent_for_successful_complete_quiz">Процент правильных ответов для прохождения теста</string>
     <string name="time_limit_for_completing_test">Ограничение времени на прохождение теста</string>
     <string name="publish_immediately">Опубликовать сразу</string>
@@ -152,6 +158,25 @@
     <string name="minutes">Mинуты</string>
     <string name="seconds">Секунды</string>
     <string name="max_attempts_not_required">Максимум попыток (необязательно)</string>
+    <string name="max_attempts">Макс. попыток</string>
+    <string name="max_attempts_with_colon">Макс. попыток: </string>
+    <string name="cooldown_hours">Пауза между попытками: </string>
+    <string name="attempts_taken">Попыток использовано: </string>
+    <string name="remaining_attempts">Осталось попыток: </string>
     <string name="time_limit_not_required">Ограничение времени (необязательно)</string>
     <string name="max_attempts_test_hit">Ограничение попыток на повторное прохождение теста</string>
+    <string name="draft">Черновик</string>
+    <string name="published">Опубликован</string>
+    <string name="add_section">Добавить секцию</string>
+    <string name="create_assignment">Создать назначение</string>
+    <string name="order_index">"Порядок: "</string>
+    <string name="pick_count">"Выбрать "</string>
+    <string name="questions">"Вопросы "</string>
+    <string name="required">Обязательно</string>
+    <string name="cd_assignment_attach_to_task">Назначениепривязано к этой задаче</string>
+    <string name="task">"Задача: "</string>
+    <string name="total_assignments">Всего назначений</string>
+    <string name="total_attempts">Всего попыток</string>
+    <string name="completed">Завершено</string>
+    <string name="pass_rate">Процент сдачи</string>
 </resources>

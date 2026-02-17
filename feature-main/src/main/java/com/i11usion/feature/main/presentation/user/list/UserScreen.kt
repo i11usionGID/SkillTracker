@@ -516,7 +516,7 @@ private fun UserCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = stringResource(R.string.created_at) + createdAt,
+                text = stringResource(R.string.created_at_with_colon) + createdAt,
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 fontSize = 16.sp
             )

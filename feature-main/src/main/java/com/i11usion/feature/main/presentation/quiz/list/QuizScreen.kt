@@ -62,7 +62,7 @@ fun QuizScreen(
     modifier: Modifier = Modifier,
     onCreateTestClick: () -> Unit,
     onOpenQuestionListClick: () -> Unit,
-    onOpenQuizClick: (String) -> Unit,
+    onOpenQuizClick: (Int) -> Unit,
     onStartTestingClick: (String) -> Unit
 ) {
     val viewModel: QuizViewModel = viewModel(factory = LocalViewModelFactory.current)
@@ -173,7 +173,7 @@ fun QuizScreen(
                                         statusColor = statusColor,
                                         statusContainerColor = statusContainerColor,
                                         createdAt = quiz.createdAt,
-                                        onOpenQuizClick = { onOpenQuizClick(quiz.id.toString()) },
+                                        onOpenQuizClick = { onOpenQuizClick(quiz.id) },
                                         onDeleteQuizClick = {
                                             viewModel.processCommand(
                                                 QuizCommand.DeleteQuiz(
@@ -606,7 +606,7 @@ private fun QuizCardManager(
             }
 
             Text(
-                text = stringResource(R.string.created_at) + createdAt,
+                text = stringResource(R.string.created_at_with_colon) + createdAt,
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 fontSize = 16.sp
             )

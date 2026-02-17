@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
 import com.i11usion.feature.main.presentation.quiz.create.CreateQuizScreen
+import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailScreen
 import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionScreen
@@ -81,7 +82,11 @@ fun HomeTabsNavHost(
                         launchSingleTop = true
                     }
                 },
-                onOpenQuizClick = { TODO() },
+                onOpenQuizClick = { quizId ->
+                    navController.navigate(HomeRoutes.quizDetail(quizId)) {
+                        launchSingleTop = true
+                    }
+                },
                 onStartTestingClick = { TODO() }
             )
         }
@@ -141,6 +146,21 @@ fun HomeTabsNavHost(
         composable(HomeRoutes.CREATE_QUIZ) {
             CreateQuizScreen(
                 onCancelClick = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = HomeRoutes.QUIZ_DETAIL,
+            arguments = listOf(navArgument("quizId") { type = NavType.IntType })
+        ) { entry ->
+            val quizId = entry.arguments?.getInt("quizId") ?: return@composable
+
+            QuizDetailScreen(
+                quizId = quizId,
+                onBack = { navController.popBackStack() },
+                onCreateSectionClick = { TODO() },
+                onUpdateQuizClick = { TODO() },
+                onCreateAssignmentClick = { TODO() },
+                onEditSectionClick = { TODO() }
             )
         }
     }
