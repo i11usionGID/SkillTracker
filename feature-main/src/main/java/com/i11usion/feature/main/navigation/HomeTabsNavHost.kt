@@ -15,6 +15,7 @@ import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.update.UpdateQuestionScreen
+import com.i11usion.feature.main.presentation.quiz.testing.TestScreen
 import com.i11usion.feature.main.presentation.task.create.CreateTaskScreen
 import com.i11usion.feature.main.presentation.task.detail.TaskDetailScreen
 import com.i11usion.feature.main.presentation.task.list.TaskScreen
@@ -87,7 +88,11 @@ fun HomeTabsNavHost(
                         launchSingleTop = true
                     }
                 },
-                onStartTestingClick = { TODO() }
+                onStartTestingClick = { quizId ->
+                    navController.navigate(HomeRoutes.quizTesting(quizId)) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
         composable(
@@ -161,6 +166,20 @@ fun HomeTabsNavHost(
                 onUpdateQuizClick = { TODO() },
                 onCreateAssignmentClick = { TODO() },
                 onEditSectionClick = { TODO() }
+            )
+        }
+        composable(
+            route = HomeRoutes.TESTING,
+            arguments = listOf(navArgument("quizId") { type = NavType.IntType })
+        ) { entry ->
+            val quizId = entry.arguments?.getInt("quizId") ?: return@composable
+
+            TestScreen(
+                quizId = quizId,
+                onNavigateToAnalytics = { attempt ->
+                    TODO()
+                },
+                onBack = { navController.popBackStack() },
             )
         }
     }

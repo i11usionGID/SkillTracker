@@ -10,6 +10,13 @@ import com.i11usion.core.domain.model.quiz.QuizAssignment
 import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.core.domain.model.quiz.TextAnswer
+import com.i11usion.core.domain.model.quiz.attempt.AttemptAnswerResult
+import com.i11usion.core.domain.model.quiz.attempt.AttemptQuestion
+import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
+import com.i11usion.core.domain.model.quiz.attempt.AttemptStatus
+import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
+import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitAnswer
+import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
 import com.i11usion.core.network.model.quiz.MyQuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuestionDto
 import com.i11usion.core.network.model.quiz.QuestionOptionDto
@@ -20,6 +27,12 @@ import com.i11usion.core.network.model.quiz.QuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuizCreateRequestDto
 import com.i11usion.core.network.model.quiz.QuizDto
 import com.i11usion.core.network.model.quiz.TextAnswerDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptAnswerDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptQuestionDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptStartResponseDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitAnswerDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitRequestDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitResponseDto
 import java.time.Instant
 
 fun MyQuizAssignmentDto.dtoToDomain(): MyQuizAssignment {
@@ -132,3 +145,62 @@ fun TextAnswer.domainToDto(): QuestionTextAnswerRequestDto =
         matcherType = MatcherType.toApi(matcherType),
         value = value.trim()
     )
+
+fun AttemptStartResponseDto.dtoToDomain(): AttemptStart =
+    AttemptStart(
+        attemptId = attemptId,
+        quizId = quizId,
+        status = status.toAttemptStatus(),
+        startedAt = Instant.parse(startedAt),
+        timeLimitSeconds = timeLimitSeconds,
+        questions = questions.map { it.dtoToDomain() }
+    )
+
+fun AttemptQuestionDto.dtoToDomain(): AttemptQuestion =
+    AttemptQuestion(
+        attemptQuestionId = attemptQuestionId,
+        question = question.dtoToDomain(),
+        sectionId = sectionId,
+        orderIndex = orderIndex
+    )
+
+fun AttemptSubmitRequest.domainToDto(): AttemptSubmitRequestDto =
+    AttemptSubmitRequestDto(
+        answers = answers.map { it.domainToDto() }
+    )
+
+fun AttemptSubmitAnswer.domainToDto(): AttemptSubmitAnswerDto =
+    AttemptSubmitAnswerDto(
+        attemptQuestionId = attemptQuestionId,
+        selectedOptionIds = selectedOptionIds,
+        textAnswer = textAnswer
+    )
+
+fun AttemptSubmitResponseDto.dtoToDomain(): AttemptSubmit =
+    AttemptSubmit(
+        id = id,
+        quizId = quizId,
+        userId = userId,
+        status = status.toAttemptStatus(),
+        scorePercent = scorePercent,
+        passed = passed,
+        startedAt = Instant.parse(startedAt),
+        finishedAt = finishedAt?.let { Instant.parse(it) },
+        answers = answers.map { it.dtoToDomain() }
+    )
+
+fun AttemptAnswerDto.dtoToDomain(): AttemptAnswerResult =
+    AttemptAnswerResult(
+        attemptQuestionId = attemptQuestionId,
+        questionId = questionId,
+        isCorrect = isCorrect,
+        selectedOptionIds = selectedOptionIds,
+        textAnswer = textAnswer
+    )
+
+private fun String.toAttemptStatus(): AttemptStatus = when (this.lowercase()) {
+    "in_progress" -> AttemptStatus.IN_PROGRESS
+    "completed" -> AttemptStatus.COMPLETED
+    "expired" -> AttemptStatus.EXPIRED
+    else -> AttemptStatus.IN_PROGRESS
+}

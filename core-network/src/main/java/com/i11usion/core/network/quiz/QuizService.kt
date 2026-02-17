@@ -5,6 +5,9 @@ import com.i11usion.core.network.model.quiz.QuestionDto
 import com.i11usion.core.network.model.quiz.QuestionRequestDto
 import com.i11usion.core.network.model.quiz.QuizCreateRequestDto
 import com.i11usion.core.network.model.quiz.QuizDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptStartResponseDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitRequestDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitResponseDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -61,4 +64,15 @@ interface QuizService {
 
     @GET("/api/quizzes/assignments/my")
     suspend fun getMyAssignments(): List<MyQuizAssignmentDto>
+
+    @POST("/api/quizzes/{quiz_id}/attempts")
+    suspend fun startAttempt(
+        @Path("quiz_id") quizId: Int
+    ): AttemptStartResponseDto
+
+    @POST("/api/quizzes/attempts/{attempt_id}/submit")
+    suspend fun submitAttempt(
+        @Path("attempt_id") attemptId: Int,
+        @Body body: AttemptSubmitRequestDto
+    ): AttemptSubmitResponseDto
 }

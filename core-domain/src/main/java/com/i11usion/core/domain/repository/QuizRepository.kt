@@ -5,6 +5,9 @@ import com.i11usion.core.domain.model.quiz.Question
 import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.model.quiz.QuizCreate
+import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
+import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
+import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
 
 interface QuizRepository {
     suspend fun getQuizzes(page: Int?, perPage: Int?, status: String?, search: String?): List<Quiz>
@@ -16,4 +19,6 @@ interface QuizRepository {
     suspend fun getQuestionById(questionId: Int): Question
     suspend fun updateQuestion(questionId: Int, question: Question)
     suspend fun getMyAssignments(): List<MyQuizAssignment>
+    suspend fun startAttempt(quizId: Int): AttemptStart
+    suspend fun submitAttempt(attemptId: Int, request: AttemptSubmitRequest): AttemptSubmit
 }

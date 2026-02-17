@@ -91,7 +91,7 @@ sealed interface QuestionCommand {
 
 enum class QuestionFilter(val title: String, val type: QuestionType?) {
     ALL("Все", null),
-    SINGLE("Одиночный Выбор", QuestionType.SINGLE),
+    SINGLE("Одиночный выбор", QuestionType.SINGLE),
     MULTIPLE("Множественный выбор", QuestionType.MULTIPLE),
     TEXT("Текстовый ответ", QuestionType.TEXT),
 }

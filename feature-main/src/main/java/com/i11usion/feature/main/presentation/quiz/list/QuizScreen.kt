@@ -63,7 +63,7 @@ fun QuizScreen(
     onCreateTestClick: () -> Unit,
     onOpenQuestionListClick: () -> Unit,
     onOpenQuizClick: (Int) -> Unit,
-    onStartTestingClick: (String) -> Unit
+    onStartTestingClick: (Int) -> Unit
 ) {
     val viewModel: QuizViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
@@ -212,7 +212,7 @@ fun QuizScreen(
                                         deadline = quiz.deadline,
                                         isFirstAttempt = quiz.isFirstAttempt,
                                         isNoAttempts = quiz.isNoAttempts,
-                                        onStartTestingClick = { onStartTestingClick(quiz.id.toString()) },
+                                        onStartTestingClick = { onStartTestingClick(quiz.id) },
                                     )
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }

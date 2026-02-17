@@ -6,6 +6,9 @@ import com.i11usion.core.domain.model.quiz.Question
 import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.model.quiz.QuizCreate
+import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
+import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
+import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
 import com.i11usion.core.domain.repository.QuizRepository
 import com.i11usion.core.network.quiz.QuizService
 import com.i11usion.data.mapper.domainToDto
@@ -92,5 +95,17 @@ class QuizRepositoryImpl @Inject constructor(
             Log.e("QuizRepo", "getMyAssignments failed: ${t::class.java.name}", t)
             throw t
         }
+    }
+
+    override suspend fun startAttempt(quizId: Int): AttemptStart {
+        return quizService.startAttempt(quizId).dtoToDomain()
+    }
+
+    override suspend fun submitAttempt(
+        attemptId: Int,
+        request: AttemptSubmitRequest
+    ): AttemptSubmit {
+        val body = request.domainToDto()
+        return quizService.submitAttempt(attemptId = attemptId, body = body).dtoToDomain()
     }
 }
