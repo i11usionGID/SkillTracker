@@ -7,12 +7,13 @@ import com.i11usion.feature.main.presentation.dashboard.DashboardViewModel
 import com.i11usion.feature.main.presentation.quiz.create.CreateQuizViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentViewModel
-import com.i11usion.feature.main.presentation.quiz.detail.question_section.CreateQuestionSectionViewModel
+import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.CreateQuestionSectionViewModel
 import com.i11usion.feature.main.presentation.quiz.list.QuizViewModel
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionViewModel
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionViewModel
 import com.i11usion.feature.main.presentation.quiz.question.update.UpdateQuestionViewModel
 import com.i11usion.feature.main.presentation.quiz.testing.TestViewModel
+import com.i11usion.feature.main.presentation.quiz.update.UpdateQuizViewModel
 import com.i11usion.feature.main.presentation.task.create.CreateTaskViewModel
 import com.i11usion.feature.main.presentation.task.detail.TaskDetailViewModel
 import com.i11usion.feature.main.presentation.task.list.TaskViewModel
@@ -103,4 +104,9 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(CreateAssignmentViewModel::class)
     fun bindCreateAssignmentViewModel(vm: CreateAssignmentViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(UpdateQuizViewModel::class)
+    fun bindUpdateQuizViewModel(vm: UpdateQuizViewModel): ViewModel
 }

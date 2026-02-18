@@ -1,4 +1,4 @@
-package com.i11usion.feature.main.presentation.quiz.detail.question_section
+package com.i11usion.feature.main.presentation.quiz.detail.question_section.create
 
 
 import androidx.compose.foundation.BorderStroke
@@ -65,7 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.ui.di.LocalViewModelFactory
-import com.i11usion.feature.main.presentation.quiz.detail.question_section.model.QuestionInQuestionSectionUiModel
+import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.model.QuestionInQuestionSectionUiModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter

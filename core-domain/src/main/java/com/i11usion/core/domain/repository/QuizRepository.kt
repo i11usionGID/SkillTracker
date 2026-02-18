@@ -49,4 +49,6 @@ interface QuizRepository {
         maxAttempts: Int?,
         cooldownHours: Int
     )
+
+    suspend fun updateQuiz(quizId: Int, quiz: QuizCreate)
 }

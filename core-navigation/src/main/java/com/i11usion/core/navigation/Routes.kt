@@ -20,6 +20,7 @@ object HomeRoutes {
     const val CREATE_TASK = "home/tasks/create"
     const val CREATE_USER = "home/users/create"
     const val CREATE_QUIZ = "home/tests/create"
+    const val UPDATE_QUIZ = "home/tests/update/{quizId}"
     const val QUIZ_DETAIL = "home/tests/detail/{quizId}"
     const val CREATE_QUESTION_SECTION = "home/tests/detail/{quizId}/create_question_section"
     const val CREATE_ASSIGNMENT = "home/tests/detail/{quizId}/create_assignment"
@@ -30,6 +31,7 @@ object HomeRoutes {
 
     fun taskDetail(taskId: Int) = "home/tasks/detail/$taskId"
     fun updateQuestion(questionId: Int) = "home/tests/questions/update_question/$questionId"
+    fun updateQuiz(quizId: Int) = "home/tests/update/$quizId"
     fun quizDetail(quizId: Int) = "home/tests/detail/$quizId"
     fun quizTesting(quizId: Int) = "home/tests/testing/$quizId"
     fun createQuestionSection(quizId: Int) = "home/tests/detail/$quizId/create_question_section"

@@ -12,12 +12,13 @@ import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
 import com.i11usion.feature.main.presentation.quiz.create.CreateQuizScreen
 import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailScreen
 import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentScreen
-import com.i11usion.feature.main.presentation.quiz.detail.question_section.CreateQuestionSectionScreen
+import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.CreateQuestionSectionScreen
 import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.update.UpdateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.testing.TestScreen
+import com.i11usion.feature.main.presentation.quiz.update.UpdateQuizScreen
 import com.i11usion.feature.main.presentation.task.create.CreateTaskScreen
 import com.i11usion.feature.main.presentation.task.detail.TaskDetailScreen
 import com.i11usion.feature.main.presentation.task.list.TaskScreen
@@ -169,7 +170,11 @@ fun HomeTabsNavHost(
                         launchSingleTop = true
                     }
                 },
-                onUpdateQuizClick = { TODO() },
+                onUpdateQuizClick = { questionId ->
+                    navController.navigate(HomeRoutes.updateQuiz(questionId)) {
+                        launchSingleTop = true
+                    }
+                },
                 onCreateAssignmentClick = { questionId ->
                     navController.navigate(HomeRoutes.createAssignment(questionId)) {
                         launchSingleTop = true
@@ -217,6 +222,17 @@ fun HomeTabsNavHost(
             val quizId = entry.arguments?.getInt("quizId") ?: return@composable
 
             CreateAssignmentScreen(
+                quizId = quizId,
+                onCancelClick = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = HomeRoutes.UPDATE_QUIZ,
+            arguments = listOf(navArgument("quizId") { type = NavType.IntType })
+        ) { entry ->
+            val quizId = entry.arguments?.getInt("quizId") ?: return@composable
+
+            UpdateQuizScreen(
                 quizId = quizId,
                 onCancelClick = { navController.popBackStack() }
             )

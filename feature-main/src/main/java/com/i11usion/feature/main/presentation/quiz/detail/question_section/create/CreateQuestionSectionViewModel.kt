@@ -1,11 +1,11 @@
-package com.i11usion.feature.main.presentation.quiz.detail.question_section
+package com.i11usion.feature.main.presentation.quiz.detail.question_section.create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i11usion.core.domain.usecase.quiz.CreateQuestionSectionUseCase
 import com.i11usion.core.domain.usecase.quiz.GetQuestionsUseCase
-import com.i11usion.feature.main.presentation.quiz.detail.question_section.mapper.domainToQuestionInQuestionSectionUiModel
-import com.i11usion.feature.main.presentation.quiz.detail.question_section.model.QuestionInQuestionSectionUiModel
+import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.mapper.domainToQuestionInQuestionSectionUiModel
+import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.model.QuestionInQuestionSectionUiModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow

@@ -123,4 +123,10 @@ interface QuizService {
         @Path("quiz_id") quizId: Int,
         @Body body: AssignmentRequestDto
     )
+
+    @PUT("/api/quizzes/{quiz_id}")
+    suspend fun updateQuiz(
+        @Path("quiz_id") quizId: Int,
+        @Body body: QuizCreateRequestDto
+    )
 }

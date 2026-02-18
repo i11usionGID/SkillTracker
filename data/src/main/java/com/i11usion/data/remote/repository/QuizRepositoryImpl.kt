@@ -176,4 +176,12 @@ class QuizRepositoryImpl @Inject constructor(
         )
         quizService.createAssignment(quizId, body)
     }
+
+    override suspend fun updateQuiz(
+        quizId: Int,
+        quiz: QuizCreate
+    ) {
+        val body = quiz.domainToDto()
+        quizService.updateQuiz(quizId, body)
+    }
 }
