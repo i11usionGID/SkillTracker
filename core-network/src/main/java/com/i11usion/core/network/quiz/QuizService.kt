@@ -8,6 +8,7 @@ import com.i11usion.core.network.model.quiz.QuizAnalyticsDto
 import com.i11usion.core.network.model.quiz.QuizCreateRequestDto
 import com.i11usion.core.network.model.quiz.QuizDto
 import com.i11usion.core.network.model.quiz.QuestionSectionDto
+import com.i11usion.core.network.model.quiz.QuestionSectionRequestDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptStartResponseDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitRequestDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitResponseDto
@@ -109,4 +110,10 @@ interface QuizService {
     suspend fun getQuizAnalytics(
         @Path("quiz_id") quizId: Int
     ): QuizAnalyticsDto
+
+    @POST("/api/quizzes/{quiz_id}/sections")
+    suspend fun createQuestionSection(
+        @Path("quiz_id") quizId: Int,
+        @Body body: QuestionSectionRequestDto
+    )
 }

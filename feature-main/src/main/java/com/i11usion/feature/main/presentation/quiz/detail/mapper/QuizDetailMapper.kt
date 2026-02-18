@@ -39,11 +39,11 @@ fun QuestionSection.toUiModel(): QuestionSectionUiModel =
         orderIndex = orderIndex,
         pickCount = pickCount,
         questions = questions.map {
-            it.tUiModel()
+            it.toSectionQuestionUiModel()
         }
     )
 
-fun Question.tUiModel(): SectionQuestionsUiModel =
+fun Question.toSectionQuestionUiModel(): SectionQuestionsUiModel =
     SectionQuestionsUiModel(
         id = id,
         text = text,

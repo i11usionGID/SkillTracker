@@ -11,6 +11,7 @@ import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
 import com.i11usion.feature.main.presentation.quiz.create.CreateQuizScreen
 import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailScreen
+import com.i11usion.feature.main.presentation.quiz.detail.question_section.CreateQuestionSectionScreen
 import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionScreen
@@ -143,7 +144,7 @@ fun HomeTabsNavHost(
         ) { entry ->
             val questionId = entry.arguments?.getInt("questionId") ?: return@composable
 
-            UpdateQuestionScreen (
+            UpdateQuestionScreen(
                 questionId = questionId,
                 onCancelClick = { navController.popBackStack() }
             )
@@ -162,7 +163,11 @@ fun HomeTabsNavHost(
             QuizDetailScreen(
                 quizId = quizId,
                 onBack = { navController.popBackStack() },
-                onCreateSectionClick = { TODO() },
+                onCreateSectionClick = { questionId ->
+                    navController.navigate(HomeRoutes.createQuestionSection(questionId)) {
+                        launchSingleTop = true
+                    }
+                },
                 onUpdateQuizClick = { TODO() },
                 onCreateAssignmentClick = { TODO() },
                 onEditSectionClick = { TODO() },
@@ -181,6 +186,23 @@ fun HomeTabsNavHost(
                     TODO()
                 },
                 onBack = { navController.popBackStack() },
+            )
+        }
+        composable(
+            route = HomeRoutes.CREATE_QUESTION_SECTION,
+            arguments = listOf(navArgument("quizId") { type = NavType.IntType })
+        ) { entry ->
+            val quizId = entry.arguments?.getInt("quizId") ?: return@composable
+
+            CreateQuestionSectionScreen(
+                quizId = quizId,
+                onCreateQuestionsClick = {
+                    navController.popBackStack()
+                    navController.navigate(HomeRoutes.QUESTIONS) {
+                        launchSingleTop = true
+                    }
+                },
+                onCancelClick = { navController.popBackStack() }
             )
         }
     }

@@ -13,6 +13,7 @@ import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
 import com.i11usion.core.domain.repository.QuizRepository
+import com.i11usion.core.network.model.quiz.QuestionSectionRequestDto
 import com.i11usion.core.network.quiz.QuizService
 import com.i11usion.data.mapper.domainToDto
 import com.i11usion.data.mapper.dtoToDomain
@@ -134,5 +135,23 @@ class QuizRepositoryImpl @Inject constructor(
 
     override suspend fun getQuizAnalytics(quizId: Int): QuizAnalytics {
         return quizService.getQuizAnalytics(quizId).dtoToDomain()
+    }
+
+    override suspend fun createQuestionSection(
+        quizId: Int,
+        title: String,
+        description: String?,
+        orderIndex: Int,
+        pickCount: Int?,
+        questionIds: List<Int>
+    ) {
+        val body = QuestionSectionRequestDto(
+            title = title,
+            description = description,
+            orderIndex = orderIndex,
+            pickCount = pickCount,
+            questionIds = questionIds
+        )
+        return quizService.createQuestionSection(quizId, body)
     }
 }
