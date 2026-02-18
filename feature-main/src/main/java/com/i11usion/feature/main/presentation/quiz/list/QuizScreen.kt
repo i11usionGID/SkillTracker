@@ -200,7 +200,7 @@ fun QuizScreen(
                             } else {
                                 items(
                                     items = state.assignmentsList,
-                                    key = { quiz -> quiz.id }
+                                    key = { quiz -> quiz.assignmentId }
                                 ) { quiz ->
                                     QuizCardEmployee(
                                         title = quiz.title,

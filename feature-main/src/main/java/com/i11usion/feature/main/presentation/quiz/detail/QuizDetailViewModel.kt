@@ -12,11 +12,9 @@ import com.i11usion.core.domain.usecase.quiz.GetQuestionSectionsUseCase
 import com.i11usion.core.domain.usecase.quiz.GetQuizAnalyticsUseCase
 import com.i11usion.core.domain.usecase.quiz.GetQuizAssignmentsUseCase
 import com.i11usion.core.domain.usecase.quiz.GetQuizByIdUseCase
-import com.i11usion.core.ui.formatter.formatInstantToStringData
 import com.i11usion.feature.main.presentation.quiz.detail.mapper.toUiModel
 import com.i11usion.feature.main.presentation.quiz.detail.model.AssignmentDetailUiModel
 import com.i11usion.feature.main.presentation.quiz.detail.model.QuestionSectionUiModel
-import com.i11usion.feature.main.presentation.quiz.list.mapper.quizToQuizManagerUi
 import com.i11usion.feature.main.presentation.quiz.list.model.QuizManagerUiModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,7 +23,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.collections.map
 
 class QuizDetailViewModel @Inject constructor(
     private val getQuizByIdUseCase: GetQuizByIdUseCase,

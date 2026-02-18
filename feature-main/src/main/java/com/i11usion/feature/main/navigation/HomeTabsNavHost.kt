@@ -11,6 +11,7 @@ import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
 import com.i11usion.feature.main.presentation.quiz.create.CreateQuizScreen
 import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailScreen
+import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentScreen
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.CreateQuestionSectionScreen
 import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
@@ -169,8 +170,12 @@ fun HomeTabsNavHost(
                     }
                 },
                 onUpdateQuizClick = { TODO() },
-                onCreateAssignmentClick = { TODO() },
-                onEditSectionClick = { TODO() },
+                onCreateAssignmentClick = { questionId ->
+                    navController.navigate(HomeRoutes.createAssignment(questionId)) {
+                        launchSingleTop = true
+                    }
+                },
+                onEditQuestionSectionClick = { TODO() },
                 onCheckAttemptsClick = { TODO() }
             )
         }
@@ -202,6 +207,17 @@ fun HomeTabsNavHost(
                         launchSingleTop = true
                     }
                 },
+                onCancelClick = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = HomeRoutes.CREATE_ASSIGNMENT,
+            arguments = listOf(navArgument("quizId") { type = NavType.IntType })
+        ) { entry ->
+            val quizId = entry.arguments?.getInt("quizId") ?: return@composable
+
+            CreateAssignmentScreen(
+                quizId = quizId,
                 onCancelClick = { navController.popBackStack() }
             )
         }

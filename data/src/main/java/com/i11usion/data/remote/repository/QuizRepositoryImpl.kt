@@ -13,11 +13,13 @@ import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
 import com.i11usion.core.domain.repository.QuizRepository
+import com.i11usion.core.network.model.quiz.AssignmentRequestDto
 import com.i11usion.core.network.model.quiz.QuestionSectionRequestDto
 import com.i11usion.core.network.quiz.QuizService
 import com.i11usion.data.mapper.domainToDto
 import com.i11usion.data.mapper.dtoToDomain
 import com.i11usion.data.mapper.quizDtoToQuiz
+import java.time.Instant
 import javax.inject.Inject
 
 class QuizRepositoryImpl @Inject constructor(
@@ -153,5 +155,25 @@ class QuizRepositoryImpl @Inject constructor(
             questionIds = questionIds
         )
         return quizService.createQuestionSection(quizId, body)
+    }
+
+    override suspend fun createAssignment(
+        quizId: Int,
+        assignedToUserId: Int?,
+        taskId: Int?,
+        required: Boolean,
+        deadline: Instant?,
+        maxAttempts: Int?,
+        cooldownHours: Int
+    ) {
+        val body = AssignmentRequestDto(
+            assignedToUserId = assignedToUserId,
+            taskId = taskId,
+            required = required,
+            deadline = deadline.toString(),
+            maxAttempts = maxAttempts,
+            cooldownHours = cooldownHours
+        )
+        quizService.createAssignment(quizId, body)
     }
 }

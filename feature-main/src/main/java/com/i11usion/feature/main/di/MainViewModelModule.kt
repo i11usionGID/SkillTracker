@@ -6,6 +6,7 @@ import com.i11usion.feature.main.presentation.HomeViewModel
 import com.i11usion.feature.main.presentation.dashboard.DashboardViewModel
 import com.i11usion.feature.main.presentation.quiz.create.CreateQuizViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailViewModel
+import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.CreateQuestionSectionViewModel
 import com.i11usion.feature.main.presentation.quiz.list.QuizViewModel
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionViewModel
@@ -97,4 +98,9 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(CreateQuestionSectionViewModel::class)
     fun bindCreateQuestionSectionViewModel(vm: CreateQuestionSectionViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(CreateAssignmentViewModel::class)
+    fun bindCreateAssignmentViewModel(vm: CreateAssignmentViewModel): ViewModel
 }

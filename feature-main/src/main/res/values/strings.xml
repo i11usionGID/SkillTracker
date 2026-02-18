@@ -182,4 +182,6 @@
     <string name="empty_question_sections">Секций пока нет. Добавьте первую секцию.</string>
     <string name="empty_assignment_section">Назначений пока нет. Создайте первое назначение.</string>
     <string name="attempts">"Попытки "</string>
+    <string name="set_pass_percent">Установить проходной балл</string>
+    <string name="pass_percent">Проходной балл</string>
 </resources>

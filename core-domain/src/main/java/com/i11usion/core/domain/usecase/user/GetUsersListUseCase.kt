@@ -8,10 +8,10 @@ class GetUsersListUseCase @Inject constructor(
     private val repository: UserRepository
 ) {
     suspend operator fun invoke(
-        page: Int?,
-        perPage: Int?,
-        search: String?,
-        role: String?
+        page: Int? = null,
+        perPage: Int? = null,
+        search: String? = null,
+        role: String? = null
     ): List<User> {
         return repository.getUserList(page = page, perPage = perPage, search = search, role = role)
     }

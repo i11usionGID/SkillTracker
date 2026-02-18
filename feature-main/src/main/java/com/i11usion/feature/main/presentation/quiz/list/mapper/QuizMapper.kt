@@ -25,6 +25,7 @@ fun Quiz.quizToQuizManagerUi(formatter: (Instant) -> String): com.i11usion.featu
 fun MyQuizAssignment.quizToQuizEmployeeUi(formatter: (Instant?) -> String): com.i11usion.feature.main.presentation.quiz.list.model.QuizEmployeeUiModel {
     return _root_ide_package_.com.i11usion.feature.main.presentation.quiz.list.model.QuizEmployeeUiModel(
         id = quiz.id,
+        assignmentId = assignment.id,
         title = quiz.title,
         description = quiz.description,
         required = assignment.required,

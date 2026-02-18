@@ -62,7 +62,7 @@ fun QuizDetailScreen(
     onCreateSectionClick: (Int) -> Unit,
     onUpdateQuizClick: (Int) -> Unit,
     onCreateAssignmentClick: (Int) -> Unit,
-    onEditSectionClick: (Int) -> Unit,
+    onEditQuestionSectionClick: (Int) -> Unit,
     onCheckAttemptsClick: (Int) -> Unit
 ) {
     val viewModel: QuizDetailViewModel = viewModel(factory = LocalViewModelFactory.current)
@@ -197,7 +197,7 @@ fun QuizDetailScreen(
                                     description = section.description,
                                     questionList = section.questions,
                                     onEditSectionClick = {
-                                        onEditSectionClick(section.id)
+                                        onEditQuestionSectionClick(section.id)
                                     },
                                     onDeleteSectionClick = {
                                         viewModel.processCommand(
@@ -1178,14 +1178,14 @@ private fun AnalyticCard(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
+        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 32.dp)) {
             Text(
                 text = title,
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 fontSize = 16.sp
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = value,

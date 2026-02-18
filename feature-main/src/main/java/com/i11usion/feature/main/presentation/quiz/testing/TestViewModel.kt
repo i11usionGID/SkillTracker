@@ -1,6 +1,5 @@
 package com.i11usion.feature.main.presentation.quiz.testing
 
-import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i11usion.core.domain.model.quiz.QuestionType
@@ -107,7 +106,6 @@ class TestViewModel @Inject constructor(
     }
 
 
-    @SuppressLint("NewApi")
     private fun computeRemainingSeconds(startedAt: Instant, limitSeconds: Int?): Int? {
         if (limitSeconds == null) return null
         val end = startedAt.epochSecond + limitSeconds.toLong()

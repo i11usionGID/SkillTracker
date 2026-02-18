@@ -10,9 +10,9 @@ class GetTaskListUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {
     suspend operator fun invoke(
-        status: TaskStatus?,
-        employeeId: Int?,
-        search: String?
+        status: TaskStatus? = null,
+        employeeId: Int? = null,
+        search: String? = null
     ): List<Task> {
         return repository.getTaskList(
             status = status?.taskStatusToString(),

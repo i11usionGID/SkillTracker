@@ -11,6 +11,7 @@ import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
+import java.time.Instant
 
 interface QuizRepository {
     suspend fun getQuizzes(page: Int?, perPage: Int?, status: String?, search: String?): List<Quiz>
@@ -37,5 +38,15 @@ interface QuizRepository {
         orderIndex: Int,
         pickCount: Int?,
         questionIds: List<Int>
+    )
+
+    suspend fun createAssignment(
+        quizId: Int,
+        assignedToUserId: Int?,
+        taskId: Int?,
+        required: Boolean,
+        deadline: Instant?,
+        maxAttempts: Int?,
+        cooldownHours: Int
     )
 }

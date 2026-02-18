@@ -206,7 +206,7 @@ fun CreateQuizScreen(
             }
 
             if (showPassDialog) {
-                UpdateProgressDialog(
+                UpdatePassPercentDialog(
                     progress = tempPassPercent,
                     onProgressChange = { tempPassPercent = it.coerceIn(0, 100) },
                     onDismiss = { showPassDialog = false },
@@ -581,7 +581,7 @@ private fun CheckField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun UpdateProgressDialog(
+private fun UpdatePassPercentDialog(
     progress: Int,
     onProgressChange: (Int) -> Unit,
     onDismiss: () -> Unit,
@@ -598,7 +598,7 @@ private fun UpdateProgressDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.update_progress),
+                    text = stringResource(R.string.set_pass_percent),
                     style = MaterialTheme.typography.titleLarge
                 )
 
@@ -613,7 +613,7 @@ private fun UpdateProgressDialog(
         text = {
             Column {
                 Text(
-                    text = stringResource(R.string.progress) + ": $progress%",
+                    text = stringResource(R.string.pass_percent) + ": $progress%",
                     style = MaterialTheme.typography.bodyLarge
                 )
 
