@@ -1,10 +1,13 @@
 package com.i11usion.data.remote.repository
 
 import android.util.Log
+import com.i11usion.core.domain.model.quiz.AssignmentDetail
 import com.i11usion.core.domain.model.quiz.MyQuizAssignment
 import com.i11usion.core.domain.model.quiz.Question
+import com.i11usion.core.domain.model.quiz.QuestionSection
 import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.Quiz
+import com.i11usion.core.domain.model.quiz.QuizAnalytics
 import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
@@ -107,5 +110,29 @@ class QuizRepositoryImpl @Inject constructor(
     ): AttemptSubmit {
         val body = request.domainToDto()
         return quizService.submitAttempt(attemptId = attemptId, body = body).dtoToDomain()
+    }
+
+    override suspend fun getQuizById(quizId: Int): Quiz {
+        return quizService.getQuizById(quizId).quizDtoToQuiz()
+    }
+
+    override suspend fun getQuizAssignments(quizId: Int): List<AssignmentDetail> {
+        return quizService.getQuizAssignments(quizId).map { it.dtoToDomain() }
+    }
+
+    override suspend fun deleteAssignment(assignmentId: Int) {
+        quizService.deleteAssignment(assignmentId)
+    }
+
+    override suspend fun getQuestionSections(quizId: Int): List<QuestionSection> {
+        return quizService.getQuestionSections(quizId).map { it.dtoToDomain() }
+    }
+
+    override suspend fun deleteSection(quizId: Int, sectionId: Int) {
+        quizService.deleteSection(quizId = quizId, sectionId = sectionId)
+    }
+
+    override suspend fun getQuizAnalytics(quizId: Int): QuizAnalytics {
+        return quizService.getQuizAnalytics(quizId).dtoToDomain()
     }
 }

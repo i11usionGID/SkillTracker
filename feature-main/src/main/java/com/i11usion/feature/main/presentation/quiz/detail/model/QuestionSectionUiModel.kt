@@ -1,6 +1,6 @@
 package com.i11usion.feature.main.presentation.quiz.detail.model
 
-data class QuizSectionUiModel(
+data class QuestionSectionUiModel(
     val id: Int,
     val quizId: Int,
     val title: String,

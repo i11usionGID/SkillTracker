@@ -159,10 +159,10 @@
     <string name="seconds">Секунды</string>
     <string name="max_attempts_not_required">Максимум попыток (необязательно)</string>
     <string name="max_attempts">Макс. попыток</string>
-    <string name="max_attempts_with_colon">Макс. попыток: </string>
-    <string name="cooldown_hours">Пауза между попытками: </string>
-    <string name="attempts_taken">Попыток использовано: </string>
-    <string name="remaining_attempts">Осталось попыток: </string>
+    <string name="max_attempts_with_colon">"Макс. попыток: "</string>
+    <string name="cooldown_hours">"Пауза между попытками: "</string>
+    <string name="attempts_taken">"Попыток использовано: "</string>
+    <string name="remaining_attempts">"Осталось попыток: "</string>
     <string name="time_limit_not_required">Ограничение времени (необязательно)</string>
     <string name="max_attempts_test_hit">Ограничение попыток на повторное прохождение теста</string>
     <string name="draft">Черновик</string>
@@ -170,7 +170,7 @@
     <string name="add_section">Добавить секцию</string>
     <string name="create_assignment">Создать назначение</string>
     <string name="order_index">"Порядок: "</string>
-    <string name="pick_count">"Выбрать "</string>
+    <string name="pick_count">"Выбрать: "</string>
     <string name="questions">"Вопросы "</string>
     <string name="required">Обязательно</string>
     <string name="cd_assignment_attach_to_task">Назначениепривязано к этой задаче</string>
@@ -179,4 +179,7 @@
     <string name="total_attempts">Всего попыток</string>
     <string name="completed">Завершено</string>
     <string name="pass_rate">Процент сдачи</string>
+    <string name="empty_question_sections">Секций пока нет. Добавьте первую секцию.</string>
+    <string name="empty_assignment_section">Назначений пока нет. Создайте первое назначение.</string>
+    <string name="attempts">"Попытки "</string>
 </resources>

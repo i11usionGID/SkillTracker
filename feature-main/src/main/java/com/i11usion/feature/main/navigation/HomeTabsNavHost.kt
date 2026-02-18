@@ -165,7 +165,8 @@ fun HomeTabsNavHost(
                 onCreateSectionClick = { TODO() },
                 onUpdateQuizClick = { TODO() },
                 onCreateAssignmentClick = { TODO() },
-                onEditSectionClick = { TODO() }
+                onEditSectionClick = { TODO() },
+                onCheckAttemptsClick = { TODO() }
             )
         }
         composable(

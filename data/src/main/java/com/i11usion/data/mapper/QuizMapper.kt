@@ -1,11 +1,15 @@
 package com.i11usion.data.mapper
 
+import com.i11usion.core.domain.model.quiz.Assignment
+import com.i11usion.core.domain.model.quiz.AssignmentDetail
 import com.i11usion.core.domain.model.quiz.MatcherType
 import com.i11usion.core.domain.model.quiz.MyQuizAssignment
 import com.i11usion.core.domain.model.quiz.Question
 import com.i11usion.core.domain.model.quiz.QuestionOption
+import com.i11usion.core.domain.model.quiz.QuestionSection
 import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.Quiz
+import com.i11usion.core.domain.model.quiz.QuizAnalytics
 import com.i11usion.core.domain.model.quiz.QuizAssignment
 import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.model.quiz.QuizStatus
@@ -17,6 +21,8 @@ import com.i11usion.core.domain.model.quiz.attempt.AttemptStatus
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitAnswer
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
+import com.i11usion.core.network.model.quiz.AssignmentDetailDto
+import com.i11usion.core.network.model.quiz.AssignmentDto
 import com.i11usion.core.network.model.quiz.MyQuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuestionDto
 import com.i11usion.core.network.model.quiz.QuestionOptionDto
@@ -26,6 +32,8 @@ import com.i11usion.core.network.model.quiz.QuestionTextAnswerRequestDto
 import com.i11usion.core.network.model.quiz.QuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuizCreateRequestDto
 import com.i11usion.core.network.model.quiz.QuizDto
+import com.i11usion.core.network.model.quiz.QuestionSectionDto
+import com.i11usion.core.network.model.quiz.QuizAnalyticsDto
 import com.i11usion.core.network.model.quiz.TextAnswerDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptAnswerDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptQuestionDto
@@ -196,6 +204,53 @@ fun AttemptAnswerDto.dtoToDomain(): AttemptAnswerResult =
         isCorrect = isCorrect,
         selectedOptionIds = selectedOptionIds,
         textAnswer = textAnswer
+    )
+
+fun QuestionSectionDto.dtoToDomain(): QuestionSection =
+    QuestionSection(
+        id = id,
+        quizId = quizId,
+        title = title,
+        description = description,
+        orderIndex = orderIndex,
+        pickCount = pickCount,
+        questions = questions.map {
+            it.dtoToDomain()
+        }
+    )
+
+fun AssignmentDetailDto.dtoToDomain(): AssignmentDetail =
+    AssignmentDetail(
+        assignment = assignment.dtoToDomain(),
+        quiz = quiz.quizDtoToQuiz(),
+        task = task?.taskDtoToTask(),
+        assignedUser = assignedUser?.userDtoToUser()
+    )
+
+fun AssignmentDto.dtoToDomain(): Assignment =
+    Assignment(
+        id = id,
+        quizId = quizId,
+        assignedToUserId = assignedToUserId,
+        taskId = taskId,
+        required = required,
+        dueAt = dueAt?.let {
+            Instant.parse(it)
+        },
+        maxAttempts = maxAttempts,
+        cooldownHours = cooldownHours,
+        createdAt = Instant.parse(createdAt),
+        attemptsTaken = attemptsTaken,
+        remainingAttempts = remainingAttempts
+    )
+
+fun QuizAnalyticsDto.dtoToDomain(): QuizAnalytics =
+    QuizAnalytics(
+        quizId = quizId,
+        totalAssignments = totalAssignments,
+        totalAttempts = totalAttempts,
+        completedAttempts = completedAttempts,
+        passRate = passRate
     )
 
 private fun String.toAttemptStatus(): AttemptStatus = when (this.lowercase()) {

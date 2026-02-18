@@ -63,6 +63,7 @@ fun QuizDetailScreen(
     onUpdateQuizClick: (Int) -> Unit,
     onCreateAssignmentClick: (Int) -> Unit,
     onEditSectionClick: (Int) -> Unit,
+    onCheckAttemptsClick: (Int) -> Unit
 ) {
     val viewModel: QuizDetailViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
@@ -180,25 +181,35 @@ fun QuizDetailScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
-                        items(
-                            items = state.sections,
-                            key = { section -> section.id }
-                        ) { section ->
-                            SectionCard(
-                                title = section.title,
-                                orderIndex = section.orderIndex,
-                                pickCount = section.pickCount,
-                                description = section.description,
-                                questionList = section.questions,
-                                onEditSectionClick = {
-                                    onEditSectionClick(section.id)
-                                },
-                                onDeleteSectionClick = {
-                                    //viewModel.processCommand(QuizDetailCommand.DeleteSection(section.id))
-                                }
-                            )
+                        if (state.sections.isEmpty()) {
+                            item {
+                                EmptyQuestionSections()
+                            }
+                        } else {
+                            items(
+                                items = state.sections,
+                                key = { section -> section.id }
+                            ) { section ->
+                                SectionCard(
+                                    title = section.title,
+                                    orderIndex = section.orderIndex,
+                                    pickCount = section.pickCount,
+                                    description = section.description,
+                                    questionList = section.questions,
+                                    onEditSectionClick = {
+                                        onEditSectionClick(section.id)
+                                    },
+                                    onDeleteSectionClick = {
+                                        viewModel.processCommand(
+                                            QuizDetailCommand.DeleteSection(
+                                                section.id
+                                            )
+                                        )
+                                    }
+                                )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
                         }
                     }
 
@@ -223,29 +234,38 @@ fun QuizDetailScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
-                        items(
-                            items = state.assignments,
-                            key = { assignment -> assignment.id }
-                        ) { assignment ->
-                            AssignmentCard(
-                                required = assignment.required,
-                                allowedUserUsername = assignment.allowedUserUsername,
-                                allowedUserName = assignment.allowedUserName,
-                                taskTitle = assignment.taskTitle,
-                                dueAt = assignment.dueAt,
-                                maxAttempts = assignment.maxAttempts,
-                                cooldownHours = assignment.cooldownHours,
-                                attemptsTaken = assignment.attemptsTaken,
-                                remainingAttempts = assignment.remainingAttempts,
-                                onDeleteAssignment = {
-//                                    viewModel.processCommand(
-//                                        QuizDetailCommand.DeleteAssignment(
-//                                            assignment.id
-//                                        )
-//                                    )
-                                }
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
+                        if (state.assignments.isEmpty()) {
+                            item {
+                                EmptyAssignmentSection()
+                            }
+                        } else {
+                            items(
+                                items = state.assignments,
+                                key = { assignment -> assignment.id }
+                            ) { assignment ->
+                                AssignmentCard(
+                                    required = assignment.required,
+                                    allowedUserUsername = assignment.allowedUserUsername,
+                                    allowedUserName = assignment.allowedUserName,
+                                    taskTitle = assignment.taskTitle,
+                                    dueAt = assignment.dueAt,
+                                    maxAttempts = assignment.maxAttempts,
+                                    cooldownHours = assignment.cooldownHours,
+                                    attemptsTaken = assignment.attemptsTaken,
+                                    remainingAttempts = assignment.remainingAttempts,
+                                    onDeleteAssignment = {
+                                        viewModel.processCommand(
+                                            QuizDetailCommand.DeleteAssignment(
+                                                assignment.id
+                                            )
+                                        )
+                                    },
+                                    onCheckAttemptsClick = {
+                                        onCheckAttemptsClick(assignment.id)
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
                         }
                     }
 
@@ -305,7 +325,7 @@ private fun QuizDetailHeader(
             }
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         Box(
             modifier = Modifier.background(
@@ -315,15 +335,15 @@ private fun QuizDetailHeader(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                 text = statusText,
                 color = statusColor,
-                fontSize = 16.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold
             )
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         Button(
             onClick = onUpdateQuizClick,
@@ -347,7 +367,7 @@ private fun QuizDetailHeader(
 
                 Text(
                     text = stringResource(R.string.edit),
-                    fontSize = 16.sp,
+                    fontSize = 15.sp,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -446,39 +466,45 @@ private fun QuizDetailCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     if (timeLimit != null) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.time_limit),
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                fontSize = 16.sp
-                            )
+                        Box(modifier = Modifier.weight(1f)) {
+                            Column {
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.time_limit),
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    fontSize = 16.sp
+                                )
 
-                            Text(
-                                text = timeLimit,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 16.sp,
-                            )
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text(
+                                    text = timeLimit,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 16.sp,
+                                )
+                            }
                         }
                     }
 
-                    if (maxAttempts != null) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.max_attempts),
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                fontSize = 16.sp
-                            )
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (maxAttempts != null) {
+                            Column {
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.max_attempts),
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    fontSize = 16.sp
+                                )
 
-                            Text(
-                                text = maxAttempts,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text(
+                                    text = maxAttempts,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
@@ -514,26 +540,53 @@ private fun FilterItem(
     isSelected: Boolean,
     onSelectItem: () -> Unit
 ) {
-    Column(
-        modifier = modifier.clickable(onClick = onSelectItem),
-        horizontalAlignment = Alignment.CenterHorizontally
+    val color = if (isSelected)
+        MaterialTheme.colorScheme.primary
+    else
+        MaterialTheme.colorScheme.surfaceVariant
+
+    Box(
+        modifier = modifier
+            .height(64.dp)
+            .clickable(onClick = onSelectItem)
     ) {
         Text(
             text = filterText,
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+            color = color,
             fontSize = 16.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(horizontal = 8.dp)
+                .fillMaxWidth()
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         Box(
             modifier = Modifier
-                .height(2.dp)
+                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .background(
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-                )
+                .padding(horizontal = 8.dp)
+                .height(2.dp)
+                .background(color)
+        )
+    }
+}
+
+@Composable
+private fun EmptyQuestionSections(
+    modifier: Modifier = Modifier
+) {
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(R.string.empty_question_sections),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -713,7 +766,7 @@ private fun QuestionItem(
     ) {
         Text(
             text = "$number.",
-            color = MaterialTheme.colorScheme.surfaceBright,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 16.sp
         )
 
@@ -746,18 +799,38 @@ private fun QuestionItem(
 }
 
 @Composable
+private fun EmptyAssignmentSection(
+    modifier: Modifier = Modifier
+) {
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(R.string.empty_assignment_section),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
 private fun AssignmentCard(
     modifier: Modifier = Modifier,
     required: Boolean,
-    allowedUserUsername: String,
-    allowedUserName: String,
+    allowedUserUsername: String?,
+    allowedUserName: String?,
     taskTitle: String?,
     dueAt: String?,
     maxAttempts: Int?,
     cooldownHours: Int,
     attemptsTaken: Int,
     remainingAttempts: Int?,
-    onDeleteAssignment: () -> Unit
+    onDeleteAssignment: () -> Unit,
+    onCheckAttemptsClick: () -> Unit
 ) {
     Card(
         modifier = modifier,
@@ -778,13 +851,16 @@ private fun AssignmentCard(
     ) {
         Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
 
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(30.dp)
+                            .size(40.dp)
                             .background(
                                 color = MaterialTheme.colorScheme.surfaceBright,
                                 shape = CircleShape
@@ -792,24 +868,22 @@ private fun AssignmentCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = allowedUserName[0].toString(),
+                            text = allowedUserName?.get(0).toString(),
                             color = MaterialTheme.colorScheme.surfaceVariant,
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 18.sp
+                            fontSize = 24.sp
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
 
                     Column {
                         Text(
-                            text = allowedUserName,
+                            text = allowedUserName ?: "Неизвестно",
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
-
-                        Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
                             text = "@$allowedUserUsername",
@@ -819,26 +893,41 @@ private fun AssignmentCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.weight(1f))
 
-                if (required) {
+                if (attemptsTaken != 0) {
                     Box(
-                        modifier = Modifier.background(
-                            color = MaterialTheme.colorScheme.errorContainer,
-                            shape = RoundedCornerShape(50.dp)
-                        ),
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceBright,
+                                shape = RoundedCornerShape(50.dp)
+                            )
+                            .clickable(onClick = onCheckAttemptsClick),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            text = stringResource(R.string.required),
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 16.sp
-                        )
+                        Row(
+                            modifier = Modifier.padding(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_folder),
+                                contentDescription = "Посмотреть попытки пользователя пройти тест",
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Text(
+                                text = stringResource(R.string.attempts) + "($attemptsTaken)",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 16.sp
+                            )
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Box(
                     modifier = Modifier
@@ -864,23 +953,42 @@ private fun AssignmentCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            if (!taskTitle.isNullOrBlank()) {
+            if (!taskTitle.isNullOrBlank() || required) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    if (required) {
+                        Box(
+                            modifier = Modifier.background(
+                                color = MaterialTheme.colorScheme.errorContainer,
+                                shape = RoundedCornerShape(50.dp)
+                            ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                text = stringResource(R.string.required),
+                                color = MaterialTheme.colorScheme.error,
+                                fontSize = 16.sp
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+
                     Icon(
                         painter = painterResource(R.drawable.ic_folder),
                         contentDescription = stringResource(R.string.cd_assignment_attach_to_task),
                         modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.surfaceBright
+                        tint = MaterialTheme.colorScheme.surfaceVariant
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
                         text = stringResource(R.string.task) + taskTitle,
-                        color = MaterialTheme.colorScheme.surfaceBright,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         fontSize = 16.sp
                     )
                 }
@@ -901,7 +1009,7 @@ private fun AssignmentCard(
                 Text(
                     text = buildAnnotatedString {
                         withStyle(
-                            style = SpanStyle(color = MaterialTheme.colorScheme.surfaceBright)
+                            style = SpanStyle(color = MaterialTheme.colorScheme.surfaceVariant)
                         ) {
                             append(stringResource(R.string.deadline_with_colon))
                         }
@@ -922,7 +1030,7 @@ private fun AssignmentCard(
                 Text(
                     text = buildAnnotatedString {
                         withStyle(
-                            style = SpanStyle(color = MaterialTheme.colorScheme.surfaceBright)
+                            style = SpanStyle(color = MaterialTheme.colorScheme.surfaceVariant)
                         ) {
                             append(stringResource(R.string.max_attempts_with_colon))
                         }
@@ -942,7 +1050,7 @@ private fun AssignmentCard(
             Text(
                 text = buildAnnotatedString {
                     withStyle(
-                        style = SpanStyle(color = MaterialTheme.colorScheme.surfaceBright)
+                        style = SpanStyle(color = MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         append(stringResource(R.string.cooldown_hours))
                     }
@@ -961,7 +1069,7 @@ private fun AssignmentCard(
             Text(
                 text = buildAnnotatedString {
                     withStyle(
-                        style = SpanStyle(color = MaterialTheme.colorScheme.surfaceBright)
+                        style = SpanStyle(color = MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         append(stringResource(R.string.attempts_taken))
                     }
@@ -981,7 +1089,7 @@ private fun AssignmentCard(
                 Text(
                     text = buildAnnotatedString {
                         withStyle(
-                            style = SpanStyle(color = MaterialTheme.colorScheme.surfaceBright)
+                            style = SpanStyle(color = MaterialTheme.colorScheme.surfaceVariant)
                         ) {
                             append(stringResource(R.string.remaining_attempts))
                         }
@@ -1029,10 +1137,18 @@ private fun AnalyticsBlock(
 
     Spacer(modifier = Modifier.height(16.dp))
 
+    val passRateText = String.format("%.1f%%", analytics.passRate)
+    val passPercentColor = when {
+        analytics.passRate == 0.0 -> MaterialTheme.colorScheme.onSurface
+        analytics.passRate < 33.34 -> MaterialTheme.colorScheme.error
+        analytics.passRate < 66.67 -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.tertiary
+    }
+
     AnalyticCard(
         title = stringResource(R.string.pass_rate),
-        value = analytics.passRate.toString() + "%",
-        valueColor = MaterialTheme.colorScheme.onTertiary
+        value = passRateText,
+        valueColor = passPercentColor
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -1046,7 +1162,7 @@ private fun AnalyticCard(
     valueColor: Color
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(32.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.onPrimary,
@@ -1065,7 +1181,7 @@ private fun AnalyticCard(
         Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
             Text(
                 text = title,
-                color = MaterialTheme.colorScheme.surfaceBright,
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 fontSize = 16.sp
             )
 
@@ -1074,7 +1190,7 @@ private fun AnalyticCard(
             Text(
                 text = value,
                 color = valueColor,
-                fontSize = 24.sp,
+                fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )
         }

@@ -1,10 +1,13 @@
 package com.i11usion.core.network.quiz
 
+import com.i11usion.core.network.model.quiz.AssignmentDetailDto
 import com.i11usion.core.network.model.quiz.MyQuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuestionDto
 import com.i11usion.core.network.model.quiz.QuestionRequestDto
+import com.i11usion.core.network.model.quiz.QuizAnalyticsDto
 import com.i11usion.core.network.model.quiz.QuizCreateRequestDto
 import com.i11usion.core.network.model.quiz.QuizDto
+import com.i11usion.core.network.model.quiz.QuestionSectionDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptStartResponseDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitRequestDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitResponseDto
@@ -75,4 +78,35 @@ interface QuizService {
         @Path("attempt_id") attemptId: Int,
         @Body body: AttemptSubmitRequestDto
     ): AttemptSubmitResponseDto
+
+    @GET("/api/quizzes/{quiz_id}")
+    suspend fun getQuizById(
+        @Path("quiz_id") quizId: Int
+    ): QuizDto
+
+    @GET("/api/quizzes/{quiz_id}/assignment-details")
+    suspend fun getQuizAssignments(
+        @Path("quiz_id") quizId: Int
+    ): List<AssignmentDetailDto>
+
+    @DELETE("/api/quizzes/assignments/{assignment_id}")
+    suspend fun deleteAssignment(
+        @Path("assignment_id") assignmentId: Int
+    )
+
+    @GET("/api/quizzes/{quiz_id}/sections")
+    suspend fun getQuestionSections(
+        @Path("quiz_id") quizId: Int
+    ): List<QuestionSectionDto>
+
+    @DELETE("/api/quizzes/{quiz_id}/sections/{section_id}")
+    suspend fun deleteSection(
+        @Path("quiz_id") quizId: Int,
+        @Path("section_id") sectionId: Int
+    )
+
+    @GET("/api/quizzes/{quiz_id}/analytics")
+    suspend fun getQuizAnalytics(
+        @Path("quiz_id") quizId: Int
+    ): QuizAnalyticsDto
 }
