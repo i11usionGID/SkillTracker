@@ -8,7 +8,9 @@ import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.model.quiz.QuizAnalytics
 import com.i11usion.core.domain.model.quiz.QuizCreate
+import com.i11usion.core.domain.model.quiz.attempt.Attempt
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
+import com.i11usion.core.domain.model.quiz.attempt.AttemptStatus
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
 import java.time.Instant
@@ -51,4 +53,13 @@ interface QuizRepository {
     )
 
     suspend fun updateQuiz(quizId: Int, quiz: QuizCreate)
+
+    suspend fun getQuizAttempts(
+        quizId: Int,
+        userId: Int? = null,
+        assignmentId: Int? = null,
+        status: AttemptStatus? = null,
+        page: Int? = null,
+        perPage: Int? = null
+    ): List<Attempt>
 }

@@ -14,6 +14,7 @@ import com.i11usion.core.domain.model.quiz.QuizAssignment
 import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.core.domain.model.quiz.TextAnswer
+import com.i11usion.core.domain.model.quiz.attempt.Attempt
 import com.i11usion.core.domain.model.quiz.attempt.AttemptAnswerResult
 import com.i11usion.core.domain.model.quiz.attempt.AttemptQuestion
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
@@ -36,6 +37,7 @@ import com.i11usion.core.network.model.quiz.QuestionSectionDto
 import com.i11usion.core.network.model.quiz.QuizAnalyticsDto
 import com.i11usion.core.network.model.quiz.TextAnswerDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptAnswerDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptQuestionDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptStartResponseDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitAnswerDto
@@ -251,6 +253,26 @@ fun QuizAnalyticsDto.dtoToDomain(): QuizAnalytics =
         totalAttempts = totalAttempts,
         completedAttempts = completedAttempts,
         passRate = passRate
+    )
+
+fun AttemptDto.toDomain(): Attempt =
+    Attempt(
+        id = id,
+        quizId = quizId,
+        assignmentId = assignmentId,
+        userId = userId,
+        userName = userName,
+        status = when (status) {
+            "in_progress" -> AttemptStatus.IN_PROGRESS
+            "completed" -> AttemptStatus.COMPLETED
+            else -> AttemptStatus.EXPIRED
+        },
+        scorePercent = scorePercent,
+        passed = passed,
+        startedAt = Instant.parse(startedAt),
+        finishedAt = finishedAt?.let {
+            Instant.parse(finishedAt)
+        }
     )
 
 private fun String.toAttemptStatus(): AttemptStatus = when (this.lowercase()) {

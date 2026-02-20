@@ -9,7 +9,9 @@ import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.model.quiz.QuizAnalytics
 import com.i11usion.core.domain.model.quiz.QuizCreate
+import com.i11usion.core.domain.model.quiz.attempt.Attempt
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
+import com.i11usion.core.domain.model.quiz.attempt.AttemptStatus
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
 import com.i11usion.core.domain.repository.QuizRepository
@@ -19,6 +21,7 @@ import com.i11usion.core.network.quiz.QuizService
 import com.i11usion.data.mapper.domainToDto
 import com.i11usion.data.mapper.dtoToDomain
 import com.i11usion.data.mapper.quizDtoToQuiz
+import com.i11usion.data.mapper.toDomain
 import java.time.Instant
 import javax.inject.Inject
 
@@ -183,5 +186,32 @@ class QuizRepositoryImpl @Inject constructor(
     ) {
         val body = quiz.domainToDto()
         quizService.updateQuiz(quizId, body)
+    }
+
+    override suspend fun getQuizAttempts(
+        quizId: Int,
+        userId: Int?,
+        assignmentId: Int?,
+        status: AttemptStatus?,
+        page: Int?,
+        perPage: Int?
+    ): List<Attempt> {
+        return quizService.getQuizAttempts(
+            quizId = quizId,
+            userId = userId,
+            assignmentId = assignmentId,
+            status = status .let {
+                when (status) {
+                    AttemptStatus.IN_PROGRESS -> "in_progress"
+                    AttemptStatus.COMPLETED -> "completed"
+                    AttemptStatus.EXPIRED -> "expired"
+                    null -> null
+                }
+            },
+            page = page,
+            perPage = perPage
+        ).map {
+            it.toDomain()
+        }
     }
 }

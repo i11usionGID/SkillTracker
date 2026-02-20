@@ -17,7 +17,8 @@ import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.update.UpdateQuestionScreen
-import com.i11usion.feature.main.presentation.quiz.testing.TestScreen
+import com.i11usion.feature.main.presentation.quiz.testing.analytics.AttemptsAnalyticsScreen
+import com.i11usion.feature.main.presentation.quiz.testing.test.TestScreen
 import com.i11usion.feature.main.presentation.quiz.update.UpdateQuizScreen
 import com.i11usion.feature.main.presentation.task.create.CreateTaskScreen
 import com.i11usion.feature.main.presentation.task.detail.TaskDetailScreen
@@ -165,23 +166,32 @@ fun HomeTabsNavHost(
             QuizDetailScreen(
                 quizId = quizId,
                 onBack = { navController.popBackStack() },
-                onCreateSectionClick = { questionId ->
-                    navController.navigate(HomeRoutes.createQuestionSection(questionId)) {
+                onCreateSectionClick = { quizId ->
+                    navController.navigate(HomeRoutes.createQuestionSection(quizId)) {
                         launchSingleTop = true
                     }
                 },
-                onUpdateQuizClick = { questionId ->
-                    navController.navigate(HomeRoutes.updateQuiz(questionId)) {
+                onUpdateQuizClick = { quizId ->
+                    navController.navigate(HomeRoutes.updateQuiz(quizId)) {
                         launchSingleTop = true
                     }
                 },
-                onCreateAssignmentClick = { questionId ->
-                    navController.navigate(HomeRoutes.createAssignment(questionId)) {
+                onCreateAssignmentClick = { quizId ->
+                    navController.navigate(HomeRoutes.createAssignment(quizId)) {
                         launchSingleTop = true
                     }
                 },
                 onEditQuestionSectionClick = { TODO() },
-                onCheckAttemptsClick = { TODO() }
+                onCheckAttemptsClick = { quizId ->
+                    navController.navigate(HomeRoutes.checkAttempts(quizId)) {
+                        launchSingleTop = true
+                    }
+                },
+                onCheckAllAttemptsClick = { quizId ->
+                    navController.navigate(HomeRoutes.checkAttempts(quizId)) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
         composable(
@@ -235,6 +245,18 @@ fun HomeTabsNavHost(
             UpdateQuizScreen(
                 quizId = quizId,
                 onCancelClick = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = HomeRoutes.CHECK_ATTEMPTS,
+            arguments = listOf(navArgument("quizId") { type = NavType.IntType })
+        ) { entry ->
+            val quizId = entry.arguments?.getInt("quizId") ?: return@composable
+
+            AttemptsAnalyticsScreen(
+                quizId = quizId,
+                onBack = { navController.popBackStack() },
+                onAttemptDetailScreen = { TODO() },
             )
         }
     }

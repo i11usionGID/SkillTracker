@@ -756,7 +756,7 @@ private fun QuizCardEmployee(
             ) {
                 Text(
                     text = if (isNoAttempts) {
-                        stringResource(R.string.no_attempts)
+                        stringResource(R.string.attempts_over)
                     } else if (isFirstAttempt == null || isFirstAttempt) {
                         stringResource(R.string.begin_testing)
                     } else {

@@ -5,11 +5,12 @@ import com.i11usion.core.network.model.quiz.AssignmentRequestDto
 import com.i11usion.core.network.model.quiz.MyQuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuestionDto
 import com.i11usion.core.network.model.quiz.QuestionRequestDto
+import com.i11usion.core.network.model.quiz.QuestionSectionDto
+import com.i11usion.core.network.model.quiz.QuestionSectionRequestDto
 import com.i11usion.core.network.model.quiz.QuizAnalyticsDto
 import com.i11usion.core.network.model.quiz.QuizCreateRequestDto
 import com.i11usion.core.network.model.quiz.QuizDto
-import com.i11usion.core.network.model.quiz.QuestionSectionDto
-import com.i11usion.core.network.model.quiz.QuestionSectionRequestDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptStartResponseDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitRequestDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitResponseDto
@@ -129,4 +130,14 @@ interface QuizService {
         @Path("quiz_id") quizId: Int,
         @Body body: QuizCreateRequestDto
     )
+
+    @GET("/api/quizzes/{quiz_id}/attempts")
+    suspend fun getQuizAttempts(
+        @Path("quiz_id") quizId: Int,
+        @Query("user_id") userId: Int?,
+        @Query("assignment_id") assignmentId: Int?,
+        @Query("status_filter") status: String?,
+        @Query("page") page: Int?,
+        @Query("per_page") perPage: Int?
+    ): List<AttemptDto>
 }

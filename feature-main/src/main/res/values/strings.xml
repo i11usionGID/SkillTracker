@@ -74,7 +74,8 @@
     <string name="try_again">Пройти снова</string>
     <string name="begin_testing">Начать тестирование</string>
     <string name="edit">Редактировать</string>
-    <string name="no_attempts">Попытки закончились</string>
+    <string name="attempts_over">Попытки закончились</string>
+    <string name="no_attempts">Нет попыток</string>
     <string name="cd_required_quiz">Этот тест необходим для прохождения</string>
     <string name="cd_back">Кнопка назад</string>
     <string name="back">Назад</string>
@@ -184,4 +185,18 @@
     <string name="attempts">"Попытки "</string>
     <string name="set_pass_percent">Установить проходной балл</string>
     <string name="pass_percent">Проходной балл</string>
+    <string name="quiz_solved_attempts">Попытки прохождения теста</string>
+    <string name="employee_filter">Фильтр по сотруднику</string>
+    <string name="cd_no_attempts_from_user">Попыток от этого пользователя еще не было</string>
+    <string name="this_employee_not_start_quiz_yet">Этот сотрудник еще не проходил тест</string>
+    <string name="user">Пользователь:</string>
+    <string name="completed_at">"Завершено: "</string>
+    <string name="begin_at">"Начато: "</string>
+    <string name="check_attempt_detail">Посмотреть детали прохождения теста</string>
+    <string name="check_detail">Посмотреть детали</string>
+    <string name="go_back">Вернуться назад</string>
+    <string name="employees_no_attempt_yet">Сотрудники еще не проходили тест</string>
+    <string name="check_all_attempts">Посмотреть все попытки</string>
+    <string name="cd_watch_all_quiz_attempts">Посмотреть попытки прохождения теста</string>
+    <string name="order">Порядок</string>
 </resources>

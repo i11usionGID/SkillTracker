@@ -63,7 +63,8 @@ fun QuizDetailScreen(
     onUpdateQuizClick: (Int) -> Unit,
     onCreateAssignmentClick: (Int) -> Unit,
     onEditQuestionSectionClick: (Int) -> Unit,
-    onCheckAttemptsClick: (Int) -> Unit
+    onCheckAttemptsClick: (Int) -> Unit,
+    onCheckAllAttemptsClick: (Int) -> Unit
 ) {
     val viewModel: QuizDetailViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
@@ -231,6 +232,33 @@ fun QuizDetailScreen(
                                 }
                             }
 
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                Button(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors()
+                                        .copy(containerColor = MaterialTheme.colorScheme.surfaceBright),
+                                    shape = RoundedCornerShape(16.dp),
+                                    onClick = { onCheckAllAttemptsClick(quizId) }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_eye),
+                                        contentDescription = stringResource(R.string.cd_watch_all_quiz_attempts),
+                                        modifier = Modifier.size(20.dp),
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
+
+                                    Spacer(modifier = Modifier.width(4.dp))
+
+                                    Text(
+                                        text = stringResource(R.string.check_all_attempts),
+                                        fontSize = 16.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
@@ -261,7 +289,7 @@ fun QuizDetailScreen(
                                         )
                                     },
                                     onCheckAttemptsClick = {
-                                        onCheckAttemptsClick(assignment.id)
+                                        onCheckAttemptsClick(quizId)
                                     }
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))

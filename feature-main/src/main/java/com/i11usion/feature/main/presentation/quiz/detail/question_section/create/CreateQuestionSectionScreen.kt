@@ -59,12 +59,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.model.QuestionInQuestionSectionUiModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -335,13 +337,10 @@ private fun CreateQuestionSectionContent(
         }
     }
 
-    // Диалог "Порядок" -> 1..selectedCount
     if (showOrderDialog) {
         NumberWheelDialog(
-            title = "Порядок",
             value = tempOrder.coerceIn(1, 100),
             range = 1..100,
-            label = "Порядок",
             onValueChange = { tempOrder = it },
             onDismiss = { showOrderDialog = false },
             onSaveClick = {
@@ -521,15 +520,11 @@ private fun ClickField(
     }
 }
 
-/* -------------------- Диалоги WheelPicker -------------------- */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NumberWheelDialog(
-    title: String,
     value: Int,
     range: IntRange,
-    label: String,
     onValueChange: (Int) -> Unit,
     onDismiss: () -> Unit,
     onSaveClick: () -> Unit
@@ -544,7 +539,7 @@ private fun NumberWheelDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(title, style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.order), style = MaterialTheme.typography.titleLarge)
                 IconButton(onClick = onDismiss) {
                     Icon(
                         Icons.Default.Close,
@@ -554,19 +549,30 @@ private fun NumberWheelDialog(
             }
         },
         text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
                     value.toString(),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold
                 )
+
                 Spacer(Modifier.height(12.dp))
-                WheelNumberPicker(
-                    value = value,
-                    onValueChange = onValueChange,
-                    range = range,
-                    label = label
-                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    WheelNumberPicker(
+                        value = value,
+                        onValueChange = onValueChange,
+                        range = range,
+                        label = stringResource(R.string.order),
+                    )
+                }
             }
         },
         confirmButton = {
@@ -671,7 +677,6 @@ private fun PickCountDialog(
     )
 }
 
-/* -------- WheelNumberPicker (скопирован из твоего примера) -------- */
 
 @Composable
 private fun WheelNumberPicker(

@@ -176,14 +176,9 @@ class CreateAssignmentViewModel @Inject constructor(
     }
 }
 
-/**
- * Сервер ждёт due_at: string|null.
- * Мы превращаем выбранную дату (millis) в ISO-строку UTC.
- * Если бэк ждёт локальную зону/время — подстрой здесь.
- */
 private fun Long.toDueAtLocalStartOfDay(): Instant {
     val zone = java.time.ZoneId.systemDefault()
-    val date = java.time.Instant.ofEpochMilli(this)
+    val date = Instant.ofEpochMilli(this)
         .atZone(zone)
         .toLocalDate()
 

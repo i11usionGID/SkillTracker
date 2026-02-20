@@ -17,9 +17,7 @@ import com.i11usion.feature.main.presentation.quiz.detail.model.AssignmentDetail
 import com.i11usion.feature.main.presentation.quiz.detail.model.QuestionSectionUiModel
 import com.i11usion.feature.main.presentation.quiz.list.model.QuizManagerUiModel
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,9 +35,6 @@ class QuizDetailViewModel @Inject constructor(
 
     private val _state = MutableStateFlow<QuizDetailUiState>(QuizDetailUiState.Initial)
     val state = _state.asStateFlow()
-
-    private val _events = MutableSharedFlow<QuizDetailEvent>(extraBufferCapacity = 1)
-    val events = _events.asSharedFlow()
 
     fun processCommand(command: QuizDetailCommand) {
         when (command) {
@@ -148,11 +143,6 @@ class QuizDetailViewModel @Inject constructor(
     private suspend fun loadAnalytics(quizId: Int): QuizAnalytics {
         return getQuizAnalyticsUseCase(quizId)
     }
-}
-
-
-sealed interface QuizDetailEvent {
-    data object NavigateBack : QuizDetailEvent
 }
 
 sealed interface QuizDetailCommand {

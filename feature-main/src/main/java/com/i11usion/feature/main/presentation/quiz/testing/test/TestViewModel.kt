@@ -1,4 +1,4 @@
-package com.i11usion.feature.main.presentation.quiz.testing
+package com.i11usion.feature.main.presentation.quiz.testing.test
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
