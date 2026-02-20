@@ -13,7 +13,8 @@ import com.i11usion.feature.main.presentation.quiz.list.QuizViewModel
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionViewModel
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionViewModel
 import com.i11usion.feature.main.presentation.quiz.question.update.UpdateQuestionViewModel
-import com.i11usion.feature.main.presentation.quiz.testing.analytics.AttemptsAnalyticsViewModel
+import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.AttemptAnalyticsDetailViewModel
+import com.i11usion.feature.main.presentation.quiz.testing.analytics.list.AttemptsAnalyticsViewModel
 import com.i11usion.feature.main.presentation.quiz.testing.test.TestViewModel
 import com.i11usion.feature.main.presentation.quiz.update.UpdateQuizViewModel
 import com.i11usion.feature.main.presentation.task.create.CreateTaskViewModel
@@ -121,4 +122,9 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(AttemptsAnalyticsViewModel::class)
     fun bindAttemptsAnalyticsViewModel(vm: AttemptsAnalyticsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(AttemptAnalyticsDetailViewModel::class)
+    fun bindAttemptAnalyticsDetailViewModel(vm: AttemptAnalyticsDetailViewModel): ViewModel
 }

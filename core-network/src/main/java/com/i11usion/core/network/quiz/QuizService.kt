@@ -11,6 +11,7 @@ import com.i11usion.core.network.model.quiz.QuizAnalyticsDto
 import com.i11usion.core.network.model.quiz.QuizCreateRequestDto
 import com.i11usion.core.network.model.quiz.QuizDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptReadDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptStartResponseDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitRequestDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitResponseDto
@@ -153,4 +154,9 @@ interface QuizService {
         @Path("quiz_id") quizId: Int,
         @Path("section_id") sectionId: Int
     ): QuestionSectionDto
+
+    @GET("/api/quizzes/attempts/{attempt_id}")
+    suspend fun getAttemptById(
+        @Path("attempt_id") attemptId: Int
+    ): AttemptReadDto
 }

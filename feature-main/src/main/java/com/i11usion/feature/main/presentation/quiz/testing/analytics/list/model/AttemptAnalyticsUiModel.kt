@@ -1,4 +1,4 @@
-package com.i11usion.feature.main.presentation.quiz.testing.analytics.model
+package com.i11usion.feature.main.presentation.quiz.testing.analytics.list.model
 
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStatus
 

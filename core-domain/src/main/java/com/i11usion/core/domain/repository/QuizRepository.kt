@@ -9,6 +9,7 @@ import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.model.quiz.QuizAnalytics
 import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.model.quiz.attempt.Attempt
+import com.i11usion.core.domain.model.quiz.attempt.AttemptRead
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStatus
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
@@ -33,6 +34,7 @@ interface QuizRepository {
     suspend fun getQuizAnalytics(quizId: Int): QuizAnalytics
     suspend fun startAttempt(quizId: Int): AttemptStart
     suspend fun submitAttempt(attemptId: Int, request: AttemptSubmitRequest): AttemptSubmit
+    suspend fun getAttemptInfoById(attemptId: Int): AttemptRead
     suspend fun createQuestionSection(
         quizId: Int,
         title: String,

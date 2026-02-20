@@ -15,8 +15,10 @@ import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.core.domain.model.quiz.TextAnswer
 import com.i11usion.core.domain.model.quiz.attempt.Attempt
+import com.i11usion.core.domain.model.quiz.attempt.AttemptAnswer
 import com.i11usion.core.domain.model.quiz.attempt.AttemptAnswerResult
 import com.i11usion.core.domain.model.quiz.attempt.AttemptQuestion
+import com.i11usion.core.domain.model.quiz.attempt.AttemptRead
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStatus
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
@@ -29,16 +31,17 @@ import com.i11usion.core.network.model.quiz.QuestionDto
 import com.i11usion.core.network.model.quiz.QuestionOptionDto
 import com.i11usion.core.network.model.quiz.QuestionOptionRequestDto
 import com.i11usion.core.network.model.quiz.QuestionRequestDto
+import com.i11usion.core.network.model.quiz.QuestionSectionDto
 import com.i11usion.core.network.model.quiz.QuestionTextAnswerRequestDto
+import com.i11usion.core.network.model.quiz.QuizAnalyticsDto
 import com.i11usion.core.network.model.quiz.QuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuizCreateRequestDto
 import com.i11usion.core.network.model.quiz.QuizDto
-import com.i11usion.core.network.model.quiz.QuestionSectionDto
-import com.i11usion.core.network.model.quiz.QuizAnalyticsDto
 import com.i11usion.core.network.model.quiz.TextAnswerDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptAnswerDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptQuestionDto
+import com.i11usion.core.network.model.quiz.attempt.AttemptReadDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptStartResponseDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitAnswerDto
 import com.i11usion.core.network.model.quiz.attempt.AttemptSubmitRequestDto
@@ -201,6 +204,30 @@ fun AttemptSubmitResponseDto.dtoToDomain(): AttemptSubmit =
 
 fun AttemptAnswerDto.dtoToDomain(): AttemptAnswerResult =
     AttemptAnswerResult(
+        attemptQuestionId = attemptQuestionId,
+        questionId = questionId,
+        isCorrect = isCorrect,
+        selectedOptionIds = selectedOptionIds,
+        textAnswer = textAnswer
+    )
+
+fun AttemptReadDto.dtoToDomain(): AttemptRead =
+    AttemptRead(
+        id = id,
+        quizId = quizId,
+        userId = userId,
+        status = status.toAttemptStatus(),
+        scorePercent = scorePercent,
+        passed = passed,
+        startedAt = Instant.parse(startedAt),
+        finishedAt = finishedAt?.let { Instant.parse(it) },
+        answers = answers.map {
+            it.dtoToAttemptAnswerDomain()
+        }
+    )
+
+fun AttemptAnswerDto.dtoToAttemptAnswerDomain(): AttemptAnswer =
+    AttemptAnswer(
         attemptQuestionId = attemptQuestionId,
         questionId = questionId,
         isCorrect = isCorrect,

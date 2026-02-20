@@ -1,12 +1,12 @@
-package com.i11usion.feature.main.presentation.quiz.testing.analytics
+package com.i11usion.feature.main.presentation.quiz.testing.analytics.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i11usion.core.domain.model.user.User
 import com.i11usion.core.domain.usecase.quiz.attempt.GetQuizAttemptsAnalyticsUseCase
 import com.i11usion.core.domain.usecase.user.GetUsersListUseCase
-import com.i11usion.feature.main.presentation.quiz.testing.analytics.mapper.toUiModel
-import com.i11usion.feature.main.presentation.quiz.testing.analytics.model.AttemptAnalyticsUiModel
+import com.i11usion.feature.main.presentation.quiz.testing.analytics.list.mapper.toUiModel
+import com.i11usion.feature.main.presentation.quiz.testing.analytics.list.model.AttemptAnalyticsUiModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow

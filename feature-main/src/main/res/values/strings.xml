@@ -173,6 +173,7 @@
     <string name="order_index">"Порядок: "</string>
     <string name="pick_count">"Выбрать: "</string>
     <string name="questions">"Вопросы "</string>
+    <string name="question">"Вопрос"</string>
     <string name="required">Обязательно</string>
     <string name="cd_assignment_attach_to_task">Назначениепривязано к этой задаче</string>
     <string name="task">"Задача: "</string>
@@ -200,4 +201,22 @@
     <string name="cd_watch_all_quiz_attempts">Посмотреть попытки прохождения теста</string>
     <string name="order">Порядок</string>
     <string name="edit_section">Редактировать секцию</string>
+    <string name="quiz_passed">Тест пройден</string>
+    <string name="test_not_passed">Тест не пройден</string>
+    <string name="cd_result_quiz_attempt">Результат прохождения теста</string>
+    <string name="complete">Завершено</string>
+    <string name="your_result">Ваш результат</string>
+    <string name="result">Результат</string>
+    <string name="begin">Начато</string>
+    <string name="end">Завершено</string>
+    <string name="correct">Правильно</string>
+    <string name="incorrect">Неправильно</string>
+    <string name="to_my_quizzes">К моим тестам</string>
+    <string name="cd_answers_details_not_available">Детали ответов недоступны</string>
+    <string name="answers_details_not_available">Детали ответов недоступны</string>
+    <string name="quiz_creator_limited_view_answers">Создатель теста ограничил возможность просмотра ответов</string>
+    <string name="cd_correct_answer">Вы правильно ответили на вопрос</string>
+    <string name="your_answer">Ваш ответ:</string>
+    <string name="selected_options">Выбрано вариантов:</string>
+    <string name="employee_answer">Ответ сотрудника:</string>
 </resources>

@@ -18,7 +18,8 @@ import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.update.UpdateQuestionScreen
-import com.i11usion.feature.main.presentation.quiz.testing.analytics.AttemptsAnalyticsScreen
+import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.AttemptAnalyticsDetailScreen
+import com.i11usion.feature.main.presentation.quiz.testing.analytics.list.AttemptsAnalyticsScreen
 import com.i11usion.feature.main.presentation.quiz.testing.test.TestScreen
 import com.i11usion.feature.main.presentation.quiz.update.UpdateQuizScreen
 import com.i11usion.feature.main.presentation.task.create.CreateTaskScreen
@@ -212,8 +213,11 @@ fun HomeTabsNavHost(
 
             TestScreen(
                 quizId = quizId,
-                onNavigateToAnalytics = { attempt ->
-                    TODO()
+                onNavigateToAnalytics = { attemptId ->
+                    navController.navigate(HomeRoutes.attemptAnalyticDetail(attemptId)) {
+                        launchSingleTop = true
+                        popUpTo(HomeRoutes.TESTING) { inclusive = true }
+                    }
                 },
                 onBack = { navController.popBackStack() },
             )
@@ -289,7 +293,22 @@ fun HomeTabsNavHost(
             AttemptsAnalyticsScreen(
                 quizId = quizId,
                 onBack = { navController.popBackStack() },
-                onAttemptDetailScreen = { TODO() },
+                onAttemptDetailScreen = { attemptId ->
+                    navController.navigate(HomeRoutes.attemptAnalyticDetail(attemptId)) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable(
+            route = HomeRoutes.ATTEMPT_ANALYTIC_DETAIL,
+            arguments = listOf(navArgument("attemptId") { type = NavType.IntType })
+        ) { entry ->
+            val attemptId = entry.arguments?.getInt("attemptId") ?: return@composable
+
+            AttemptAnalyticsDetailScreen(
+                attemptId = attemptId,
+                onBack = { navController.popBackStack() },
             )
         }
     }

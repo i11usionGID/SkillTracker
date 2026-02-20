@@ -7,7 +7,7 @@ data class AttemptSubmit(
     val quizId: Int,
     val userId: Int,
     val status: AttemptStatus,
-    val scorePercent: Int,
+    val scorePercent: Double,
     val passed: Boolean,
     val startedAt: Instant,
     val finishedAt: Instant?,

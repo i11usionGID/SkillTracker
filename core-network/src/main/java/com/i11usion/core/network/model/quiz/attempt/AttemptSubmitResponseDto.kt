@@ -9,7 +9,7 @@ data class AttemptSubmitResponseDto(
     @SerializedName("quiz_id") val quizId: Int,
     @SerializedName("user_id") val userId: Int,
     @SerializedName("status") val status: String,
-    @SerializedName("score_percent") val scorePercent: Int,
+    @SerializedName("score_percent") val scorePercent: Double,
     @SerializedName("passed") val passed: Boolean,
     @SerializedName("started_at") val startedAt: String,
     @SerializedName("finished_at") val finishedAt: String? = null,

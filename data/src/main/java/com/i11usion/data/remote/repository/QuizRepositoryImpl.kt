@@ -10,6 +10,7 @@ import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.model.quiz.QuizAnalytics
 import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.model.quiz.attempt.Attempt
+import com.i11usion.core.domain.model.quiz.attempt.AttemptRead
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStart
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStatus
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
@@ -116,6 +117,10 @@ class QuizRepositoryImpl @Inject constructor(
     ): AttemptSubmit {
         val body = request.domainToDto()
         return quizService.submitAttempt(attemptId = attemptId, body = body).dtoToDomain()
+    }
+
+    override suspend fun getAttemptInfoById(attemptId: Int): AttemptRead {
+        return quizService.getAttemptById(attemptId).dtoToDomain()
     }
 
     override suspend fun getQuizById(quizId: Int): Quiz {
