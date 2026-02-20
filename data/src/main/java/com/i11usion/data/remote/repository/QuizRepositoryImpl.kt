@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 class QuizRepositoryImpl @Inject constructor(
     private val quizService: QuizService
-): QuizRepository {
+) : QuizRepository {
 
     override suspend fun getQuizzes(
         page: Int?,
@@ -160,6 +160,39 @@ class QuizRepositoryImpl @Inject constructor(
         return quizService.createQuestionSection(quizId, body)
     }
 
+    override suspend fun updateQuestionSection(
+        quizId: Int,
+        questionSectionId: Int,
+        title: String,
+        description: String?,
+        orderIndex: Int,
+        pickCount: Int?,
+        questionIds: List<Int>
+    ) {
+        val body = QuestionSectionRequestDto(
+            title = title,
+            description = description,
+            orderIndex = orderIndex,
+            pickCount = pickCount,
+            questionIds = questionIds
+        )
+        return quizService.updateQuestionSection(
+            quizId = quizId,
+            sectionId = questionSectionId,
+            body = body
+        )
+    }
+
+    override suspend fun getQuestionSectionById(
+        quizId: Int,
+        questionSectionId: Int
+    ): QuestionSection {
+        return quizService.getQuestionSectionById(
+            quizId = quizId,
+            sectionId = questionSectionId
+        ).dtoToDomain()
+    }
+
     override suspend fun createAssignment(
         quizId: Int,
         assignedToUserId: Int?,
@@ -200,7 +233,7 @@ class QuizRepositoryImpl @Inject constructor(
             quizId = quizId,
             userId = userId,
             assignmentId = assignmentId,
-            status = status .let {
+            status = status.let {
                 when (status) {
                     AttemptStatus.IN_PROGRESS -> "in_progress"
                     AttemptStatus.COMPLETED -> "completed"

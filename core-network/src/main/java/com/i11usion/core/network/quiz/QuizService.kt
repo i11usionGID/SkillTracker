@@ -140,4 +140,17 @@ interface QuizService {
         @Query("page") page: Int?,
         @Query("per_page") perPage: Int?
     ): List<AttemptDto>
+
+    @PUT("/api/quizzes/{quiz_id}/sections/{section_id}")
+    suspend fun updateQuestionSection(
+        @Path("quiz_id") quizId: Int,
+        @Path("section_id") sectionId: Int,
+        @Body body: QuestionSectionRequestDto
+    )
+
+    @GET("/api/quizzes/{quiz_id}/sections/{section_id}")
+    suspend fun getQuestionSectionById(
+        @Path("quiz_id") quizId: Int,
+        @Path("section_id") sectionId: Int
+    ): QuestionSectionDto
 }

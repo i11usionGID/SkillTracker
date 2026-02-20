@@ -42,6 +42,18 @@ interface QuizRepository {
         questionIds: List<Int>
     )
 
+    suspend fun updateQuestionSection(
+        quizId: Int,
+        questionSectionId: Int,
+        title: String,
+        description: String? = null,
+        orderIndex: Int,
+        pickCount: Int?,
+        questionIds: List<Int>
+    )
+
+    suspend fun getQuestionSectionById(quizId: Int, questionSectionId: Int): QuestionSection
+
     suspend fun createAssignment(
         quizId: Int,
         assignedToUserId: Int?,

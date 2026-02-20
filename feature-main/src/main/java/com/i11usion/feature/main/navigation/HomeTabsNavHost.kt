@@ -13,6 +13,7 @@ import com.i11usion.feature.main.presentation.quiz.create.CreateQuizScreen
 import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailScreen
 import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentScreen
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.CreateQuestionSectionScreen
+import com.i11usion.feature.main.presentation.quiz.detail.question_section.update.UpdateQuestionSectionScreen
 import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionScreen
@@ -181,7 +182,16 @@ fun HomeTabsNavHost(
                         launchSingleTop = true
                     }
                 },
-                onEditQuestionSectionClick = { TODO() },
+                onEditQuestionSectionClick = { sectionId ->
+                    navController.navigate(
+                        HomeRoutes.updateQuestionSection(
+                            quizId = quizId,
+                            sectionId = sectionId
+                        )
+                    ) {
+                        launchSingleTop = true
+                    }
+                },
                 onCheckAttemptsClick = { quizId ->
                     navController.navigate(HomeRoutes.checkAttempts(quizId)) {
                         launchSingleTop = true
@@ -223,6 +233,29 @@ fun HomeTabsNavHost(
                     }
                 },
                 onCancelClick = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = HomeRoutes.UPDATE_QUESTION_SECTION,
+            arguments = listOf(
+                navArgument("quizId") { type = NavType.IntType },
+                navArgument("sectionId") { type = NavType.IntType }
+            )
+        ) { entry ->
+            val quizId = entry.arguments?.getInt("quizId") ?: return@composable
+            val sectionId = entry.arguments?.getInt("sectionId") ?: return@composable
+
+            UpdateQuestionSectionScreen(
+                quizId = quizId,
+                sectionId = sectionId,
+                onCreateQuestionsClick = {
+                    navController.navigate(HomeRoutes.QUESTIONS) {
+                        launchSingleTop = true
+                    }
+                },
+                onCancelClick = {
+                    navController.popBackStack()
+                }
             )
         }
         composable(

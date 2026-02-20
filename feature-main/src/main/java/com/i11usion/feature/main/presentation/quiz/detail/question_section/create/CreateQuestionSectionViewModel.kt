@@ -84,13 +84,11 @@ class CreateQuestionSectionViewModel @Inject constructor(
         val next =
             if (checked) s.selectedQuestionIds + questionId else s.selectedQuestionIds - questionId
 
-        // pickCount не может быть больше выбранных вопросов (и null если ничего не выбрано)
         val fixedPickCount = if (next.isEmpty()) null else s.pickCount?.coerceIn(1, next.size)
 
         _state.value = s.copy(
             selectedQuestionIds = next,
             pickCount = fixedPickCount
-            // ✅ orderIndex НЕ меняем
         )
     }
 
@@ -150,7 +148,7 @@ class CreateQuestionSectionViewModel @Inject constructor(
     private fun CreateQuestionSectionUiState.Content.normalize(): CreateQuestionSectionUiState.Content {
         val selectedCount = selectedQuestionIds.size
         val fixedPick = if (selectedCount == 0) null else pickCount?.coerceIn(1, selectedCount)
-        return copy(pickCount = fixedPick) // ✅ orderIndex не трогаем
+        return copy(pickCount = fixedPick)
     }
 }
 

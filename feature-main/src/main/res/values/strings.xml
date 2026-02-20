@@ -199,4 +199,5 @@
     <string name="check_all_attempts">Посмотреть все попытки</string>
     <string name="cd_watch_all_quiz_attempts">Посмотреть попытки прохождения теста</string>
     <string name="order">Порядок</string>
+    <string name="edit_section">Редактировать секцию</string>
 </resources>
