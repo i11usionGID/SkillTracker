@@ -2,12 +2,14 @@ package com.i11usion.data.di
 
 import android.app.Application
 import com.i11usion.core.domain.repository.AuthRepository
+import com.i11usion.core.domain.repository.NotificationRepository
 import com.i11usion.core.domain.repository.QuizRepository
 import com.i11usion.core.domain.repository.SessionRepository
 import com.i11usion.core.domain.repository.TaskRepository
 import com.i11usion.core.domain.repository.UserRepository
 import com.i11usion.data.local.repository.SessionRepositoryImpl
 import com.i11usion.data.remote.repository.AuthRepositoryImpl
+import com.i11usion.data.remote.repository.NotificationRepositoryImpl
 import com.i11usion.data.remote.repository.QuizRepositoryImpl
 import com.i11usion.data.remote.repository.TaskRepositoryImpl
 import com.i11usion.data.remote.repository.UserRepositoryImpl
@@ -34,6 +36,10 @@ interface DataModule {
     @ApplicationScope
     @Binds
     fun bindQuizRepository(impl: QuizRepositoryImpl): QuizRepository
+
+    @ApplicationScope
+    @Binds
+    fun bindNotificationRepository(impl: NotificationRepositoryImpl): NotificationRepository
 
     companion object {
         @ApplicationScope

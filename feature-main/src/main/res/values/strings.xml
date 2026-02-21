@@ -6,7 +6,8 @@
     <string name="tests_manager">Тесты</string>
     <string name="tests_employee">Мои тесты</string>
     <string name="unknown_role">Роль пользователя неизвестна</string>
-    <string name="cd_notification">Уведомления</string>
+    <string name="cd_notifications">Уведомления</string>
+    <string name="cd_notification">Уведомление</string>
     <string name="cd_logout">Выход из учетной записи</string>
     <string name="cd_menu">Меню</string>
     <string name="cd_menu_item">Элемент меню</string>
@@ -219,4 +220,7 @@
     <string name="your_answer">Ваш ответ:</string>
     <string name="selected_options">Выбрано вариантов:</string>
     <string name="employee_answer">Ответ сотрудника:</string>
+    <string name="notifications">Уведомления</string>
+    <string name="read_all_notifications">Прочитать все уведоммления</string>
+    <string name="cd_read_all_notifications">Прочитать все уведомления</string>
 </resources>

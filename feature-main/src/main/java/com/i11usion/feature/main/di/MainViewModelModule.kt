@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.i11usion.di.ViewModelKey
 import com.i11usion.feature.main.presentation.HomeViewModel
 import com.i11usion.feature.main.presentation.dashboard.DashboardViewModel
+import com.i11usion.feature.main.presentation.notification.NotificationViewModel
 import com.i11usion.feature.main.presentation.quiz.create.CreateQuizViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentViewModel
@@ -52,6 +53,11 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(QuizViewModel::class)
     fun bindQuizViewModel(vm: QuizViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(NotificationViewModel::class)
+    fun bindNotificationViewModel(vm: NotificationViewModel): ViewModel
 
     @Binds
     @IntoMap

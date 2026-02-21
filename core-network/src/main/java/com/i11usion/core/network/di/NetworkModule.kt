@@ -3,6 +3,7 @@ package com.i11usion.core.network.di
 import com.i11usion.core.domain.usecase.session.GetAccessTokenUseCase
 import com.i11usion.core.network.auth.AuthInterceptor
 import com.i11usion.core.network.auth.AuthService
+import com.i11usion.core.network.notification.NotificationService
 import com.i11usion.core.network.quiz.QuizService
 import com.i11usion.core.network.task.TaskService
 import com.i11usion.core.network.users.UserService
@@ -79,4 +80,11 @@ object NetworkModule {
         retrofit: Retrofit
     ): QuizService =
         retrofit.create(QuizService::class.java)
+
+    @ApplicationScope
+    @Provides
+    fun provideNotificationService(
+        retrofit: Retrofit
+    ): NotificationService =
+        retrofit.create(NotificationService::class.java)
 }

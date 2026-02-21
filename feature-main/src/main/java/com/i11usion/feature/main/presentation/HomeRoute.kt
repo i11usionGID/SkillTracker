@@ -83,6 +83,11 @@ fun HomeRoute(
                     }
                 },
                 onLogoutClick = viewModel::onLogoutClick,
+                onNotificationClick = {
+                    homeNavController.navigate(HomeRoutes.NOTIFICATIONS) {
+                        launchSingleTop = true
+                    }
+                },
                 content = {
                     HomeTabsNavHost(navController = homeNavController)
                 }

@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
+import com.i11usion.feature.main.presentation.notification.NotificationScreen
 import com.i11usion.feature.main.presentation.quiz.create.CreateQuizScreen
 import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailScreen
 import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentScreen
@@ -76,6 +77,9 @@ fun HomeTabsNavHost(
                     }
                 }
             )
+        }
+        composable(HomeRoutes.NOTIFICATIONS) {
+            NotificationScreen(navController)
         }
         composable(HomeRoutes.TESTS) {
             QuizScreen(

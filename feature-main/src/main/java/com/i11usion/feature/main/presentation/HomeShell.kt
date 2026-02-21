@@ -49,6 +49,7 @@ fun HomeShell(
     state: HomeState.Content,
     onDrawerItemClick: (String) -> Unit,
     onLogoutClick: () -> Unit,
+    onNotificationClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -66,6 +67,7 @@ fun HomeShell(
                 }
             ) {
                 HomeTopBar(
+                    notificationCount = state.notificationCount,
                     onMenuClick = {
                         scope.launch {
                             if (drawerState.isOpen) {
@@ -75,6 +77,7 @@ fun HomeShell(
                             }
                         }
                     },
+                    onNotificationClick = onNotificationClick,
                     onLogoutClick = onLogoutClick
                 )
             }
@@ -122,7 +125,9 @@ fun HomeShell(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeTopBar(
+    notificationCount: Int,
     onMenuClick: () -> Unit,
+    onNotificationClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
     TopAppBar(
@@ -160,9 +165,10 @@ private fun HomeTopBar(
         actions = {
             CustomIconButton(
                 painter = painterResource(com.i11usion.feature.main.R.drawable.ic_notification),
-                contentDescription = stringResource(com.i11usion.feature.main.R.string.cd_notification)
+                contentDescription = stringResource(com.i11usion.feature.main.R.string.cd_notifications),
+                badgeCount = notificationCount
             ) {
-                //дописать
+                onNotificationClick()
             }
             CustomIconButton(
                 painter = painterResource(com.i11usion.feature.main.R.drawable.ic_log_out),
@@ -179,16 +185,46 @@ private fun HomeTopBar(
 @Composable
 private fun CustomIconButton(
     modifier: Modifier = Modifier,
+    badgeCount: Int? = null,
     painter: Painter,
     contentDescription: String,
     onIconButtonClick: () -> Unit
 ) {
-    IconButton(onClick = onIconButtonClick) {
-        Icon(
-            painter = painter,
-            contentDescription = contentDescription,
-            modifier = modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.onSurface
-        )
+    Box(modifier = Modifier) {
+        IconButton(onClick = onIconButtonClick) {
+            Icon(
+                painter = painter,
+                contentDescription = contentDescription,
+                modifier = modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        val count = badgeCount ?: 0
+        if (badgeCount != null && count > 0) {
+            val badgeText = if (count > 9) "9+" else count.toString()
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .background(
+                        color = MaterialTheme.colorScheme.error,
+                        shape = RoundedCornerShape(50)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        shape = RoundedCornerShape(50)
+                    )
+                    .padding(horizontal = 6.dp)
+            ) {
+                Text(
+                    text = badgeText,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }
