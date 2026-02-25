@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,25 +61,35 @@ fun DashboardScreen(
                     .padding(vertical = 8.dp, horizontal = 16.dp)
             ) {
                 item {
-                    Text(
-                        text = "Добро пожаловать, ${state.user.name}!",
-                        fontSize = 32.sp,
-                        lineHeight = 40.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = if (state.user.role == Role.EMPLOYEE) {
-                            stringResource(R.string.subtitle_employee)
-                        } else {
-                            stringResource(
-                                R.string.subtitle_manager
-                            )
-                        },
-                        fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Добро пожаловать, ${state.user.name}!",
+                            fontSize = 32.sp,
+                            lineHeight = 40.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = if (state.user.role == Role.EMPLOYEE) {
+                                stringResource(R.string.subtitle_employee)
+                            } else {
+                                stringResource(
+                                    R.string.subtitle_manager
+                                )
+                            },
+                            fontSize = 18.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 item {
@@ -91,7 +102,9 @@ fun DashboardScreen(
                         iconColor = MaterialTheme.colorScheme.primary,
                         iconTintColor = MaterialTheme.colorScheme.primaryContainer
                     )
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     TaskStatisticCard(
                         titleResId = R.string.in_work,
                         taskCount = state.dashboardData.stats.inProgress,
@@ -101,7 +114,9 @@ fun DashboardScreen(
                         iconColor = MaterialTheme.colorScheme.secondary,
                         iconTintColor = MaterialTheme.colorScheme.secondaryContainer
                     )
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     TaskStatisticCard(
                         titleResId = R.string.task_done,
                         taskCount = state.dashboardData.stats.done,
@@ -111,7 +126,9 @@ fun DashboardScreen(
                         iconColor = MaterialTheme.colorScheme.tertiary,
                         iconTintColor = MaterialTheme.colorScheme.tertiaryContainer
                     )
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     TaskStatisticCard(
                         titleResId = R.string.task_waitting,
                         taskCount = state.dashboardData.stats.pending,
@@ -121,6 +138,7 @@ fun DashboardScreen(
                         iconColor = MaterialTheme.colorScheme.surfaceVariant,
                         iconTintColor = MaterialTheme.colorScheme.surfaceBright
                     )
+
                     Spacer(modifier = Modifier.height(24.dp))
                 }
                 item {
@@ -131,7 +149,9 @@ fun DashboardScreen(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
+
                         Spacer(modifier = Modifier.weight(1f))
+
                         Row(
                             modifier = Modifier.clickable { onCheckAllTaskClick() },
                             verticalAlignment = Alignment.CenterVertically
@@ -142,6 +162,7 @@ fun DashboardScreen(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
+
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                 contentDescription = stringResource(R.string.check_all_tasks),
@@ -150,11 +171,14 @@ fun DashboardScreen(
                             )
                         }
                     }
+
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 item {
                     if (latestTask.isEmpty()) {
+
                         Spacer(modifier = Modifier.height(32.dp))
+
                         Box(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.Center
@@ -165,6 +189,7 @@ fun DashboardScreen(
                                 color = MaterialTheme.colorScheme.surfaceVariant
                             )
                         }
+
                         Spacer(modifier = Modifier.height(32.dp))
                     }
                 }
@@ -190,6 +215,7 @@ fun DashboardScreen(
                             statusContainerColor = MaterialTheme.colorScheme.tertiaryContainer
                         }
                     }
+
                     TaskCard(
                         title = task.title,
                         description = task.description,
@@ -200,6 +226,7 @@ fun DashboardScreen(
                         statusContainerColor = statusContainerColor,
                         onTaskCardClick = { onTaskCardClick(task.id) }
                     )
+
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
@@ -263,7 +290,9 @@ private fun TaskStatisticCard(
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
                 Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = taskCount,
                     fontSize = 32.sp,
@@ -271,7 +300,9 @@ private fun TaskStatisticCard(
                     color = taskCountColor
                 )
             }
+
             Spacer(modifier = Modifier.weight(1f))
+
             Box(
                 modifier = Modifier
                     .size(54.dp)
@@ -329,7 +360,9 @@ private fun TaskCard(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
                 )
+
                 Spacer(modifier = Modifier.weight(1f))
+
                 Box(
                     modifier = Modifier.background(
                         color = statusContainerColor,
@@ -357,6 +390,7 @@ private fun TaskCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -366,6 +400,7 @@ private fun TaskCard(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     fontSize = 16.sp
                 )
+
                 if (!deadline.isNullOrBlank()) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(

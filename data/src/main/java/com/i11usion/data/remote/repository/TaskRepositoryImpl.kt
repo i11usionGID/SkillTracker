@@ -160,17 +160,33 @@ class TaskRepositoryImpl @Inject constructor(
         taskId: Int,
         attachmentId: Int
     ): DownloadedFile {
+
         val response = taskService.downloadAttachment(taskId, attachmentId)
         if (!response.isSuccessful) {
             throw HttpException(response)
         }
 
-        val body: ResponseBody = response.body() ?: error("Empty body")
-        val mimeType = response.headers()["Content-Type"] ?: body.contentType()?.toString()
+        val body = response.body() ?: error("Empty body")
+
+        val mimeType = response.headers()["Content-Type"]
+            ?: body.contentType()?.toString()
 
         val cd = response.headers()["Content-Disposition"]
-        val fileName = parseFileNameFromContentDisposition(cd)
-            ?: "attachment_$attachmentId"
+
+        var fileName = parseFileNameFromContentDisposition(cd)
+
+        if (fileName.isNullOrBlank()) {
+
+            val extension = mimeType
+                ?.let { android.webkit.MimeTypeMap.getSingleton()
+                    .getExtensionFromMimeType(it.substringBefore(";")) }
+
+            fileName = if (extension != null) {
+                "attachment_$attachmentId.$extension"
+            } else {
+                "attachment_$attachmentId"
+            }
+        }
 
         val file = application.saveResponseBodyToCache(body, fileName)
 
@@ -202,10 +218,9 @@ class TaskRepositoryImpl @Inject constructor(
 
     fun parseFileNameFromContentDisposition(cd: String?): String? {
         if (cd.isNullOrBlank()) return null
-        val parts = cd.split(";").map { it.trim() }
-        val filePart =
-            parts.firstOrNull { it.startsWith("filename=", ignoreCase = true) } ?: return null
-        return filePart.substringAfter("filename=").trim().trim('"')
+
+        val regex = Regex("filename\\*?=(?:UTF-8''|\"?)([^\";]+)")
+        return regex.find(cd)?.groupValues?.get(1)
     }
 
     fun Context.saveResponseBodyToCache(body: ResponseBody, fileName: String): File {

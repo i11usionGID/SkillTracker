@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -204,7 +205,11 @@ private fun TestContent(
             enabled = !state.isFinishing,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (state.isFinishing) "Отправляем..." else "Завершить тест")
+            Text(
+                if (state.isFinishing) "Отправляем..." else "Завершить тест",
+                fontSize = 16.sp,
+                color = Color.White
+            )
         }
 
         Spacer(Modifier.height(8.dp))
@@ -283,7 +288,11 @@ private fun TestContent(
                             onClick = { onCommand(TestCommand.FinishClicked) },
                             enabled = !state.isFinishing
                         ) {
-                            Text("Завершить тест")
+                            Text(
+                                "Завершить тест",
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
                         }
                     }
                 }

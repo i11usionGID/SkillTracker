@@ -42,7 +42,7 @@ class CreateAssignmentViewModel @Inject constructor(
                         selectedUserId = command.userId,
                         selectedTaskId = null
                     )
-                } // ✅ либо/либо
+                }
 
             is CreateAssignmentSectionCommand.SelectTask ->
                 updateContent {
@@ -50,7 +50,7 @@ class CreateAssignmentViewModel @Inject constructor(
                         selectedTaskId = command.taskId,
                         selectedUserId = null
                     )
-                } // ✅ либо/либо
+                }
 
             CreateAssignmentSectionCommand.ClearUser ->
                 updateContent { it.copy(selectedUserId = null) }

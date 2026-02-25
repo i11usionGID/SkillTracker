@@ -247,6 +247,8 @@ private fun ResultCard(
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Spacer(modifier.weight(1f))
+
                 DateBlock(
                     title = stringResource(R.string.begin),
                     date = startedAt
@@ -258,6 +260,8 @@ private fun ResultCard(
                     title = stringResource(R.string.end),
                     date = finishedAt!!
                 )
+
+                Spacer(modifier.weight(1f))
             }
 
             Spacer(modifier = Modifier.height(16.dp))

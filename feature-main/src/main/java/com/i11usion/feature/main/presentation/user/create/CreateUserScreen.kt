@@ -42,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -161,7 +162,8 @@ fun CreateUserScreen(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 disabledContainerColor = MaterialTheme.colorScheme.primary.copy(
                                     alpha = 0.3f
-                                )
+                                ),
+                                disabledContentColor = Color.White.copy(alpha = 0.3f)
                             ),
                         shape = RoundedCornerShape(16.dp)
                     ) {
@@ -169,14 +171,14 @@ fun CreateUserScreen(
                             Text(
                                 text = stringResource(R.string.create),
                                 fontSize = 18.sp,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = Color.White
                             )
                         }
 
                         if (state.isCreating) {
                             CircularProgressIndicator(
                                 strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = Color.White
                             )
                         }
                     }
@@ -219,7 +221,7 @@ private fun CreateUserCard(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)) {
+        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
             Text(
                 text = stringResource(R.string.username),
                 fontSize = 16.sp,

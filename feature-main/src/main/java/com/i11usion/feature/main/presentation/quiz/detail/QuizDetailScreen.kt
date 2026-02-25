@@ -174,7 +174,7 @@ fun QuizDetailScreen(
                                     Text(
                                         text = stringResource(R.string.add_section),
                                         fontSize = 16.sp,
-                                        color = MaterialTheme.colorScheme.onPrimary
+                                        color = Color.White
                                     )
                                 }
                             }
@@ -227,7 +227,7 @@ fun QuizDetailScreen(
                                     Text(
                                         text = stringResource(R.string.create_assignment),
                                         fontSize = 16.sp,
-                                        color = MaterialTheme.colorScheme.onPrimary
+                                        color = Color.White
                                     )
                                 }
                             }
@@ -973,7 +973,7 @@ private fun AssignmentCard(
                     Icon(
                         painter = painterResource(R.drawable.ic_trash),
                         contentDescription = stringResource(R.string.cd_delete_assignment),
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = Color.White,
                         modifier = Modifier.size(16.dp)
                     )
                 }

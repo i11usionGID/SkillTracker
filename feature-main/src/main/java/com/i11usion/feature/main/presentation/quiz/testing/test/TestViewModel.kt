@@ -9,11 +9,13 @@ import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
 import com.i11usion.core.domain.usecase.quiz.attempt.StartAttemptUseCase
 import com.i11usion.core.domain.usecase.quiz.attempt.SubmitAttemptUseCase
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
@@ -86,7 +88,7 @@ class TestViewModel @Inject constructor(
         timerJob?.cancel()
 
         timerJob = viewModelScope.launch {
-            while (true) {
+            while (currentCoroutineContext().isActive) {
                 val remaining = computeRemainingSeconds(attempt.startedAt, limit)
 
                 val current = _state.value

@@ -193,7 +193,11 @@ fun UserScreen(
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                         ) {
-                            Text(stringResource(R.string.delete))
+                            Text(
+                                text = stringResource(R.string.delete),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
                         }
                     },
                     dismissButton = {
@@ -201,7 +205,11 @@ fun UserScreen(
                             onClick = { userToDelete = null },
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceBright)
                         ) {
-                            Text(stringResource(R.string.Cancel))
+                            Text(
+                                text = stringResource(R.string.Cancel),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
                         }
                     },
                     containerColor = MaterialTheme.colorScheme.onPrimary
@@ -256,7 +264,7 @@ private fun UserHeader(
             Text(
                 text = stringResource(R.string.add_user),
                 fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = Color.White
             )
         }
     }
@@ -459,7 +467,7 @@ private fun UserCard(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)) {
+        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
 
             Row {
                 Box(
@@ -533,7 +541,7 @@ private fun UserCard(
                 Text(
                     text = stringResource(R.string.delete),
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
             }
         }

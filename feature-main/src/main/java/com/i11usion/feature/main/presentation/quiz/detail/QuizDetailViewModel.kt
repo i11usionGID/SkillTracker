@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 class QuizDetailViewModel @Inject constructor(
     private val getQuizByIdUseCase: GetQuizByIdUseCase,
@@ -67,6 +68,7 @@ class QuizDetailViewModel @Inject constructor(
             }.onSuccess { content ->
                 _state.value = content
             }.onFailure { t ->
+                if (t is CancellationException) throw t
                 _state.value = QuizDetailUiState.Error(t.message ?: "Unknown error")
             }
         }

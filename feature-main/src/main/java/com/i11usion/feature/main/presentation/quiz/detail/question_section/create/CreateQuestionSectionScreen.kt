@@ -97,7 +97,6 @@ fun CreateQuestionSectionScreen(
                 CreateQuestionSectionEvent.Created -> onCancelClick()
                 is CreateQuestionSectionEvent.ShowError -> {
                     // если у тебя есть snackbar-хост — покажешь там.
-                    // пока можно оставить пустым или подключить по месту
                 }
             }
         }
@@ -226,7 +225,7 @@ private fun CreateQuestionSectionContent(
                         text = state.orderIndex.toString(),
                         placeHolderText = "Выберите порядок",
                         isFocused = false,
-                        enabled = !state.isCreating, // по твоему ограничению: лучше завязать на выбранные вопросы
+                        enabled = !state.isCreating,
                         onClickFieldClick = {
                             tempOrder = state.orderIndex.coerceIn(1, 100)
                             showOrderDialog = true
@@ -303,7 +302,8 @@ private fun CreateQuestionSectionContent(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 disabledContainerColor = MaterialTheme.colorScheme.primary.copy(
                                     alpha = 0.3f
-                                )
+                                ),
+                                disabledContentColor = Color.White.copy(alpha = 0.3f)
                             ),
                             shape = RoundedCornerShape(16.dp)
                         ) {
@@ -311,12 +311,12 @@ private fun CreateQuestionSectionContent(
                                 Text(
                                     "Создать",
                                     fontSize = 18.sp,
-                                    color = MaterialTheme.colorScheme.onPrimary
+                                    color = Color.White
                                 )
                             } else {
                                 CircularProgressIndicator(
                                     strokeWidth = 2.dp,
-                                    color = MaterialTheme.colorScheme.onPrimary
+                                    color = Color.White
                                 )
                             }
                         }
@@ -341,7 +341,6 @@ private fun CreateQuestionSectionContent(
         )
     }
 
-    // Диалог "pickCount" -> null или 1..selectedCount
     if (showPickDialog) {
         val max = selectedCount.coerceAtLeast(1)
         PickCountDialog(
@@ -352,7 +351,7 @@ private fun CreateQuestionSectionContent(
             onDismiss = { showPickDialog = false },
             onSaveAll = {
                 showPickDialog = false
-                onCommand(CreateQuestionSectionCommand.ChangePickCount(null)) // пусто = все
+                onCommand(CreateQuestionSectionCommand.ChangePickCount(null))
             },
             onSaveNumber = {
                 showPickDialog = false
@@ -368,7 +367,7 @@ private fun QuestionsPickerList(
     selectedIds: Set<Int>,
     enabled: Boolean,
     onToggle: (id: Int, checked: Boolean) -> Unit,
-    onCreateQuestionsClick: () -> Unit, // ✅ добавили
+    onCreateQuestionsClick: () -> Unit,
 ) {
     Card(
         shape = RoundedCornerShape(20.dp),
@@ -443,8 +442,6 @@ private fun QuestionsPickerList(
         }
     }
 }
-
-/* -------------------- поля (как в CreateQuizScreen) -------------------- */
 
 @Composable
 private fun InputField(
@@ -534,7 +531,7 @@ private fun NumberWheelDialog(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.cd_close)
                     )
                 }
             }
@@ -575,17 +572,12 @@ private fun NumberWheelDialog(
                 shape = RoundedCornerShape(32.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
             ) {
-                Text("Сохранить", fontSize = 16.sp, color = MaterialTheme.colorScheme.onPrimary)
+                Text("Сохранить", fontSize = 16.sp, color = Color.White)
             }
         }
     )
 }
 
-/**
- * Диалог pickCount:
- * - "Оставить пустым (все)" -> pickCount = null
- * - "Сохранить число" -> pickCount = tempPick
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PickCountDialog(
@@ -611,7 +603,7 @@ private fun PickCountDialog(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.cd_close)
                     )
                 }
             }
@@ -659,7 +651,7 @@ private fun PickCountDialog(
                             .copy(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Сохранить", color = MaterialTheme.colorScheme.onPrimary)
+                        Text("Сохранить", color = Color.White)
                     }
                 }
             }

@@ -219,10 +219,7 @@ fun ThemeSwitcher(
     )
 
     val borderColor by animateColorAsState(
-        targetValue = if (isDark)
-            Color(0xFFFF4D4D)
-        else
-            Color.Transparent,
+        targetValue = Color.Transparent,
         label = ""
     )
 
@@ -300,7 +297,7 @@ private fun CustomIconButton(
             ) {
                 Text(
                     text = badgeText,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = Color.White,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )

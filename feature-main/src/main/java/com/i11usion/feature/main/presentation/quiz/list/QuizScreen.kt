@@ -282,7 +282,7 @@ private fun QuizHeader(
                 Text(
                     text = stringResource(R.string.create_test),
                     fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
             }
 
@@ -517,7 +517,7 @@ private fun QuizCardManager(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)) {
+        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -639,7 +639,7 @@ private fun QuizCardManager(
                     Icon(
                         painter = painterResource(R.drawable.ic_trash),
                         contentDescription = stringResource(R.string.cd_delete_test),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = Color.White
                     )
                 }
             }
@@ -678,7 +678,7 @@ private fun QuizCardEmployee(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)) {
+        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -763,7 +763,7 @@ private fun QuizCardEmployee(
                         stringResource(R.string.try_again)
                     },
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
             }
         }

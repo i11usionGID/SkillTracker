@@ -198,7 +198,7 @@ private fun CreateTaskHeader(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -430,7 +430,8 @@ private fun CreateTaskCard(
                     colors = ButtonDefaults.buttonColors()
                         .copy(
                             containerColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                            disabledContentColor = Color.White.copy(alpha = 0.3f)
                         ),
                     shape = RoundedCornerShape(16.dp)
                 ) {
@@ -438,14 +439,14 @@ private fun CreateTaskCard(
                         Text(
                             text = stringResource(R.string.create),
                             fontSize = 18.sp,
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = Color.White
                         )
                     }
 
                     if (isCreating) {
                         CircularProgressIndicator(
                             strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = Color.White
                         )
                     }
                 }
@@ -672,7 +673,7 @@ private fun UpdateProgressDialog(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.cd_close)
                     )
                 }
             }
@@ -752,7 +753,7 @@ private fun UpdateProgressDialog(
                 Text(
                     text = stringResource(R.string.save),
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
             }
         }

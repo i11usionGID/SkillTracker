@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -154,13 +155,13 @@ fun AuthScreen(
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(16.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = Color.White,
                             strokeWidth = 1.dp
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = stringResource(R.string.loading),
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = Color.White,
                             fontSize = 16.sp
                         )
                     }
@@ -173,7 +174,7 @@ fun AuthScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.login),
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = Color.White,
                             fontSize = 16.sp
                         )
                     }

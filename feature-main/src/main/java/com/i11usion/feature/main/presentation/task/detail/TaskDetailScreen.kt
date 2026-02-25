@@ -395,7 +395,7 @@ private fun TaskDetailHeader(
                         painter = painterResource(R.drawable.ic_trash),
                         contentDescription = stringResource(R.string.cd_delete_task),
                         modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = Color.White
                     )
                 }
             }
@@ -433,7 +433,7 @@ private fun TaskDetailCard(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)) {
+        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
 
             Text(
                 text = title,
@@ -633,7 +633,7 @@ private fun UpdateProgressDialog(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.cd_close)
                     )
                 }
             }
@@ -713,7 +713,7 @@ private fun UpdateProgressDialog(
                 Text(
                     text = stringResource(R.string.save),
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
             }
         }
@@ -770,7 +770,7 @@ private fun AttachmentsCard(
                 Icon(
                     painter = painterResource(R.drawable.ic_attachment),
                     contentDescription = stringResource(R.string.cd_upload_attachment),
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
 
@@ -903,7 +903,7 @@ private fun AttachmentItem(
                 Icon(
                     painter = painterResource(R.drawable.ic_trash),
                     contentDescription = stringResource(R.string.cd_delete_attachment),
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = Color.White,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -927,7 +927,7 @@ private fun AttachmentItem(
             Icon(
                 painter = painterResource(R.drawable.ic_download),
                 contentDescription = stringResource(R.string.cd_download_attachment),
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = Color.White,
                 modifier = Modifier.size(16.dp)
             )
         }
@@ -969,7 +969,7 @@ private fun CommentsCard(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)) {
+        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
 
             Text(
                 text = stringResource(R.string.comments),
@@ -999,7 +999,7 @@ private fun CommentsCard(
             ) {
                 Text(
                     text = stringResource(R.string.send),
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = Color.White,
                     fontSize = 16.sp
                 )
             }
@@ -1148,7 +1148,7 @@ private fun CommentItem(
                     ) {
                         Text(
                             stringResource(R.string.save),
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = Color.White,
                             fontSize = 14.sp
                         )
                     }
@@ -1178,20 +1178,20 @@ private fun CommentItem(
                 painter = painterResource(R.drawable.ic_edit),
                 contentDescription = stringResource(R.string.cd_edit_comment),
                 modifier = Modifier
-                    .size(16.dp)
+                    .size(20.dp)
                     .clickable(
                         onClick = onStartEditCommentClick
                     ),
                 tint = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Icon(
                 painter = painterResource(R.drawable.ic_trash),
                 contentDescription = stringResource(R.string.cd_delete_comment),
                 modifier = Modifier
-                    .size(16.dp)
+                    .size(20.dp)
                     .clickable(
                         onClick = onDeleteCommentClick
                     ),

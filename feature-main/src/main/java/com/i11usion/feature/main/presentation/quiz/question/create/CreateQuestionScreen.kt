@@ -48,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -213,7 +214,7 @@ private fun CreateQuestionCard(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        LazyColumn(modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)) {
+        LazyColumn(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
 
             val typeOptions = typeOptions()
 
@@ -409,6 +410,9 @@ private fun CreateQuestionCard(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 disabledContainerColor = MaterialTheme.colorScheme.primary.copy(
                                     alpha = 0.3f
+                                ),
+                                disabledContentColor = Color.White.copy(
+                                    alpha = 0.3f
                                 )
                             ),
                         shape = RoundedCornerShape(16.dp)
@@ -417,14 +421,14 @@ private fun CreateQuestionCard(
                             Text(
                                 text = stringResource(R.string.create),
                                 fontSize = 18.sp,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = Color.White
                             )
                         }
 
                         if (isCreating) {
                             CircularProgressIndicator(
                                 strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = Color.White
                             )
                         }
                     }

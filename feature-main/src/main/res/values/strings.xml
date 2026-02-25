@@ -223,4 +223,5 @@
     <string name="notifications">Уведомления</string>
     <string name="read_all_notifications">Прочитать все уведоммления</string>
     <string name="cd_read_all_notifications">Прочитать все уведомления</string>
+    <string name="cd_close">Закрыть</string>
 </resources>

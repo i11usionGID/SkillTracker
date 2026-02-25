@@ -219,7 +219,7 @@ fun UpdateQuizScreen(
                         onToggleAllowReviewClick = { viewModel.processCommand(UpdateQuizCommand.ToggleAllowReview) },
 
                         onCancelClick = { viewModel.processCommand(UpdateQuizCommand.Cancel) },
-                        onUpdateQuizClick = { viewModel.processCommand(UpdateQuizCommand.Update) } // ✅ update
+                        onUpdateQuizClick = { viewModel.processCommand(UpdateQuizCommand.Update) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -318,7 +318,7 @@ private fun UpdateQuizCard(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)) {
+        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
 
             Text(
                 text = stringResource(R.string.title_name),
@@ -471,6 +471,9 @@ private fun UpdateQuizCard(
                             containerColor = MaterialTheme.colorScheme.primary,
                             disabledContainerColor = MaterialTheme.colorScheme.primary.copy(
                                 alpha = 0.3f
+                            ),
+                            disabledContentColor = Color.White.copy(
+                                alpha = 0.3f
                             )
                         ),
                     shape = RoundedCornerShape(16.dp)
@@ -479,12 +482,12 @@ private fun UpdateQuizCard(
                         Text(
                             text = "Изменить",
                             fontSize = 18.sp,
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = Color.White
                         )
                     } else {
                         CircularProgressIndicator(
                             strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = Color.White
                         )
                     }
                 }
@@ -521,7 +524,7 @@ private fun UpdatePassPercentDialog(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.cd_close)
                     )
                 }
             }
@@ -601,7 +604,7 @@ private fun UpdatePassPercentDialog(
                 Text(
                     text = stringResource(R.string.save),
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
             }
         }
@@ -732,7 +735,10 @@ private fun TimeLimitDialog(
                     style = MaterialTheme.typography.titleLarge
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = null)
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.cd_close)
+                    )
                 }
             }
         },
@@ -784,7 +790,7 @@ private fun TimeLimitDialog(
                 Text(
                     text = stringResource(R.string.save),
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
             }
         }
@@ -814,7 +820,7 @@ private fun MaxAttemptsDialog(
                     style = MaterialTheme.typography.titleLarge
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = null)
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_close))
                 }
             }
         },
@@ -852,7 +858,7 @@ private fun MaxAttemptsDialog(
                 Text(
                     text = stringResource(R.string.save),
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
             }
         }

@@ -238,7 +238,7 @@ private fun TaskHeader(
                 Text(
                     text = stringResource(R.string.create_task),
                     fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
             }
         }
@@ -475,7 +475,7 @@ private fun TaskCard(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)) {
+        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
 
             Row(
                 verticalAlignment = Alignment.CenterVertically

@@ -55,7 +55,6 @@ class UpdateQuestionViewModel @Inject constructor(
 
             is UpdateQuestionCommand.RemoveOption ->
                 updateContent { c ->
-                    // удаляем всегда последний (как вы обсуждали ранее)
                     val newList = c.options.dropLast(1).ensureMinOptionsForType(c.questionType)
                     c.copy(options = newList).normalizeSingleCorrectIfNeeded()
                 }
@@ -215,8 +214,6 @@ class UpdateQuestionViewModel @Inject constructor(
         }
     }
 
-    /** ===== Validation / mapping ===== */
-
     private fun computeCanSave(c: UpdateQuestionUiState.Content): Boolean {
         val questionTextOk = c.text.trim().isNotEmpty()
 
@@ -271,7 +268,6 @@ class UpdateQuestionViewModel @Inject constructor(
             isSaving = false
         )
 
-        // ensure минимум для текущего типа (и single нормализация)
         val ensured = when (type) {
             QuestionType.TEXT -> base.copy(
                 options = emptyList(),

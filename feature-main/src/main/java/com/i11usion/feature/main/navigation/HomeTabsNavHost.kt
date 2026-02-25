@@ -113,23 +113,23 @@ fun HomeTabsNavHost(
 
             TaskDetailScreen(
                 taskId = taskId,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.safePopBackStack() }
             )
         }
         composable(HomeRoutes.CREATE_TASK) {
             CreateTaskScreen(
-                onCancelClick = { navController.popBackStack() },
-                onCreateTaskClick = { navController.popBackStack() }
+                onCancelClick = { navController.safePopBackStack() },
+                onCreateTaskClick = { navController.safePopBackStack() }
             )
         }
         composable(HomeRoutes.CREATE_USER) {
             CreateUserScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.safePopBackStack() }
             )
         }
         composable(HomeRoutes.QUESTIONS) {
             QuestionScreen(
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.safePopBackStack() },
                 onCreateQuestionClick = {
                     navController.navigate(HomeRoutes.CREATE_QUESTION) {
                         launchSingleTop = true
@@ -144,7 +144,7 @@ fun HomeTabsNavHost(
         }
         composable(HomeRoutes.CREATE_QUESTION) {
             CreateQuestionScreen(
-                onCancelClick = { navController.popBackStack() }
+                onCancelClick = { navController.safePopBackStack() }
             )
         }
         composable(
@@ -155,12 +155,12 @@ fun HomeTabsNavHost(
 
             UpdateQuestionScreen(
                 questionId = questionId,
-                onCancelClick = { navController.popBackStack() }
+                onCancelClick = { navController.safePopBackStack() }
             )
         }
         composable(HomeRoutes.CREATE_QUIZ) {
             CreateQuizScreen(
-                onCancelClick = { navController.popBackStack() }
+                onCancelClick = { navController.safePopBackStack() }
             )
         }
         composable(
@@ -171,7 +171,7 @@ fun HomeTabsNavHost(
 
             QuizDetailScreen(
                 quizId = quizId,
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack() },
                 onCreateSectionClick = { quizId ->
                     navController.navigate(HomeRoutes.createQuestionSection(quizId)) {
                         launchSingleTop = true
@@ -223,7 +223,7 @@ fun HomeTabsNavHost(
                         popUpTo(HomeRoutes.TESTING) { inclusive = true }
                     }
                 },
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack() },
             )
         }
         composable(
@@ -235,12 +235,12 @@ fun HomeTabsNavHost(
             CreateQuestionSectionScreen(
                 quizId = quizId,
                 onCreateQuestionsClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                     navController.navigate(HomeRoutes.QUESTIONS) {
                         launchSingleTop = true
                     }
                 },
-                onCancelClick = { navController.popBackStack() }
+                onCancelClick = { navController.safePopBackStack() }
             )
         }
         composable(
@@ -262,7 +262,7 @@ fun HomeTabsNavHost(
                     }
                 },
                 onCancelClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 }
             )
         }
@@ -274,7 +274,7 @@ fun HomeTabsNavHost(
 
             CreateAssignmentScreen(
                 quizId = quizId,
-                onCancelClick = { navController.popBackStack() }
+                onCancelClick = { navController.safePopBackStack() }
             )
         }
         composable(
@@ -285,7 +285,7 @@ fun HomeTabsNavHost(
 
             UpdateQuizScreen(
                 quizId = quizId,
-                onCancelClick = { navController.popBackStack() }
+                onCancelClick = { navController.safePopBackStack() }
             )
         }
         composable(
@@ -296,7 +296,7 @@ fun HomeTabsNavHost(
 
             AttemptsAnalyticsScreen(
                 quizId = quizId,
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack() },
                 onAttemptDetailScreen = { attemptId ->
                     navController.navigate(HomeRoutes.attemptAnalyticDetail(attemptId)) {
                         launchSingleTop = true
@@ -312,8 +312,27 @@ fun HomeTabsNavHost(
 
             AttemptAnalyticsDetailScreen(
                 attemptId = attemptId,
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack() },
             )
         }
     }
+}
+
+private const val NAVIGATION_DELAY = 500L
+
+fun NavHostController.safePopBackStack(): Boolean {
+    val currentTime = System.currentTimeMillis()
+    val lastTime = this.previousBackStackEntry
+        ?.savedStateHandle
+        ?.get<Long>("last_nav_time") ?: 0L
+
+    if (currentTime - lastTime < NAVIGATION_DELAY) {
+        return false
+    }
+
+    this.currentBackStackEntry
+        ?.savedStateHandle
+        ?.set("last_nav_time", currentTime)
+
+    return this.popBackStack()
 }

@@ -161,7 +161,8 @@ private fun CreateAssignmentSectionContent(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
-        contentPadding = PaddingValues(bottom = 24.dp)
+        contentPadding = PaddingValues(bottom = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
             Spacer(Modifier.height(16.dp))
@@ -183,7 +184,6 @@ private fun CreateAssignmentSectionContent(
         }
 
         item {
-            // Инфо блок как на макете (можешь удалить, если не нужно)
             Card(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
@@ -362,7 +362,8 @@ private fun CreateAssignmentSectionContent(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 disabledContainerColor = MaterialTheme.colorScheme.primary.copy(
                                     alpha = 0.3f
-                                )
+                                ),
+                                disabledContentColor = Color.White.copy(alpha = 0.3f)
                             ),
                             shape = RoundedCornerShape(16.dp)
                         ) {
@@ -370,12 +371,12 @@ private fun CreateAssignmentSectionContent(
                                 Text(
                                     "Создать",
                                     fontSize = 18.sp,
-                                    color = MaterialTheme.colorScheme.onPrimary
+                                    color = Color.White
                                 )
                             } else {
                                 CircularProgressIndicator(
                                     strokeWidth = 2.dp,
-                                    color = MaterialTheme.colorScheme.onPrimary
+                                    color = Color.White
                                 )
                             }
                         }
@@ -416,8 +417,6 @@ private fun CreateAssignmentSectionContent(
     }
 }
 
-/* -------------------- Dropdown по options(id/label) -------------------- */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun <T> DropdownFieldByOptions(
@@ -427,7 +426,6 @@ private fun <T> DropdownFieldByOptions(
     enabled: Boolean,
     onSelectedId: (Int?) -> Unit,
 ) where T : Any {
-    // поддерживаем два типа options: EmployeeOption / TaskOption
     val labels = remember(options) {
         when {
             options.firstOrNull() is EmployeeOption ->
@@ -460,8 +458,6 @@ private fun <T> DropdownFieldByOptions(
     )
 }
 
-/* -------------------- DateField + reset справа -------------------- */
-
 @Composable
 private fun DateFieldWithReset(
     selectedDateMillis: Long?,
@@ -492,8 +488,6 @@ private fun DateFieldWithReset(
         }
     }
 }
-
-/* -------------------- Wheel поле + reset справа -------------------- */
 
 @Composable
 private fun WheelFieldWithReset(
@@ -527,8 +521,6 @@ private fun WheelFieldWithReset(
     }
 }
 
-/* -------------------- CheckField (как у тебя) -------------------- */
-
 @Composable
 private fun CheckField(
     modifier: Modifier = Modifier,
@@ -549,8 +541,6 @@ private fun CheckField(
         }
     }
 }
-
-/* -------------------- DropdownField (nullable selected + placeholder) -------------------- */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -609,8 +599,6 @@ private fun DropdownField(
         }
     }
 }
-
-/* -------------------- DateField -------------------- */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -706,8 +694,6 @@ fun DateField(
     }
 }
 
-/* -------------------- ClickField (used by wheel fields) -------------------- */
-
 @Composable
 private fun ClickField(
     modifier: Modifier = Modifier,
@@ -740,8 +726,6 @@ private fun ClickField(
     }
 }
 
-/* -------------------- NumberWheelDialog -------------------- */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NumberWheelDialog(
@@ -758,13 +742,12 @@ private fun NumberWheelDialog(
         shape = RoundedCornerShape(20.dp),
         containerColor = MaterialTheme.colorScheme.surface,
         title = {
-            // ✅ без крестика
             Text(title, style = MaterialTheme.typography.titleLarge)
         },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally // ✅ центрируем контент
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     value.toString(),
@@ -773,7 +756,6 @@ private fun NumberWheelDialog(
                 )
                 Spacer(Modifier.height(12.dp))
 
-                // ✅ чтобы наверняка колесо было по центру даже если внутри fixed width
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
@@ -808,13 +790,11 @@ private fun NumberWheelDialog(
                 shape = RoundedCornerShape(32.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
             ) {
-                Text("Сохранить", fontSize = 16.sp, color = MaterialTheme.colorScheme.onPrimary)
+                Text("Сохранить", fontSize = 16.sp, color = Color.White)
             }
         }
     )
 }
-
-/* -------------------- WheelNumberPicker -------------------- */
 
 @Composable
 private fun WheelNumberPicker(
@@ -966,8 +946,6 @@ private fun WheelNumberPicker(
         }
     }
 }
-
-/* -------------------- centerValueIndex helper -------------------- */
 
 private fun LazyListState.centerValueIndex(valuesCount: Int): Int {
     val layout = layoutInfo

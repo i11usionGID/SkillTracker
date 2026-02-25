@@ -207,7 +207,7 @@ private fun QuestionHeader(
             Text(
                 text = stringResource(R.string.create_question),
                 fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = Color.White
             )
         }
     }
@@ -301,7 +301,7 @@ private fun QuestionCard(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)) {
+        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
             QuestionCardHeader(
                 typeText = typeText,
                 onEditQuestionClick = onEditQuestionClick,
