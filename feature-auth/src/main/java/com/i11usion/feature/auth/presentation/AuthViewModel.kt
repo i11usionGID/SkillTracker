@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i11usion.core.domain.usecase.auth.CheckAuthUseCase
 import com.i11usion.core.domain.usecase.auth.LoginUseCase
+import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 class AuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val checkAuthUseCase: CheckAuthUseCase
+    private val checkAuthUseCase: CheckAuthUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AuthUiState())
@@ -30,12 +32,17 @@ class AuthViewModel @Inject constructor(
     private fun checkAuth() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-
-            if (checkAuthUseCase()) {
-                _events.emit(AuthEvent.Success)
-            } else {
-                _state.update { it.copy(isLoading = false) }
-            }
+            val user = getUserInfoUseCase()
+            user?.let { user ->
+                _state.update {
+                    it.copy(username = user.username, password = "*********")
+                }
+                if (checkAuthUseCase()) {
+                    _events.emit(AuthEvent.Success)
+                } else {
+                    _state.update { it.copy(isLoading = false) }
+                }
+            } ?: _state.update { it.copy(isLoading = false) }
         }
     }
 

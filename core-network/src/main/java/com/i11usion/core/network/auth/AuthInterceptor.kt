@@ -1,11 +1,14 @@
 package com.i11usion.core.network.auth
 
+import android.util.Log
+import com.i11usion.core.domain.repository.SessionManager
 import com.i11usion.core.domain.usecase.session.GetAccessTokenUseCase
 import okhttp3.Interceptor
 import okhttp3.Response
 
 class AuthInterceptor(
-    private val getAccessTokenUseCase: GetAccessTokenUseCase
+    private val getAccessTokenUseCase: GetAccessTokenUseCase,
+    private val sessionManager: SessionManager
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -20,15 +23,20 @@ class AuthInterceptor(
 
         val token = getAccessTokenUseCase()
 
-        val authorizedRequest = if (token != null) {
-            request.newBuilder()
-                .addHeader(AUTH, "Bearer $token")
-                .build()
-        } else {
-            request
+        val authorizedRequest = request.newBuilder().apply {
+            token?.let {
+                addHeader(AUTH, "Bearer $it")
+            }
+        }.build()
+
+        val response = chain.proceed(authorizedRequest)
+
+        if (response.code == 401) {
+            Log.d("Debug401", "получени 401")
+            sessionManager.notifySessionExpired()
         }
 
-        return chain.proceed(authorizedRequest)
+        return response
     }
 
     companion object {

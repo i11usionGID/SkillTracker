@@ -3,12 +3,13 @@ package com.i11usion.feature.main.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i11usion.core.domain.model.user.Role
-import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
 import com.i11usion.core.domain.usecase.auth.LogoutUseCase
 import com.i11usion.core.domain.usecase.notification.GetNotificationsUseCase
+import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
 import com.i11usion.feature.main.presentation.drawer.DrawerConfig
 import com.i11usion.feature.main.presentation.drawer.DrawerItem
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -85,7 +87,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun observeUnreadCount(pollMs: Long) = flow {
-        while (true) {
+        while (currentCoroutineContext().isActive) {
             val count = runCatching {
                 val list = getNotificationsUseCase(
                     unreadOnly = true,
@@ -98,6 +100,11 @@ class HomeViewModel @Inject constructor(
             emit(count)
             delay(pollMs)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        notificationsJob?.cancel()
     }
 }
 
