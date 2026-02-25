@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -16,11 +17,11 @@ import com.i11usion.core.ui.R
 
 @Composable
 fun Logo(
-    boxModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
     imageModifier: Modifier = Modifier
 ) {
     Box(
-        modifier = boxModifier
+        modifier = modifier
             .size(72.dp)
             .background(
                 color = MaterialTheme.colorScheme.primary,
@@ -32,7 +33,7 @@ fun Logo(
             painter = painterResource(R.drawable.ic_logo),
             contentDescription = stringResource(R.string.cd_application_logo),
             modifier = imageModifier.size(36.dp),
-            tint = MaterialTheme.colorScheme.onPrimary
+            tint = Color.White
         )
     }
 }

@@ -1,15 +1,24 @@
 package com.i11usion.feature.main.presentation
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,6 +40,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -46,10 +57,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomeShell(
+    isDarkTheme: Boolean,
     state: HomeState.Content,
     onDrawerItemClick: (String) -> Unit,
     onLogoutClick: () -> Unit,
     onNotificationClick: () -> Unit,
+    onSwitchThemeClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -67,6 +80,7 @@ fun HomeShell(
                 }
             ) {
                 HomeTopBar(
+                    theme = isDarkTheme,
                     notificationCount = state.notificationCount,
                     onMenuClick = {
                         scope.launch {
@@ -78,10 +92,12 @@ fun HomeShell(
                         }
                     },
                     onNotificationClick = onNotificationClick,
+                    onSwitchThemeClick = onSwitchThemeClick,
                     onLogoutClick = onLogoutClick
                 )
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.surface
     ) { innerPadding ->
         ModalNavigationDrawer(
             drawerState = drawerState,
@@ -125,8 +141,10 @@ fun HomeShell(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeTopBar(
+    theme: Boolean,
     notificationCount: Int,
     onMenuClick: () -> Unit,
+    onSwitchThemeClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
@@ -136,7 +154,7 @@ private fun HomeTopBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Logo(
-                    boxModifier = Modifier
+                    modifier = Modifier
                         .size(32.dp)
                         .background(
                             color = MaterialTheme.colorScheme.primary,
@@ -163,6 +181,10 @@ private fun HomeTopBar(
             }
         },
         actions = {
+            ThemeSwitcher(
+                isDark = theme,
+                onSwitchThemeClick = onSwitchThemeClick
+            )
             CustomIconButton(
                 painter = painterResource(com.i11usion.feature.main.R.drawable.ic_notification),
                 contentDescription = stringResource(com.i11usion.feature.main.R.string.cd_notifications),
@@ -180,6 +202,64 @@ private fun HomeTopBar(
         colors = TopAppBarDefaults.topAppBarColors()
             .copy(containerColor = MaterialTheme.colorScheme.onPrimary)
     )
+}
+
+@Composable
+fun ThemeSwitcher(
+    modifier: Modifier = Modifier,
+    isDark: Boolean,
+    onSwitchThemeClick: () -> Unit
+) {
+    val trackColor by animateColorAsState(
+        targetValue = if (isDark)
+            Color(0xFF1C1C1E)
+        else
+            Color(0xFFE0E0E0),
+        label = ""
+    )
+
+    val borderColor by animateColorAsState(
+        targetValue = if (isDark)
+            Color(0xFFFF4D4D)
+        else
+            Color.Transparent,
+        label = ""
+    )
+
+    val offsetX by animateDpAsState(
+        targetValue = if (isDark) 34.dp else 0.dp,
+        label = ""
+    )
+
+    Box(
+        modifier = modifier
+            .width(70.dp)
+            .height(36.dp)
+            .clip(RoundedCornerShape(50))
+            .background(trackColor)
+            .border(2.dp, borderColor, RoundedCornerShape(50))
+            .clickable { onSwitchThemeClick() }
+            .padding(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .offset(x = offsetX)
+                .clip(CircleShape)
+                .background(Color.Black),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = if (isDark)
+                    Icons.Default.DarkMode
+                else
+                    Icons.Default.LightMode,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+    }
 }
 
 @Composable

@@ -9,7 +9,27 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme()
+private val DarkColorScheme = darkColorScheme(
+    primary = DarkOrange400,
+    onPrimary = DarkBlack,
+    primaryContainer = DarkOrange300,
+    primaryFixed = DarkOrange100,
+    primaryFixedDim = DarkOrange200,
+    secondary = DarkBlue200,
+    secondaryContainer = DarkBlue100,
+    tertiary = DarkGreen200,
+    tertiaryContainer = DarkGreen100,
+    surface = DarkGray100,
+    surfaceBright = DarkGray200,
+    surfaceVariant = DarkGray300,
+    onSurface = DarkWhite,
+    onSurfaceVariant = DarkGray500,
+    surfaceTint = DarkGray400,
+    error = DarkRed300,
+    errorContainer = DarkRed100,
+    onError = DarkRed200,
+    onErrorContainer = DarkRed300,
+)
 
 private val LightColorScheme = lightColorScheme(
     primary = Orange400,
@@ -35,7 +55,7 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun SkillTrackerTheme(
-    darkTheme: Boolean = false,
+    darkTheme: Boolean = true,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit

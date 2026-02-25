@@ -2,6 +2,7 @@ package com.i11usion.data.local.repository
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.core.content.edit
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.domain.model.user.User
@@ -14,6 +15,22 @@ class SessionRepositoryImpl @Inject constructor(
 ) : SessionRepository {
 
     private val prefs = context.getSharedPreferences(AUTH, Context.MODE_PRIVATE)
+
+    override fun getTheme(): Boolean? {
+        return if (prefs.contains(THEME)) {
+            prefs.getBoolean(THEME, false)
+        } else {
+            null
+        }
+    }
+
+    override fun switchTheme(): Boolean {
+        val isDark = prefs.getBoolean(THEME, false)
+        prefs.edit {
+            putBoolean(THEME, !isDark)
+        }
+        return !isDark
+    }
 
     override fun getAccessToken(): String? =
         prefs.getString(TOKEN, null)
@@ -50,11 +67,13 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override fun clear() {
+        Log.d("Debug401", "очищены prefs")
         prefs.edit { clear() }
     }
 
     companion object {
         private const val AUTH = "auth"
+        private const val THEME = "theme"
         private const val TOKEN = "token"
         private const val USER_ID = "user_id"
         private const val USER_NAME = "user_name"
