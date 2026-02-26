@@ -329,21 +329,18 @@ fun HomeTabsNavHost(
     }
 }
 
-private const val NAVIGATION_DELAY = 500L
+private const val NAVIGATION_DELAY = 1000L
+private const val KEY_LAST_NAV_TIME = "last_nav_time"
 
 fun NavHostController.safePopBackStack(): Boolean {
-    val currentTime = System.currentTimeMillis()
-    val lastTime = this.previousBackStackEntry
-        ?.savedStateHandle
-        ?.get<Long>("last_nav_time") ?: 0L
+    val now = System.currentTimeMillis()
 
-    if (currentTime - lastTime < NAVIGATION_DELAY) {
-        return false
-    }
+    val graphEntry = getBackStackEntry(graph.id)
+    val handle = graphEntry.savedStateHandle
 
-    this.currentBackStackEntry
-        ?.savedStateHandle
-        ?.set("last_nav_time", currentTime)
+    val last = handle.get<Long>(KEY_LAST_NAV_TIME) ?: 0L
+    if (now - last < NAVIGATION_DELAY) return false
 
-    return this.popBackStack()
+    handle[KEY_LAST_NAV_TIME] = now
+    return popBackStack()
 }
