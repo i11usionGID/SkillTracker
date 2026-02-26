@@ -7,6 +7,10 @@ import com.i11usion.core.domain.usecase.user.DeleteUserUseCase
 import com.i11usion.core.domain.usecase.user.GetUsersListUseCase
 import com.i11usion.core.ui.formatter.formatInstantToStringData
 import com.i11usion.feature.main.presentation.dashboard.mapper.userToUserUiModel
+import com.i11usion.feature.main.presentation.user.list.UserUiState.Content
+import com.i11usion.feature.main.presentation.user.list.UserUiState.Error
+import com.i11usion.feature.main.presentation.user.list.UserUiState.Initial
+import com.i11usion.feature.main.presentation.user.list.UserUiState.Loading
 import com.i11usion.feature.main.presentation.user.list.model.UserFilters
 import com.i11usion.feature.main.presentation.user.list.model.UserUiModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,7 +39,7 @@ class UserViewModel @Inject constructor(
     private val reloadUsers = MutableSharedFlow<Unit>(
         extraBufferCapacity = 1
     )
-    private val _state = MutableStateFlow<UserUiState>(UserUiState.Initial)
+    private val _state = MutableStateFlow<UserUiState>(Initial)
     val state = _state.asStateFlow()
 
     init {
@@ -44,7 +48,7 @@ class UserViewModel @Inject constructor(
     }
 
     private fun loadInitial() {
-        _state.value = UserUiState.Loading
+        _state.value = Loading
         reloadUsers.tryEmit(Unit)
     }
 
@@ -56,13 +60,18 @@ class UserViewModel @Inject constructor(
 
                 _state.update { state ->
                     when (state) {
-                        is UserUiState.Content -> state.copy(
+                        is Content -> state.copy(
                             userFilters = state.userFilters.copy(query = query)
                         )
-                        UserUiState.Loading, UserUiState.Initial ->
-                            UserUiState.Content(userFilters = UserFilters(query = query), isListLoading = true)
-                        is UserUiState.Error ->
-                            UserUiState.Content(userFilters = state.userFilters.copy(query = query), isListLoading = true)
+
+                        Loading, Initial ->
+                            Content(userFilters = UserFilters(query = query), isListLoading = true)
+
+                        is Error ->
+                            Content(
+                                userFilters = state.userFilters.copy(query = query),
+                                isListLoading = true
+                            )
                     }
                 }
             }
@@ -79,6 +88,9 @@ class UserViewModel @Inject constructor(
             }
 
             UserCommand.RetryLoadUsers -> reloadUsers.tryEmit(Unit)
+            UserCommand.Refresh -> {
+                reloadUsers.tryEmit(Unit)
+            }
         }
     }
 
@@ -104,8 +116,11 @@ class UserViewModel @Inject constructor(
             .onEach {
                 _state.update { state ->
                     when (state) {
-                        is UserUiState.Content -> state.copy(isListLoading = true)
-                        else -> UserUiState.Content(userFilters = filters.value, isListLoading = true)
+                        is Content -> state.copy(isListLoading = true)
+                        else -> Content(
+                            userFilters = filters.value,
+                            isListLoading = true
+                        )
                     }
                 }
             }
@@ -128,14 +143,14 @@ class UserViewModel @Inject constructor(
             .onEach { result ->
                 result.fold(
                     onSuccess = { users ->
-                        _state.value = UserUiState.Content(
+                        _state.value = Content(
                             userFilters = filters.value,
                             userList = users,
                             isListLoading = false
                         )
                     },
                     onFailure = { t ->
-                        _state.value = UserUiState.Error(
+                        _state.value = Error(
                             userFilters = filters.value,
                             message = t.message ?: "Не удалось загрузить задачи"
                         )
@@ -150,7 +165,8 @@ sealed interface UserCommand {
     data class InputSearchQuery(val query: String) : UserCommand
     data class SelectRole(val role: Role?) : UserCommand
     data object RetryLoadUsers : UserCommand
-    data class DeleteUser(val userId: Int): UserCommand
+    data class DeleteUser(val userId: Int) : UserCommand
+    data object Refresh : UserCommand
 }
 
 sealed interface UserUiState {

@@ -119,6 +119,8 @@ class QuizViewModel @Inject constructor(
                     reloadQuizzes.emit(Unit)
                 }
             }
+
+            QuizCommand.Refresh -> { reloadQuizzes.tryEmit(Unit) }
         }
     }
 
@@ -218,6 +220,7 @@ sealed interface QuizCommand {
     data class InputSearchQuery(val query: String) : QuizCommand
     data class SelectStatus(val status: QuizStatus?) : QuizCommand
     data class DeleteQuiz(val quizId: Int) : QuizCommand
+    data object Refresh : QuizCommand
 }
 
 sealed interface QuizUiState {

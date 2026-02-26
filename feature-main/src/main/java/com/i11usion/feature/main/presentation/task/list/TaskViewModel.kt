@@ -75,6 +75,7 @@ class TaskViewModel @Inject constructor(
             }
 
             TaskCommand.RetryLoadTasks -> reloadTasks.tryEmit(Unit)
+            TaskCommand.Refresh -> { reloadTasks.tryEmit(Unit) }
         }
     }
 
@@ -181,6 +182,7 @@ sealed interface TaskCommand {
     data class SelectStatus(val status: TaskStatus?) : TaskCommand
     data class SelectEmployee(val employeeId: Int?) : TaskCommand
     data object RetryLoadTasks : TaskCommand
+    data object Refresh : TaskCommand
 }
 
 data class TaskUiState(
