@@ -15,6 +15,7 @@ import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailScreen
 import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentScreen
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.CreateQuestionSectionScreen
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.update.UpdateQuestionSectionScreen
+import com.i11usion.feature.main.presentation.quiz.generate.GenerateQuizScreen
 import com.i11usion.feature.main.presentation.quiz.list.QuizScreen
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionScreen
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionScreen
@@ -93,6 +94,11 @@ fun HomeTabsNavHost(
                         launchSingleTop = true
                     }
                 },
+                onGenerateQuizClick = {
+                    navController.navigate(HomeRoutes.GENERATE_QUIZ) {
+                        launchSingleTop = true
+                    }
+                },
                 onOpenQuizClick = { quizId ->
                     navController.navigate(HomeRoutes.quizDetail(quizId)) {
                         launchSingleTop = true
@@ -160,6 +166,11 @@ fun HomeTabsNavHost(
         }
         composable(HomeRoutes.CREATE_QUIZ) {
             CreateQuizScreen(
+                onCancelClick = { navController.safePopBackStack() }
+            )
+        }
+        composable(HomeRoutes.GENERATE_QUIZ) {
+            GenerateQuizScreen(
                 onCancelClick = { navController.safePopBackStack() }
             )
         }

@@ -82,6 +82,15 @@ class NotificationViewModel @Inject constructor(
                         HomeRoutes.attemptAnalyticDetail(it)
                     } ?: HomeRoutes.TESTS
                 }
+
+                NotificationType.QUIZ_AI_READY -> {
+                    notification.payloadId?.let {
+                        HomeRoutes.quizDetail(it)
+                    } ?: HomeRoutes.TESTS
+                }
+                NotificationType.QUIZ_AI_FAILED -> {
+                    HomeRoutes.TESTS
+                }
             }
 
             _events.emit(NotificationEvent.NavigateTo(route as String))

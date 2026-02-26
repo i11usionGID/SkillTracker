@@ -34,6 +34,12 @@ fun NotificationDto.toDomain(): Notification {
         NotificationType.TASK_PROGRESS_UPDATED -> {
             payload?.get("task_id")?.asInt
         }
+
+        NotificationType.QUIZ_AI_READY -> {
+            payload?.get("quiz_id")?.asInt
+        }
+
+        NotificationType.QUIZ_AI_FAILED -> null
     }
 
     return Notification(

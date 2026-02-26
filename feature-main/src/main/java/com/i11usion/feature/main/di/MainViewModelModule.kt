@@ -10,6 +10,7 @@ import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.CreateQuestionSectionViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.update.UpdateQuestionSectionViewModel
+import com.i11usion.feature.main.presentation.quiz.generate.GenerateQuizViewModel
 import com.i11usion.feature.main.presentation.quiz.list.QuizViewModel
 import com.i11usion.feature.main.presentation.quiz.question.create.CreateQuestionViewModel
 import com.i11usion.feature.main.presentation.quiz.question.list.QuestionViewModel
@@ -63,6 +64,11 @@ interface MainViewModelModule {
     @IntoMap
     @ViewModelKey(CreateQuizViewModel::class)
     fun bindCreateQuizViewModel(vm: CreateQuizViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(GenerateQuizViewModel::class)
+    fun bindGenerateQuizViewModel(vm: GenerateQuizViewModel): ViewModel
 
     @Binds
     @IntoMap

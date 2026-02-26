@@ -61,6 +61,7 @@ import com.i11usion.feature.main.R
 fun QuizScreen(
     modifier: Modifier = Modifier,
     onCreateTestClick: () -> Unit,
+    onGenerateQuizClick: () -> Unit,
     onOpenQuestionListClick: () -> Unit,
     onOpenQuizClick: (Int) -> Unit,
     onStartTestingClick: (Int) -> Unit
@@ -93,6 +94,7 @@ fun QuizScreen(
                     QuizHeader(
                         userRole = state.user.role,
                         onCreateTestClick = onCreateTestClick,
+                        onGenerateQuizClick = onGenerateQuizClick,
                         onOpenQuestionListClick = onOpenQuestionListClick
                     )
                 }
@@ -234,6 +236,7 @@ private fun QuizHeader(
     modifier: Modifier = Modifier,
     userRole: Role,
     onCreateTestClick: () -> Unit,
+    onGenerateQuizClick: () -> Unit,
     onOpenQuestionListClick: () -> Unit
 ) {
     Spacer(modifier = Modifier.height(16.dp))
@@ -283,6 +286,31 @@ private fun QuizHeader(
                     text = stringResource(R.string.create_test),
                     fontSize = 18.sp,
                     color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors()
+                    .copy(containerColor = MaterialTheme.colorScheme.surfaceBright),
+                shape = RoundedCornerShape(16.dp),
+                onClick = onGenerateQuizClick
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_sparkles),
+                    contentDescription = stringResource(R.string.cd_ai_generation_quiz),
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.inversePrimary
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Text(
+                    text = stringResource(R.string.ai_quiz_generation),
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.inversePrimary
                 )
             }
 

@@ -21,6 +21,7 @@ object HomeRoutes {
     const val CREATE_TASK = "home/tasks/create"
     const val CREATE_USER = "home/users/create"
     const val CREATE_QUIZ = "home/tests/create"
+    const val GENERATE_QUIZ = "home/tests/generate"
     const val UPDATE_QUIZ = "home/tests/update/{quizId}"
     const val QUIZ_DETAIL = "home/tests/detail/{quizId}"
     const val CREATE_QUESTION_SECTION = "home/tests/detail/{quizId}/create_question_section"

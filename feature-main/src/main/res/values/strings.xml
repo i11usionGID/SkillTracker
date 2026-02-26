@@ -224,4 +224,20 @@
     <string name="read_all_notifications">Прочитать все уведоммления</string>
     <string name="cd_read_all_notifications">Прочитать все уведомления</string>
     <string name="cd_close">Закрыть</string>
+    <string name="ai_quiz_generation">AI-генерация</string>
+    <string name="generate_quiz_with_ai">Сгенерировать тест с AI</string>
+    <string name="create_assignment_information_block">Вы можете назначить тест либо пользователю напрямую, либо связать с задачей. При привязке к задаче, тест автоматически назначится исполнителю задачи.</string>
+    <string name="generate_quiz_information_block">AI сгенерирует тест с 8 вопросами по указанной теме и сразу опубликует его. Когда тест будет готов - вы получите уведомление.</string>
+    <string name="cd_generate_quiz_ai">AI сгенерирует тест</string>
+    <string name="quiz_theme">Тема теста</string>
+    <string name="generate_quiz_topic_example">Например: Python asyncio, SQL, JOIN, основы GIT…</string>
+    <string name="start_generation">Начать генерацию</string>
+    <string name="start_quiz_generation">Сгенерировать тест</string>
+    <string name="generate_starting">Генерация запущена</string>
+    <string name="cd_start_generation">Генерация началась</string>
+    <string name="quiz_for_topic">Тест по теме  «</string>
+    <string name="generating">» генерируется</string>
+    <string name="quiz_generation_description">Когда тест будет готов, вы получите уведомление. Обычно это занимает несколько секунд.</string>
+    <string name="understand">Понятно</string>
+    <string name="cd_ai_generation_quiz">AI-генерация теста</string>
 </resources>

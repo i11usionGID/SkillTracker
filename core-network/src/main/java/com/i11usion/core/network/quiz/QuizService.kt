@@ -2,6 +2,7 @@ package com.i11usion.core.network.quiz
 
 import com.i11usion.core.network.model.quiz.AssignmentDetailDto
 import com.i11usion.core.network.model.quiz.AssignmentRequestDto
+import com.i11usion.core.network.model.quiz.GenerateQuizRequestDto
 import com.i11usion.core.network.model.quiz.MyQuizAssignmentDto
 import com.i11usion.core.network.model.quiz.QuestionDto
 import com.i11usion.core.network.model.quiz.QuestionRequestDto
@@ -36,6 +37,11 @@ interface QuizService {
     @POST("/api/quizzes")
     suspend fun createQuiz(
         @Body body: QuizCreateRequestDto
+    )
+
+    @POST("/api/quizzes/ai/generate")
+    suspend fun generateQuiz(
+        @Body body: GenerateQuizRequestDto
     )
 
     @DELETE("/api/quizzes/{quiz_id}")

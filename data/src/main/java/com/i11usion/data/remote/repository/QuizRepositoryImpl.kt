@@ -17,6 +17,7 @@ import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmit
 import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
 import com.i11usion.core.domain.repository.QuizRepository
 import com.i11usion.core.network.model.quiz.AssignmentRequestDto
+import com.i11usion.core.network.model.quiz.GenerateQuizRequestDto
 import com.i11usion.core.network.model.quiz.QuestionSectionRequestDto
 import com.i11usion.core.network.quiz.QuizService
 import com.i11usion.data.mapper.domainToDto
@@ -49,6 +50,11 @@ class QuizRepositoryImpl @Inject constructor(
     override suspend fun createQuiz(quiz: QuizCreate) {
         val body = quiz.domainToDto()
         quizService.createQuiz(body)
+    }
+
+    override suspend fun generateQuiz(topic: String) {
+        val body = GenerateQuizRequestDto(topic = topic)
+        quizService.generateQuiz(body)
     }
 
     override suspend fun deleteQuiz(quizId: Int) {

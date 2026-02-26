@@ -1,6 +1,5 @@
 package com.i11usion.feature.main.presentation.quiz.list
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i11usion.core.domain.model.quiz.QuizStatus
@@ -195,7 +194,6 @@ class QuizViewModel @Inject constructor(
                                     query = filters.value.query,
                                     status = filters.value.status
                                 )
-
                             QuizUiState.Content(
                                 user = user,
                                 quizFilters = uiFilters,
@@ -206,7 +204,6 @@ class QuizViewModel @Inject constructor(
                         }
                     },
                     onFailure = { t ->
-                        Log.e("QuizVM", "load quizzes failed: ${t::class.java.name}", t)
                         _state.value = QuizUiState.Error(
                             message = t.message ?: "Не удалось загрузить тесты"
                         )

@@ -195,7 +195,7 @@ private fun CreateAssignmentSectionContent(
             ) {
                 Text(
                     modifier = Modifier.padding(16.dp),
-                    text = "Вы можете назначить тест либо пользователю напрямую, либо связать с задачей. При привязке к задаче, тест автоматически назначится исполнителю задачи.",
+                    text = stringResource(R.string.create_assignment_information_block),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp
                 )

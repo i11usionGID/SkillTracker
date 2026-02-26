@@ -19,6 +19,7 @@ import java.time.Instant
 interface QuizRepository {
     suspend fun getQuizzes(page: Int?, perPage: Int?, status: String?, search: String?): List<Quiz>
     suspend fun createQuiz(quiz: QuizCreate)
+    suspend fun generateQuiz(topic: String)
     suspend fun deleteQuiz(quizId: Int)
     suspend fun getQuizById(quizId: Int): Quiz
     suspend fun getQuestions(questionType: QuestionType?): List<Question>

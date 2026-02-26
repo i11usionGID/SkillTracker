@@ -15,6 +15,7 @@ private val DarkColorScheme = darkColorScheme(
     primaryContainer = DarkOrange300,
     primaryFixed = DarkOrange100,
     primaryFixedDim = DarkOrange200,
+    inversePrimary = DarkPurple100,
     secondary = DarkBlue200,
     secondaryContainer = DarkBlue100,
     tertiary = DarkGreen200,
@@ -37,6 +38,7 @@ private val LightColorScheme = lightColorScheme(
     primaryContainer = Orange300,
     primaryFixed = Orange100,
     primaryFixedDim = Orange200,
+    inversePrimary = Purple100,
     secondary = Blue200,
     secondaryContainer = Blue100,
     tertiary = Green200,
@@ -51,7 +53,8 @@ private val LightColorScheme = lightColorScheme(
     errorContainer = Red100,
     onError = Red200,
     onErrorContainer = Red300,
-)
+
+    )
 
 @Composable
 fun SkillTrackerTheme(

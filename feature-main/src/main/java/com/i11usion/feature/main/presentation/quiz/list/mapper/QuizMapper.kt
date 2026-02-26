@@ -1,5 +1,6 @@
 package com.i11usion.feature.main.presentation.quiz.list.mapper
 
+import android.util.Log
 import com.i11usion.core.domain.model.quiz.MyQuizAssignment
 import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.model.quiz.QuizStatus
@@ -31,7 +32,12 @@ fun MyQuizAssignment.quizToQuizEmployeeUi(formatter: (Instant?) -> String): com.
         required = assignment.required,
         passPercent = "Проходной балл: ${quiz.passPercent}%",
         timeLimitSeconds = quiz.timeLimitSeconds?.let { formatTime("Время: ", it) },
-        attempts = formatAttempts(quiz.maxAttempts, assignment.attemptsTaken),
+        attempts = formatAttempts(
+            quizMaxAttempts = quiz.maxAttempts,
+            assignmentMaxAttempts = assignment.maxAttempts,
+            attemptsTaken = assignment.attemptsTaken,
+            remainingAttempts = assignment.remainingAttempts
+        ),
         deadline = if (assignment.dueAt != null) {
             "До: " + formatter(assignment.dueAt)
         } else {
@@ -56,12 +62,19 @@ private fun formatTime(title: String, seconds: Int): String {
     }
 }
 
-private fun formatAttempts(maxAttempts: Int?, attemptsTaken: Int): String {
-    return "Попытки: " + if (maxAttempts == null) {
-        "без ограничений"
-    } else {
-        "$attemptsTaken / $maxAttempts, осталось ${maxAttempts - attemptsTaken}"
-    }
+private fun formatAttempts(
+    quizMaxAttempts: Int?,
+    assignmentMaxAttempts: Int?,
+    attemptsTaken: Int,
+    remainingAttempts: Int?
+): String {
+    val max = assignmentMaxAttempts ?: quizMaxAttempts
+
+    if (max == null) return "Попытки: без ограничений"
+
+    val remaining = remainingAttempts ?: (max - attemptsTaken).coerceAtLeast(0)
+
+    return "Попытки: $attemptsTaken / $max, осталось $remaining"
 }
 
 private fun isNoAttempts(maxAttempts: Int?, attemptsTaken: Int, attemptsRemaining: Int?): Boolean {

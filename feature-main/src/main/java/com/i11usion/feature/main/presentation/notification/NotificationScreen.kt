@@ -226,6 +226,13 @@ fun NotificationCard(
                 NotificationType.TASK_PROGRESS_UPDATED -> {
                     notificationIconResId = R.drawable.ic_trending_up
                 }
+
+                NotificationType.QUIZ_AI_READY -> {
+                    notificationIconResId = R.drawable.ic_sparkles
+                }
+                NotificationType.QUIZ_AI_FAILED -> {
+                    notificationIconResId = R.drawable.ic_fail
+                }
             }
 
             Box(
