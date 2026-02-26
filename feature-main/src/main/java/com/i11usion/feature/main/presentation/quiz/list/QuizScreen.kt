@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -56,6 +57,7 @@ import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.ui.di.LocalViewModelFactory
 import com.i11usion.feature.main.R
+import com.i11usion.feature.main.presentation.quiz.list.model.QuizManagerUiModel
 
 @Composable
 fun QuizScreen(
@@ -85,6 +87,8 @@ fun QuizScreen(
         }
 
         is QuizUiState.Content -> {
+            var showDeleteQuizDialog by remember { mutableStateOf<QuizManagerUiModel?>(null) }
+
             LazyColumn(
                 modifier = modifier
                     .fillMaxSize()
@@ -176,13 +180,7 @@ fun QuizScreen(
                                         statusContainerColor = statusContainerColor,
                                         createdAt = quiz.createdAt,
                                         onOpenQuizClick = { onOpenQuizClick(quiz.id) },
-                                        onDeleteQuizClick = {
-                                            viewModel.processCommand(
-                                                QuizCommand.DeleteQuiz(
-                                                    quiz.id
-                                                )
-                                            )
-                                        }
+                                        onDeleteQuizClick = { showDeleteQuizDialog = quiz }
                                     )
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }
@@ -222,6 +220,60 @@ fun QuizScreen(
                         }
                     }
                 }
+            }
+
+
+            if (showDeleteQuizDialog != null) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteQuizDialog = null },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.delete_quiz_question),
+                            fontSize = 24.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(R.string.confirmation_delete_quiz) + "${showDeleteQuizDialog!!.title}?",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val id = showDeleteQuizDialog!!.id
+                                showDeleteQuizDialog = null
+                                viewModel.processCommand(
+                                    QuizCommand.DeleteQuiz(
+                                        id
+                                    )
+                                )
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.delete),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { showDeleteQuizDialog = null },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceBright)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.Cancel),
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
 

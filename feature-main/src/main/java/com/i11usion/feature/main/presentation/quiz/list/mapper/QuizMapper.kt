@@ -1,6 +1,5 @@
 package com.i11usion.feature.main.presentation.quiz.list.mapper
 
-import android.util.Log
 import com.i11usion.core.domain.model.quiz.MyQuizAssignment
 import com.i11usion.core.domain.model.quiz.Quiz
 import com.i11usion.core.domain.model.quiz.QuizStatus

@@ -155,6 +155,7 @@ fun TaskDetailScreen(
 
         is TaskDetailUiState.Content -> {
             var showProgressDialog by remember { mutableStateOf(false) }
+            var showDeleteTaskDialog by remember { mutableStateOf(false) }
             var progress by rememberSaveable(taskId) { mutableIntStateOf(state.task.progress.toInt()) }
             val statusColor: Color
             val statusContainerColor: Color
@@ -189,13 +190,7 @@ fun TaskDetailScreen(
                         statusColor = statusColor,
                         statusContainerColor = statusContainerColor,
                         onBack = onBack,
-                        onDeleteTaskClick = {
-                            viewModel.processCommand(
-                                TaskDetailCommand.DeleteTask(
-                                    taskId
-                                )
-                            )
-                        }
+                        onDeleteTaskClick = { showDeleteTaskDialog = true }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -306,6 +301,55 @@ fun TaskDetailScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
                 }
+            }
+
+            if (showDeleteTaskDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteTaskDialog = false },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.delete_task_question),
+                            fontSize = 24.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(R.string.confirmation_delete_task) + "${state.task.title}?",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val id = state.task.id
+                                showDeleteTaskDialog = false
+                                viewModel.processCommand(TaskDetailCommand.DeleteTask(id))
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.delete),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { showDeleteTaskDialog = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceBright)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.Cancel),
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
 

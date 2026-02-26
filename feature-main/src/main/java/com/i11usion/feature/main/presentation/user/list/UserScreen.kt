@@ -178,10 +178,18 @@ fun UserScreen(
             if (userToDelete != null) {
                 AlertDialog(
                     onDismissRequest = { userToDelete = null },
-                    title = { Text(text = stringResource(R.string.delete_user_question)) },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.delete_user_question),
+                            fontSize = 24.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
                     text = {
                         Text(
-                            text = stringResource(R.string.confirmation_delete_user) + "${userToDelete!!.name}?"
+                            text = stringResource(R.string.confirmation_delete_user) + "${userToDelete!!.name}?",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.surfaceVariant
                         )
                     },
                     confirmButton = {
@@ -208,14 +216,13 @@ fun UserScreen(
                             Text(
                                 text = stringResource(R.string.Cancel),
                                 fontSize = 16.sp,
-                                color = Color.White
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     },
                     containerColor = MaterialTheme.colorScheme.onPrimary
                 )
             }
-
         }
 
         is UserUiState.Error -> {

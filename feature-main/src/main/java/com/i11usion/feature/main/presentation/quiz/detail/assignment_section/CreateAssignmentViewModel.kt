@@ -97,7 +97,7 @@ class CreateAssignmentViewModel @Inject constructor(
                     employees = users.map { u ->
                         EmployeeOption(
                             id = u.id,
-                            label = u.username
+                            label = u.name + " @${u.username}"
                         )
                     },
                     tasks = tasks.map { t ->

@@ -240,4 +240,8 @@
     <string name="quiz_generation_description">Когда тест будет готов, вы получите уведомление. Обычно это занимает несколько секунд.</string>
     <string name="understand">Понятно</string>
     <string name="cd_ai_generation_quiz">AI-генерация теста</string>
+    <string name="delete_task_question">Удалить задачу?</string>
+    <string name="delete_quiz_question">Удалить тест?</string>
+    <string name="confirmation_delete_task">"Вы уверены, что хотите удалить задачу "</string>
+    <string name="confirmation_delete_quiz">"Вы уверены, что хотите удалить тест "</string>
 </resources>
