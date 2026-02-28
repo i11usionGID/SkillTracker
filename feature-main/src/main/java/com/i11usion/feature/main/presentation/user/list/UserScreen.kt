@@ -243,7 +243,9 @@ fun UserScreen(
         }
 
         is UserUiState.Error -> {
-
+            Text(
+                text = state.message
+            )
         }
     }
 }

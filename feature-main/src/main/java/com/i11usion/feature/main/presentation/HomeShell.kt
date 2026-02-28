@@ -51,7 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.i11usion.core.ui.R
-import com.i11usion.core.ui.model.Logo
+import com.i11usion.core.ui.template.Logo
 import com.i11usion.feature.main.presentation.drawer.DrawerContent
 import kotlinx.coroutines.launch
 

@@ -3,4 +3,10 @@
     <string name="app_name">SkillTracker</string>
     <string name="application_name">SkillTracker</string>
     <string name="cd_application_logo">Логотип приложения</string>
+    <string name="no_internet">Отсутствует подключение к интернету</string>
+    <string name="cd_not_found">Не удалось найти ресурс</string>
+    <string name="cd_server_error">Сервер не отвечает</string>
+    <string name="server_error_try_later">Сервер временно недоступен. Повторите попытку позже.</string>
+    <string name="cd_unknown_error">Произошла непредвиденная ошибка</string>
+    <string name="unknown_error">Произошла непредвиденная ошибка. Повторите попытку или обратитесь к администратору.</string>
 </resources>

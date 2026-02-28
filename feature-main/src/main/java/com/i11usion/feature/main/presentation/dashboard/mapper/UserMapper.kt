@@ -27,6 +27,6 @@ private fun nameToShortName(name: String): String {
         val words = name.split(" ")
         "${words[0][0].uppercase()}${words[1][0].uppercase()}"
     } else {
-        name.substring(0, 2).uppercase()
+        name.substring(0, 1).uppercase()
     }
 }

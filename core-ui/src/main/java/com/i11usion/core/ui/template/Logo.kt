@@ -1,4 +1,4 @@
-package com.i11usion.core.ui.model
+package com.i11usion.core.ui.template
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

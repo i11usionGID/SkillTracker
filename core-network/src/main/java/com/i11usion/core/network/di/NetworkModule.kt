@@ -1,6 +1,5 @@
 package com.i11usion.core.network.di
 
-import com.i11usion.core.domain.repository.SessionManager
 import com.i11usion.core.domain.usecase.session.GetAccessTokenUseCase
 import com.i11usion.core.network.auth.AuthInterceptor
 import com.i11usion.core.network.auth.AuthService
@@ -28,10 +27,9 @@ object NetworkModule {
     @ApplicationScope
     @Provides
     fun provideAuthInterceptor(
-        getAccessTokenUseCase: GetAccessTokenUseCase,
-        sessionManager: SessionManager
+        getAccessTokenUseCase: GetAccessTokenUseCase
     ): AuthInterceptor =
-        AuthInterceptor(getAccessTokenUseCase, sessionManager)
+        AuthInterceptor(getAccessTokenUseCase)
 
     @ApplicationScope
     @Provides

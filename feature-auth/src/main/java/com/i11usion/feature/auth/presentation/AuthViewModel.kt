@@ -1,10 +1,16 @@
 package com.i11usion.feature.auth.presentation
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.usecase.auth.CheckAuthUseCase
 import com.i11usion.core.domain.usecase.auth.LoginUseCase
 import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.core.ui.model.UiText
+import com.i11usion.feature.auth.presentation.mapper.toAuthUiError
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -22,60 +28,102 @@ class AuthViewModel @Inject constructor(
     private val _state = MutableStateFlow(AuthUiState())
     val state = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<AuthEvent>()
+    private val _events = MutableSharedFlow<AuthEvent>(extraBufferCapacity = 1)
     val events = _events.asSharedFlow()
+
+    private enum class LastAction { NONE, CHECK_AUTH, LOGIN }
+    private var lastAction: LastAction = LastAction.NONE
 
     init {
         checkAuth()
     }
 
     private fun checkAuth() {
+        lastAction = LastAction.CHECK_AUTH
+
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true, fullScreenError = null) }
+
             val user = getUserInfoUseCase()
-            user?.let { user ->
-                _state.update {
-                    it.copy(username = user.username, password = "*********")
+            if (user == null) {
+                _state.update { it.copy(isLoading = false) }
+                return@launch
+            }
+
+            _state.update { it.copy(username = user.username) }
+
+            when (val result = checkAuthUseCase()) {
+                is AppResult.Success -> {
+                    if (result.data) {
+                        _state.update { it.copy(isLoading = false) }
+                        _events.tryEmit(AuthEvent.Success)
+                    } else {
+                        _state.update { it.copy(isLoading = false) }
+                    }
                 }
-                if (checkAuthUseCase()) {
-                    _events.emit(AuthEvent.Success)
-                } else {
+
+                is AppResult.Failure -> {
                     _state.update { it.copy(isLoading = false) }
+                    handleError(result.error)
                 }
-            } ?: _state.update { it.copy(isLoading = false) }
+            }
         }
     }
 
     fun onUsernameChange(value: String) {
-        _state.update { it.copy(username = value) }
+        _state.update { it.copy(username = value, fullScreenError = null) }
     }
 
     fun onPasswordChange(value: String) {
-        _state.update { it.copy(password = value) }
+        _state.update { it.copy(password = value, fullScreenError = null) }
     }
 
     fun onLoginClick() {
-        if (_state.value.username.isEmpty() || _state.value.password.isEmpty()) {
-            _state.update { it.copy(error = "Заполните все поля") }
+        lastAction = LastAction.LOGIN
+
+        val username = _state.value.username.trim()
+        val password = _state.value.password
+
+        if (username.isEmpty() || password.isEmpty()) {
+            _events.tryEmit(AuthEvent.ShowSnackBar(UiText.Dynamic("Заполните все поля")))
             return
         }
+
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, error = null) }
-            runCatching {
-                loginUseCase(
-                    username = state.value.username,
-                    password = state.value.password
-                )
-            }.onSuccess {
-                _events.emit(AuthEvent.Success)
-            }.onFailure { error ->
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        error = error.message
-                    )
+            _state.update { it.copy(isLoading = true, fullScreenError = null) }
+
+            when (val result = loginUseCase(username, password)) {
+                is AppResult.Success -> {
+                    _events.tryEmit(AuthEvent.Success)
+                }
+
+                is AppResult.Failure -> {
+                    _state.update { it.copy(isLoading = false) }
+
+                    if (result.error is AppError.Unauthorized) {
+                        _state.update { it.copy(password = "") }
+                    }
+
+                    handleError(result.error)
                 }
             }
+        }
+    }
+
+    fun onErrorRefreshClick() {
+        _state.update { it.copy(fullScreenError = null) }
+
+        when (lastAction) {
+            LastAction.CHECK_AUTH -> checkAuth()
+            LastAction.LOGIN -> onLoginClick()
+            LastAction.NONE -> Unit
+        }
+    }
+
+    private fun handleError(error: AppError) {
+        when (val uiError = error.toAuthUiError()) {
+            is UiError.SnackBar -> _events.tryEmit(AuthEvent.ShowSnackBar(uiError.message))
+            is UiError.FullScreen -> _state.update { it.copy(fullScreenError = uiError.model) }
         }
     }
 }
@@ -84,10 +132,11 @@ data class AuthUiState(
     val username: String = "",
     val password: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null
+    val fullScreenError: ErrorScreenModel? = null
 )
 
 sealed interface AuthEvent {
-    object Success : AuthEvent
+    data object Success : AuthEvent
+    data class ShowSnackBar(val message: UiText) : AuthEvent
 }
 

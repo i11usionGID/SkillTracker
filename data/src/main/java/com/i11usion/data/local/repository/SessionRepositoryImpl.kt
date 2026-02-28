@@ -2,7 +2,6 @@ package com.i11usion.data.local.repository
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import androidx.core.content.edit
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.domain.model.user.User
@@ -67,8 +66,14 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override fun clear() {
-        Log.d("Debug401", "очищены prefs")
-        prefs.edit { clear() }
+        prefs.edit {
+            remove(TOKEN)
+            remove(USER_ID)
+            remove(USER_NAME)
+            remove(USER_USERNAME)
+            remove(USER_ROLE)
+            remove(USER_CREATED_AT)
+        }
     }
 
     companion object {

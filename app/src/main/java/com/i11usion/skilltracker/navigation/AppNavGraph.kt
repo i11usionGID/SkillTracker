@@ -1,6 +1,5 @@
 package com.i11usion.skilltracker.navigation
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,12 +21,13 @@ fun AppNavGraph(
     val navController = navigationState.navController
     val context = LocalContext.current
 
-    Log.d("Debug401", "$sessionManager")
-
     LaunchedEffect(sessionManager) {
         sessionManager.sessionExpiredFlow.collect {
-            Log.d("Debug401", "осуществляется переход")
-            navigationState.navigateAndClearBackStack(RootRoute.AUTH)
+            val isOnAuth =
+                navController.currentDestination?.route?.startsWith(RootRoute.AUTH) == true
+            if (!isOnAuth) {
+                navigationState.navigateAndClearBackStack(RootRoute.AUTH)
+            }
 
             Toast
                 .makeText(

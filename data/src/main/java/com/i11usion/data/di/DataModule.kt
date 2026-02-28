@@ -2,12 +2,14 @@ package com.i11usion.data.di
 
 import android.app.Application
 import com.i11usion.core.domain.repository.AuthRepository
+import com.i11usion.core.domain.repository.NetworkErrorHandler
 import com.i11usion.core.domain.repository.NotificationRepository
 import com.i11usion.core.domain.repository.QuizRepository
 import com.i11usion.core.domain.repository.SessionManager
 import com.i11usion.core.domain.repository.SessionRepository
 import com.i11usion.core.domain.repository.TaskRepository
 import com.i11usion.core.domain.repository.UserRepository
+import com.i11usion.data.local.repository.NetworkErrorHandlerImpl
 import com.i11usion.data.local.repository.SessionManagerImpl
 import com.i11usion.data.local.repository.SessionRepositoryImpl
 import com.i11usion.data.remote.repository.AuthRepositoryImpl
@@ -46,6 +48,10 @@ interface DataModule {
     @ApplicationScope
     @Binds
     fun bindSessionManager(impl: SessionManagerImpl): SessionManager
+
+    @ApplicationScope
+    @Binds
+    fun bindNetworkErrorHandler(impl: NetworkErrorHandlerImpl): NetworkErrorHandler
 
     companion object {
         @ApplicationScope

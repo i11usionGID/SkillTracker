@@ -19,7 +19,7 @@ class SessionManagerImpl @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val _sessionExpiredFlow = MutableSharedFlow<Unit>(
-        replay = 1,
+        replay = 0,
         extraBufferCapacity = 1
     )
 
