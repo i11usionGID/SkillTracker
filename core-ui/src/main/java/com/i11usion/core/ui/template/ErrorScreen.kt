@@ -1,6 +1,7 @@
 package com.i11usion.core.ui.template
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,11 +41,12 @@ fun ErrorScreen(
     cdResId: Int,
     errorText: String,
     onBackClick: (() -> Unit)? = null,
-    onRefreshClick: () -> Unit
+    onRefreshClick: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -83,9 +85,11 @@ fun ErrorScreen(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
+        Spacer(modifier = Modifier.weight(1f))
+
         Box(
             modifier = Modifier
-                .size(80.dp)
+                .size(120.dp)
                 .clip(CircleShape)
                 .background(color = MaterialTheme.colorScheme.errorContainer),
             contentAlignment = Alignment.Center
@@ -93,12 +97,12 @@ fun ErrorScreen(
             Icon(
                 painter = painterResource(iconResId),
                 contentDescription = stringResource(cdResId),
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(80.dp),
                 tint = MaterialTheme.colorScheme.error
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Text(
             text = errorText,
@@ -107,21 +111,23 @@ fun ErrorScreen(
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center
         )
-    }
 
-    Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.weight(2f))
 
-    Button(
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors()
-            .copy(containerColor = MaterialTheme.colorScheme.primary),
-        shape = RoundedCornerShape(16.dp),
-        onClick = onRefreshClick
-    ) {
-        Text(
-            text = "Попробовать снова",
-            fontSize = 18.sp,
-            color = Color.White
-        )
+        if (onRefreshClick != null) {
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors()
+                    .copy(containerColor = MaterialTheme.colorScheme.primary),
+                shape = RoundedCornerShape(16.dp),
+                onClick = onRefreshClick
+            ) {
+                Text(
+                    text = "Попробовать снова",
+                    fontSize = 18.sp,
+                    color = Color.White
+                )
+            }
+        }
     }
 }

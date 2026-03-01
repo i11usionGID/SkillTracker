@@ -111,13 +111,8 @@ class AuthViewModel @Inject constructor(
     }
 
     fun onErrorRefreshClick() {
-        _state.update { it.copy(fullScreenError = null) }
-
-        when (lastAction) {
-            LastAction.CHECK_AUTH -> checkAuth()
-            LastAction.LOGIN -> onLoginClick()
-            LastAction.NONE -> Unit
-        }
+        _state.update { it.copy(username = "", password = "", fullScreenError = null) }
+        checkAuth()
     }
 
     private fun handleError(error: AppError) {

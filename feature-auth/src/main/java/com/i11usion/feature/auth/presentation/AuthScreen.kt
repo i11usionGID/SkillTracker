@@ -1,6 +1,5 @@
 package com.i11usion.feature.auth.presentation
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -50,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.ui.di.LocalViewModelFactory
-import com.i11usion.core.ui.model.UiText
+import com.i11usion.core.ui.helpers.asString
 import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.core.ui.template.Logo
 import com.i11usion.feature.auth.R
@@ -279,9 +278,4 @@ private fun LoginButton(
     ) {
         content()
     }
-}
-
-private fun UiText.asString(context: Context): String = when (this) {
-    is UiText.Dynamic -> value
-    is UiText.Res -> context.getString(id)
 }

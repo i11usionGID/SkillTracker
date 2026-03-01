@@ -29,9 +29,10 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun logout() {
-        authService.logout()
+    override suspend fun logout(): AppResult<Unit> {
+        val result = safeApiCaller.call { authService.logout() }
         tokenRepository.clear()
+        return result
     }
 
     override suspend fun loadProfile(): AppResult<User> {
