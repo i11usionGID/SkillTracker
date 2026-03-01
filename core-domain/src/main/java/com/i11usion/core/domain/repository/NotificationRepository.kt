@@ -1,5 +1,6 @@
 package com.i11usion.core.domain.repository
 
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.notification.Notification
 
 interface NotificationRepository {
@@ -7,8 +8,8 @@ interface NotificationRepository {
         unreadOnly: Boolean?,
         limit: Int?,
         offset: Int?
-    ): List<Notification>
+    ): AppResult<List<Notification>>
 
-    suspend fun readNotification(notificationId: Int): Notification
-    suspend fun readAllNotifications()
+    suspend fun readNotification(notificationId: Int): AppResult<Notification>
+    suspend fun readAllNotifications(): AppResult<Unit>
 }

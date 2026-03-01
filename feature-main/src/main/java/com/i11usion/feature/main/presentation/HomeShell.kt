@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -51,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.i11usion.core.ui.R
+import com.i11usion.core.ui.snackbar.LocalAppSnackbarHostState
 import com.i11usion.core.ui.template.Logo
 import com.i11usion.feature.main.presentation.drawer.DrawerContent
 import kotlinx.coroutines.launch
@@ -71,6 +75,7 @@ fun HomeShell(
     var topBarHeight by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
 
+    val snackbarHostState = LocalAppSnackbarHostState.current
 
     Scaffold(
         topBar = {
@@ -94,6 +99,19 @@ fun HomeShell(
                     onNotificationClick = onNotificationClick,
                     onSwitchThemeClick = onSwitchThemeClick,
                     onLogoutClick = onLogoutClick
+                )
+            }
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            ) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    shape = RoundedCornerShape(16.dp),
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
                 )
             }
         },

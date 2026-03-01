@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +44,8 @@ import androidx.navigation.NavController
 import com.i11usion.core.domain.model.notification.NotificationType
 import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 
 @Composable
@@ -53,6 +56,8 @@ fun NotificationScreen(
     val viewModel: NotificationViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
+
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -84,6 +89,17 @@ fun NotificationScreen(
         }
 
         is NotificationUiState.Content -> {
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = viewModel::onErrorRefreshClick
+                )
+                return
+            }
             LazyColumn(
                 modifier = modifier
                     .fillMaxSize()
@@ -151,9 +167,27 @@ fun NotificationScreen(
                     )
                 }
             }
+            if (state.isLoadingOverlay) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+            }
         }
 
-        is NotificationUiState.Error -> {}
+        is NotificationUiState.Error -> {
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = viewModel::onErrorRefreshClick
+            )
+        }
     }
 }
 
