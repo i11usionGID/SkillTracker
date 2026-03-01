@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -45,6 +46,7 @@ dependencies {
     implementation(project(":core:navigation"))
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.dagger2)
+    ksp(libs.dagger2.compiler)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
