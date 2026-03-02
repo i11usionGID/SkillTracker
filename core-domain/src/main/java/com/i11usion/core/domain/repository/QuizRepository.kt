@@ -1,5 +1,6 @@
 package com.i11usion.core.domain.repository
 
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.quiz.AssignmentDetail
 import com.i11usion.core.domain.model.quiz.MyQuizAssignment
 import com.i11usion.core.domain.model.quiz.Question
@@ -18,8 +19,8 @@ import java.time.Instant
 
 interface QuizRepository {
     suspend fun getQuizzes(page: Int?, perPage: Int?, status: String?, search: String?): List<Quiz>
-    suspend fun createQuiz(quiz: QuizCreate)
-    suspend fun generateQuiz(topic: String)
+    suspend fun createQuiz(quiz: QuizCreate): AppResult<Unit>
+    suspend fun generateQuiz(topic: String): AppResult<Unit>
     suspend fun deleteQuiz(quizId: Int)
     suspend fun getQuizById(quizId: Int): Quiz
     suspend fun getQuestions(questionType: QuestionType?): List<Question>

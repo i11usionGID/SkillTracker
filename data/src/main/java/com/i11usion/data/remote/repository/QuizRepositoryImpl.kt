@@ -1,6 +1,7 @@
 package com.i11usion.data.remote.repository
 
 import android.util.Log
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.quiz.AssignmentDetail
 import com.i11usion.core.domain.model.quiz.MyQuizAssignment
 import com.i11usion.core.domain.model.quiz.Question
@@ -24,11 +25,13 @@ import com.i11usion.data.mapper.domainToDto
 import com.i11usion.data.mapper.dtoToDomain
 import com.i11usion.data.mapper.quizDtoToQuiz
 import com.i11usion.data.mapper.toDomain
+import com.i11usion.data.utils.SafeApiCaller
 import java.time.Instant
 import javax.inject.Inject
 
 class QuizRepositoryImpl @Inject constructor(
-    private val quizService: QuizService
+    private val quizService: QuizService,
+    private val safeApiCaller: SafeApiCaller
 ) : QuizRepository {
 
     override suspend fun getQuizzes(
@@ -47,14 +50,18 @@ class QuizRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun createQuiz(quiz: QuizCreate) {
+    override suspend fun createQuiz(quiz: QuizCreate): AppResult<Unit> {
         val body = quiz.domainToDto()
-        quizService.createQuiz(body)
+        return safeApiCaller.call {
+            quizService.createQuiz(body)
+        }
     }
 
-    override suspend fun generateQuiz(topic: String) {
+    override suspend fun generateQuiz(topic: String): AppResult<Unit> {
         val body = GenerateQuizRequestDto(topic = topic)
-        quizService.generateQuiz(body)
+        return safeApiCaller.call {
+            quizService.generateQuiz(body)
+        }
     }
 
     override suspend fun deleteQuiz(quizId: Int) {

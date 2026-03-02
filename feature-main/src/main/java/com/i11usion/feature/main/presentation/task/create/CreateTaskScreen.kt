@@ -306,7 +306,7 @@ private fun CreateTaskCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             val employeeOptions: List<Pair<String, Int>> =
-                employees.map { it.name to it.id }
+                employees.map { it.name + "@${it.username}" to it.id }
 
             val selectedEmployeeTitle: String? =
                 employeeOptions.firstOrNull { it.second == selectedEmployeeId }?.first

@@ -1,9 +1,15 @@
 package com.i11usion.feature.main.presentation.quiz.create
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.usecase.quiz.CreateQuizUseCase
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.presentation.quiz.create.mapper.toCreateQuizUiError
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -13,12 +19,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class CreateQuizViewModel @Inject constructor(
-    private val createQuizUseCase: CreateQuizUseCase
+    private val createQuizUseCase: CreateQuizUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<CreateQuizUiState>(
-        CreateQuizUiState.Initial)
-        val state = _state . asStateFlow ()
+        CreateQuizUiState.Initial
+    )
+    val state = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<CreateQuizEvent>()
     val events = _events.asSharedFlow()
@@ -33,7 +41,10 @@ class CreateQuizViewModel @Inject constructor(
                 updateContent { it.copy(titleQuery = command.query) }
 
             is CreateQuizCommand.ChangeDescription ->
-                updateContent { it.copy(descriptionQuery = command.query.trim().takeIf { s -> s.isNotEmpty() }) }
+                updateContent {
+                    it.copy(
+                        descriptionQuery = command.query.trim().takeIf { s -> s.isNotEmpty() })
+                }
 
             is CreateQuizCommand.ChangePassPercent ->
                 updateContent { it.copy(pasPercent = command.value.coerceIn(0, 100)) }
@@ -63,6 +74,17 @@ class CreateQuizViewModel @Inject constructor(
             CreateQuizCommand.Cancel -> {
                 viewModelScope.launch { _events.emit(CreateQuizEvent.Close) }
             }
+
+            CreateQuizCommand.Refresh -> onErrorRefreshClick()
+        }
+    }
+
+    private fun onErrorRefreshClick() {
+        _state.update { state ->
+            when (state) {
+                is CreateQuizUiState.Content -> state.copy(fullScreenError = null)
+                else -> CreateQuizUiState.Content()
+            }
         }
     }
 
@@ -85,22 +107,26 @@ class CreateQuizViewModel @Inject constructor(
                 val c = cur as? CreateQuizUiState.Content ?: return@update cur
                 c.copy(isCreating = true, canCreate = false)
             }
-
-            try {
-                createQuizUseCase(content.toDomainForCreate())
-                _events.emit(CreateQuizEvent.Created)
-            } catch (t: Throwable) {
-                _state.update { cur ->
-                    val c = cur as? CreateQuizUiState.Content ?: return@update cur
-                    c.copy(isCreating = false, canCreate = computeCanCreate(c))
+            when (val result = createQuizUseCase(content.toDomainForCreate())) {
+                is AppResult.Success -> {
+                    _events.emit(CreateQuizEvent.Created)
                 }
-                _events.emit(CreateQuizEvent.ShowError(t.message ?: "Failed to create quiz"))
+
+                is AppResult.Failure -> {
+                    _state.update { state ->
+                        val content = (state as? CreateQuizUiState.Content) ?: content
+                        val base = content.copy(isCreating = false)
+                        base.copy(canCreate = computeCanCreate(base))
+                    }
+
+                    showUiError(result.error)
+                }
             }
         }
     }
 
     private fun computeCanCreate(c: CreateQuizUiState.Content): Boolean {
-        val titleOk = c.titleQuery.trim().isNotEmpty()
+        val titleOk = c.titleQuery.trim().length in 1..255
         return titleOk && !c.isCreating
     }
 
@@ -116,6 +142,21 @@ class CreateQuizViewModel @Inject constructor(
             maxAttempts = maxAttempts?.takeIf { it > 0 },
             publish = publish
         )
+    }
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toCreateQuizUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                val current = _state.value
+                if (current is CreateQuizUiState.Content) {
+                    _state.value = current.copy(fullScreenError = uiError.model, isCreating = false)
+                } else {
+                    _state.value = CreateQuizUiState.Error(uiError.model)
+                }
+            }
+        }
     }
 }
 
@@ -137,6 +178,7 @@ sealed interface CreateQuizCommand {
     data object ToggleAllowReview : CreateQuizCommand
     data object Create : CreateQuizCommand
     data object Cancel : CreateQuizCommand
+    data object Refresh : CreateQuizCommand
 }
 
 sealed interface CreateQuizUiState {
@@ -152,11 +194,12 @@ sealed interface CreateQuizUiState {
         val shuffleQuestions: Boolean = false,
         val allowReview: Boolean = false,
         val canCreate: Boolean = false,
-        val isCreating: Boolean = false
+        val isCreating: Boolean = false,
+        val fullScreenError: ErrorScreenModel? = null
     ) : CreateQuizUiState
 
     data class Error(
-        val message: String
+        val model: ErrorScreenModel
     ) : CreateQuizUiState
 }
 

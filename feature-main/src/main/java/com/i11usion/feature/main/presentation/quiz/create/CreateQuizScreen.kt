@@ -60,6 +60,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -67,6 +68,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -82,6 +85,8 @@ fun CreateQuizScreen(
     val viewModel: CreateQuizViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
+
+    val context = LocalContext.current
 
     LaunchedEffect(viewModel) {
         viewModel.events.collectLatest { event ->
@@ -121,6 +126,18 @@ fun CreateQuizScreen(
             var tempSeconds by remember(timeLimit) { mutableIntStateOf(initialSeconds) }
 
             var tempAttempts by remember(attempts) { mutableIntStateOf(attempts.coerceIn(1, 10)) }
+
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(LocalContext.current),
+                    onRefreshClick = { viewModel.processCommand(CreateQuizCommand.Refresh) }
+                )
+                return
+            }
 
             LazyColumn(
                 modifier = modifier
@@ -252,7 +269,13 @@ fun CreateQuizScreen(
         }
 
         is CreateQuizUiState.Error -> {
-
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = { viewModel.processCommand(CreateQuizCommand.Refresh) }
+            )
         }
     }
 }

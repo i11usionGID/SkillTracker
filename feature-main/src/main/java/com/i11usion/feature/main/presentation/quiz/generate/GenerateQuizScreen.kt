@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.quiz.generate.GenerateQuizCommand.ChangeTopic
 import kotlinx.coroutines.flow.collectLatest
@@ -58,13 +61,12 @@ fun GenerateQuizScreen(
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
 
+    val context = LocalContext.current
+
     LaunchedEffect(viewModel) {
         viewModel.events.collectLatest { event ->
             when (event) {
                 GenerateQuizEvent.Close -> onCancelClick()
-
-                is GenerateQuizEvent.ShowError -> {
-                }
             }
         }
     }
@@ -72,6 +74,18 @@ fun GenerateQuizScreen(
     when (state) {
         GenerateQuizUiState.Initial -> {}
         is GenerateQuizUiState.Content -> {
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(LocalContext.current),
+                    onRefreshClick = { viewModel.processCommand(GenerateQuizCommand.Refresh) }
+                )
+                return
+            }
+
             Column(
                 modifier = modifier
                     .fillMaxSize()
@@ -177,7 +191,13 @@ fun GenerateQuizScreen(
         }
 
         is GenerateQuizUiState.Error -> {
-
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = { viewModel.processCommand(GenerateQuizCommand.Refresh) }
+            )
         }
     }
 }
