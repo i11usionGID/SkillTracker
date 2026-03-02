@@ -8,7 +8,7 @@ import com.i11usion.core.domain.usecase.quiz.GenerateQuizUseCase
 import com.i11usion.core.ui.model.ErrorScreenModel
 import com.i11usion.core.ui.model.UiError
 import com.i11usion.feature.main.manager.SnackbarManager
-import com.i11usion.feature.main.presentation.quiz.create.mapper.toCreateQuizUiError
+import com.i11usion.feature.main.mapper.toScreenUiError
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -106,7 +106,7 @@ class GenerateQuizViewModel @Inject constructor(
     }
 
     private fun showUiError(error: AppError) {
-        when (val uiError = error.toCreateQuizUiError()) {
+        when (val uiError = error.toScreenUiError()) {
             is UiError.SnackBar -> snackbarManager.show(uiError.message)
 
             is UiError.FullScreen -> {

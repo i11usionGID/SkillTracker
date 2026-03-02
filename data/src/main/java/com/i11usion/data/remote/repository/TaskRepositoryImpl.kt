@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.task.Attachment
 import com.i11usion.core.domain.model.task.Comment
 import com.i11usion.core.domain.model.task.DownloadedFile
@@ -17,6 +18,7 @@ import com.i11usion.core.network.model.task.UpdateProgressRequestDto
 import com.i11usion.core.network.task.TaskService
 import com.i11usion.data.mapper.dtoToDomain
 import com.i11usion.data.mapper.taskDtoToTask
+import com.i11usion.data.utils.SafeApiCaller
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -29,7 +31,8 @@ import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(
     private val application: Application,
-    private val taskService: TaskService
+    private val taskService: TaskService,
+    private val safeApiCaller: SafeApiCaller
 ) : TaskRepository {
     override suspend fun getTaskList(
         page: Int?,
@@ -37,15 +40,17 @@ class TaskRepositoryImpl @Inject constructor(
         status: String?,
         employeeId: Int?,
         search: String?
-    ): List<Task> {
-        return taskService.getTaskList(
-            page = page,
-            perPage = perPage,
-            status = status,
-            employeeId = employeeId,
-            search = search
-        ).map {
-            it.taskDtoToTask()
+    ): AppResult<List<Task>> {
+        return safeApiCaller.call {
+            taskService.getTaskList(
+                page = page,
+                perPage = perPage,
+                status = status,
+                employeeId = employeeId,
+                search = search
+            ).map {
+                it.taskDtoToTask()
+            }
         }
     }
 

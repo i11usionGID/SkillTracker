@@ -100,6 +100,7 @@ fun NotificationScreen(
                 )
                 return
             }
+
             LazyColumn(
                 modifier = modifier
                     .fillMaxSize()

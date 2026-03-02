@@ -1,4 +1,4 @@
-package com.i11usion.feature.main.presentation.notification.mapper
+package com.i11usion.feature.main.mapper
 
 import AppError
 import com.i11usion.core.ui.R
@@ -6,7 +6,7 @@ import com.i11usion.core.ui.model.ErrorScreenModel
 import com.i11usion.core.ui.model.UiError
 import com.i11usion.core.ui.model.UiText
 
-fun AppError.toNotificationUiError(): UiError {
+fun AppError.toHomeUiError(): UiError {
     return when (this) {
         AppError.Network -> UiError.SnackBar(UiText.Res(R.string.no_internet))
 
@@ -54,5 +54,34 @@ fun AppError.toNotificationUiError(): UiError {
                     showBack = true
                 )
             )
+    }
+}
+
+fun AppError.toScreenUiError(): UiError {
+    return when (this) {
+        AppError.Network -> UiError.SnackBar(UiText.Res(R.string.no_internet))
+
+        AppError.ServerError -> UiError.FullScreen(
+            ErrorScreenModel(
+                iconResId = R.drawable.ic_cloud_alert,
+                cdResId = R.string.cd_server_error,
+                text = UiText.Res(R.string.server_error_try_later),
+                showBack = true
+            )
+        )
+
+        is AppError.Unauthorized -> UiError.FullScreen(
+            ErrorScreenModel(
+                iconResId = R.drawable.ic_not_found,
+                cdResId = R.string.cd_not_found,
+                text = UiText.Dynamic("Не удалось найти ресурс. Обратитесь к администратору."),
+                showBack = true
+            )
+        )
+
+        is AppError.Validation -> UiError.SnackBar(UiText.Dynamic(message))
+
+        AppError.NotFound -> UiError.SnackBar(UiText.Dynamic("Ничего не найдено"))
+        AppError.Unknown -> UiError.SnackBar(UiText.Dynamic("Произошла непредвиденная ошибка. Повторите попытку или обратитесь к администратору."))
     }
 }

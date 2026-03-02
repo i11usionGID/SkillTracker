@@ -1,6 +1,7 @@
 package com.i11usion.core.domain.repository
 
 import android.net.Uri
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.task.Attachment
 import com.i11usion.core.domain.model.task.Comment
 import com.i11usion.core.domain.model.task.DownloadedFile
@@ -15,7 +16,7 @@ interface TaskRepository {
         status: String? = null,
         employeeId: Int? = null,
         search: String? = null
-    ): List<Task>
+    ): AppResult<List<Task>>
 
     suspend fun getTaskById(taskId: Int): Task
 

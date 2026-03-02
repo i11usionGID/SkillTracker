@@ -10,7 +10,7 @@ import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
 import com.i11usion.core.ui.model.ErrorScreenModel
 import com.i11usion.core.ui.model.UiError
 import com.i11usion.feature.main.manager.SnackbarManager
-import com.i11usion.feature.main.presentation.quiz.create.mapper.toCreateQuizUiError
+import com.i11usion.feature.main.mapper.toScreenUiError
 import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.AttemptAnalyticsDetailUiState.Content
 import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.AttemptAnalyticsDetailUiState.Loading
 import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.mapper.toUiModel
@@ -94,7 +94,7 @@ class AttemptAnalyticsDetailViewModel @Inject constructor(
     }
 
     private fun showUiError(error: AppError) {
-        when (val uiError = error.toCreateQuizUiError()) {
+        when (val uiError = error.toScreenUiError()) {
             is UiError.SnackBar -> snackbarManager.show(uiError.message)
 
             is UiError.FullScreen -> {

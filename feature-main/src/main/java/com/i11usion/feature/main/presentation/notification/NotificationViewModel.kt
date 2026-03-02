@@ -14,7 +14,7 @@ import com.i11usion.core.ui.model.UiError
 import com.i11usion.core.ui.model.UiText
 import com.i11usion.feature.main.manager.NotificationManager
 import com.i11usion.feature.main.manager.SnackbarManager
-import com.i11usion.feature.main.presentation.notification.mapper.toNotificationUiError
+import com.i11usion.feature.main.mapper.toScreenUiError
 import com.i11usion.feature.main.presentation.notification.mapper.toUiModel
 import com.i11usion.feature.main.presentation.notification.model.NotificationUiModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -140,7 +140,7 @@ class NotificationViewModel @Inject constructor(
     }
 
     private fun showUiError(error: AppError, contentFallback: NotificationUiState.Content?) {
-        when (val uiError = error.toNotificationUiError()) {
+        when (val uiError = error.toScreenUiError()) {
             is UiError.SnackBar -> snackbarManager.show(uiError.message)
 
             is UiError.FullScreen -> {
