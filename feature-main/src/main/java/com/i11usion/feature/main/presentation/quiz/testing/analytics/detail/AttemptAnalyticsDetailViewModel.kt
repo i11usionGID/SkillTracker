@@ -1,10 +1,18 @@
 package com.i11usion.feature.main.presentation.quiz.testing.analytics.detail
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.domain.usecase.quiz.attempt.GetAttemptInfoByIdUseCase
 import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.presentation.quiz.create.mapper.toCreateQuizUiError
+import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.AttemptAnalyticsDetailUiState.Content
+import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.AttemptAnalyticsDetailUiState.Loading
 import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.mapper.toUiModel
 import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.model.AttemptReadUiModel
 import kotlinx.coroutines.Job
@@ -16,9 +24,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AttemptAnalyticsDetailViewModel @Inject constructor(
-
     private val getUserInfoUseCase: GetUserInfoUseCase,
-    private val getAttemptInfoByIdUseCase: GetAttemptInfoByIdUseCase
+    private val getAttemptInfoByIdUseCase: GetAttemptInfoByIdUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
     private var currentAttemptId: Int? = null
@@ -46,33 +54,56 @@ class AttemptAnalyticsDetailViewModel @Inject constructor(
             AttemptAnalyticsDetailCommand.FinishClicked -> {
                 _events.tryEmit(AttemptAnalyticsDetailEvent.Finish)
             }
+
+            AttemptAnalyticsDetailCommand.Refresh -> onErrorRefreshClick()
+        }
+    }
+
+    private fun onErrorRefreshClick() {
+        when (_state.value) {
+            is Content -> _state.value = (_state.value as Content).copy(fullScreenError = null)
+            else -> loadAttempt(requireNotNull(currentAttemptId))
         }
     }
 
     private fun loadAttempt(attemptId: Int) {
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
-            _state.value = AttemptAnalyticsDetailUiState.Loading
+            _state.value = Loading
 
-            runCatching {
-                val user = getUserInfoUseCase()
-                requireNotNull(user) { "Не удалось получить пользователя" }
-                val role: Role = user.role
+            val user = getUserInfoUseCase()
+            requireNotNull(user) { "Не удалось получить пользователя" }
+            val role: Role = user.role
 
-                val attemptDomain = getAttemptInfoByIdUseCase(attemptId)
+            when (val result = getAttemptInfoByIdUseCase(attemptId)) {
 
-                val attemptUi: AttemptReadUiModel = attemptDomain.toUiModel()
+                is AppResult.Success -> {
+                    val attemptUi: AttemptReadUiModel = result.data.toUiModel()
 
-                AttemptAnalyticsDetailUiState.Content(
-                    user = role,
-                    attempt = attemptUi
-                )
-            }.onSuccess { content ->
-                _state.value = content
-            }.onFailure { t ->
-                _state.value = AttemptAnalyticsDetailUiState.Error(
-                    message = t.message ?: "Unknown error"
-                )
+                    _state.value = Content(
+                        user = role,
+                        attempt = attemptUi
+                    )
+                }
+
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                }
+            }
+        }
+    }
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toCreateQuizUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                val current = _state.value
+                if (current is Content) {
+                    _state.value = current.copy(fullScreenError = uiError.model)
+                } else {
+                    _state.value = AttemptAnalyticsDetailUiState.Error(uiError.model)
+                }
             }
         }
     }
@@ -82,6 +113,7 @@ sealed interface AttemptAnalyticsDetailCommand {
     data class Init(val attemptId: Int) : AttemptAnalyticsDetailCommand
     data class EmployeeSelected(val employeeId: Int?) : AttemptAnalyticsDetailCommand
     data object FinishClicked : AttemptAnalyticsDetailCommand
+    data object Refresh : AttemptAnalyticsDetailCommand
 }
 
 sealed interface AttemptAnalyticsDetailEvent {
@@ -95,8 +127,9 @@ sealed interface AttemptAnalyticsDetailUiState {
 
     data class Content(
         val user: Role,
-        val attempt: AttemptReadUiModel
+        val attempt: AttemptReadUiModel,
+        val fullScreenError: ErrorScreenModel? = null
     ) : AttemptAnalyticsDetailUiState
 
-    data class Error(val message: String) : AttemptAnalyticsDetailUiState
+    data class Error(val model: ErrorScreenModel) : AttemptAnalyticsDetailUiState
 }

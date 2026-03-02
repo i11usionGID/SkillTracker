@@ -132,8 +132,10 @@ class QuizRepositoryImpl @Inject constructor(
         return quizService.submitAttempt(attemptId = attemptId, body = body).dtoToDomain()
     }
 
-    override suspend fun getAttemptInfoById(attemptId: Int): AttemptRead {
-        return quizService.getAttemptById(attemptId).dtoToDomain()
+    override suspend fun getAttemptInfoById(attemptId: Int): AppResult<AttemptRead> {
+        return safeApiCaller.call {
+            quizService.getAttemptById(attemptId).dtoToDomain()
+        }
     }
 
     override suspend fun getQuizById(quizId: Int): Quiz {

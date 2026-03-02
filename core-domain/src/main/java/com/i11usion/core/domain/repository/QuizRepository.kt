@@ -36,7 +36,7 @@ interface QuizRepository {
     suspend fun getQuizAnalytics(quizId: Int): QuizAnalytics
     suspend fun startAttempt(quizId: Int): AttemptStart
     suspend fun submitAttempt(attemptId: Int, request: AttemptSubmitRequest): AttemptSubmit
-    suspend fun getAttemptInfoById(attemptId: Int): AttemptRead
+    suspend fun getAttemptInfoById(attemptId: Int): AppResult<AttemptRead>
     suspend fun createQuestionSection(
         quizId: Int,
         title: String,
