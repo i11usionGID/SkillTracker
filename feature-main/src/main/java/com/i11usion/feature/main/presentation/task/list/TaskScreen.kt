@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,10 +60,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.domain.model.task.TaskStatus
+import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.domain.model.user.User
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.dashboard.model.TaskUiStatus
 
@@ -70,13 +73,16 @@ import com.i11usion.feature.main.presentation.dashboard.model.TaskUiStatus
 fun TaskScreen(
     modifier: Modifier = Modifier,
     onCreateTaskClick: () -> Unit,
-    onTaskCardClick: (Int) -> Unit
+    onTaskCardClick: (Int) -> Unit,
+    onBackClick: () -> Unit
 
 ) {
     val viewModel: TaskViewModel = viewModel(factory = LocalViewModelFactory.current)
     val state by viewModel.state.collectAsState()
 
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    val context = LocalContext.current
 
     DisposableEffect(lifecycleOwner, viewModel) {
         val observer = LifecycleEventObserver { _, event ->
@@ -87,6 +93,21 @@ fun TaskScreen(
 
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    val fsError = state.fullScreenError
+    if (fsError != null) {
+        ErrorScreen(
+            modifier = modifier.fillMaxSize(),
+            iconResId = fsError.iconResId,
+            cdResId = fsError.cdResId,
+            errorText = fsError.text.asString(context),
+            onRefreshClick = {
+                viewModel.processCommand(TaskCommand.Refresh)
+            },
+            onBackClick = onBackClick
+        )
+        return
     }
 
     if (state.isScreenLoading) {
@@ -141,12 +162,6 @@ fun TaskScreen(
                             )
                         }
                     }
-                } else if (state.error != null) {
-                    item {
-                        Text(
-                            text = state.error!!
-                        )
-                    }
                 } else {
                     if (state.taskList.isEmpty()) {
                         item {
@@ -186,12 +201,14 @@ fun TaskScreen(
 
                                 TaskUiStatus.IN_PROGRESS -> {
                                     statusColor = MaterialTheme.colorScheme.secondary
-                                    statusContainerColor = MaterialTheme.colorScheme.secondaryContainer
+                                    statusContainerColor =
+                                        MaterialTheme.colorScheme.secondaryContainer
                                 }
 
                                 TaskUiStatus.DONE -> {
                                     statusColor = MaterialTheme.colorScheme.tertiary
-                                    statusContainerColor = MaterialTheme.colorScheme.tertiaryContainer
+                                    statusContainerColor =
+                                        MaterialTheme.colorScheme.tertiaryContainer
                                 }
                             }
                             TaskCard(

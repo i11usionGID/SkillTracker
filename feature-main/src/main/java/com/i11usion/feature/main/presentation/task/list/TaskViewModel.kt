@@ -1,28 +1,37 @@
 package com.i11usion.feature.main.presentation.task.list
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.i11usion.core.domain.model.user.Role
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.task.TaskStatus
+import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.domain.model.user.User
-import com.i11usion.core.domain.usecase.task.GetTaskListUseCase
 import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
+import com.i11usion.core.domain.usecase.task.GetTaskListUseCase
 import com.i11usion.core.domain.usecase.user.GetUsersListUseCase
 import com.i11usion.core.ui.formatter.formatInstantToStringDataNullable
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.core.ui.model.UiText
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.mapper.toScreenUiError
 import com.i11usion.feature.main.presentation.dashboard.mapper.taskToTaskUi
 import com.i11usion.feature.main.presentation.model.TaskUi
 import com.i11usion.feature.main.presentation.task.list.model.TaskFilters
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -32,8 +41,13 @@ import javax.inject.Inject
 class TaskViewModel @Inject constructor(
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val getTaskListUseCase: GetTaskListUseCase,
-    private val getUsersListUseCase: GetUsersListUseCase
+    private val getUsersListUseCase: GetUsersListUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
+
+    private companion object {
+        const val RETRY_DELAY_MS = 10_000L
+    }
 
     private val filters = MutableStateFlow(TaskFilters())
 
@@ -74,53 +88,83 @@ class TaskViewModel @Inject constructor(
                 }
             }
 
-            TaskCommand.RetryLoadTasks -> reloadTasks.tryEmit(Unit)
-            TaskCommand.Refresh -> { reloadTasks.tryEmit(Unit) }
+            TaskCommand.RetryLoadTasks -> onRetry()
+            TaskCommand.Refresh -> {
+                reloadTasks.tryEmit(Unit)
+            }
         }
     }
 
+    private fun onRetry() {
+        val hasFsError = _state.value.fullScreenError != null || _state.value.user == null
+        if (hasFsError) loadInitial() else reloadTasks.tryEmit(Unit)
+    }
 
     private fun loadInitial() {
         viewModelScope.launch {
-            _state.update { it.copy(isScreenLoading = true, error = null) }
+            _state.update {
+                it.copy(
+                    isScreenLoading = true,
+                    fullScreenError = null
+                )
+            }
 
-            runCatching {
-                val user = getUserInfoUseCase()
-                requireNotNull(user) { "Не удалось получить пользователя" }
+            val user = getUserInfoUseCase()
+            if (user == null) {
+                _state.update {
+                    it.copy(
+                        isScreenLoading = false,
+                        fullScreenError = ErrorScreenModel(
+                            iconResId = com.i11usion.core.ui.R.drawable.ic_fail,
+                            cdResId = com.i11usion.core.ui.R.string.cd_unknown_error,
+                            text = UiText.Dynamic("Не удалось получить пользователя")
+                        )
+                    )
+                }
+                return@launch
+            }
 
-                val employees = if (user.role == Role.MANAGER) {
+            if (user.role != Role.MANAGER) {
+                _state.update {
+                    it.copy(
+                        user = user,
+                        employees = emptyList(),
+                        isScreenLoading = false,
+                        fullScreenError = null
+                    )
+                }
+                reloadTasks.tryEmit(Unit)
+                return@launch
+            }
+
+            when (
+                val result = retryRequest {
                     getUsersListUseCase(
                         page = null,
                         perPage = null,
                         search = null,
                         role = "employee"
                     )
-                } else {
-                    emptyList()
                 }
+            ) {
+                is AppResult.Success -> {
+                    val employees = result.data
 
-                user to employees
-            }.fold(
-                onSuccess = { (user, employees) ->
                     _state.update {
                         it.copy(
                             user = user,
                             employees = employees,
                             isScreenLoading = false,
-                            error = null
+                            fullScreenError = null
                         )
                     }
                     reloadTasks.tryEmit(Unit)
-                },
-                onFailure = { t ->
-                    _state.update {
-                        it.copy(
-                            isScreenLoading = false,
-                            error = t.message ?: "Не удалось загрузить данные"
-                        )
-                    }
                 }
-            )
+
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                }
+            }
         }
     }
 
@@ -144,34 +188,93 @@ class TaskViewModel @Inject constructor(
                     reloadTasks.map { filters.value }
                 )
             }
-            .onEach {
-                _state.update { st -> st.copy(isListLoading = true, error = null) }
-            }
-            .mapLatest { currentFilters ->
-                val result = runCatching {
-                    getTaskListUseCase(
-                        status = currentFilters.status,
-                        employeeId = currentFilters.employeeId,
-                        search = currentFilters.query
-                    ).map { it.taskToTaskUi { date -> formatInstantToStringDataNullable(date) } }
+            .onEach { currentFilters ->
+                _state.update { st ->
+                    st.copy(
+                        taskFilters = currentFilters,
+                        isListLoading = true,
+                        fullScreenError = null
+                    )
                 }
-                result
+            }
+            .flatMapLatest { currentFilters ->
+                flow {
+                    emit(
+                        retryRequest {
+                            getTaskListUseCase(
+                                status = currentFilters.status,
+                                employeeId = currentFilters.employeeId,
+                                search = currentFilters.query
+                            )
+                        }
+                    )
+                }
             }
             .onEach { result ->
-                result.fold(
-                    onSuccess = { tasks ->
-                        _state.update { st ->
-                            st.copy(taskList = tasks, isListLoading = false, error = null)
+                when (result) {
+                    is AppResult.Success<*> -> {
+                        @Suppress("UNCHECKED_CAST")
+                        val domainTasks =
+                            result.data as List<com.i11usion.core.domain.model.task.Task>
+
+                        val tasks = domainTasks.map {
+                            it.taskToTaskUi { date -> formatInstantToStringDataNullable(date) }
                         }
-                    },
-                    onFailure = { t ->
+
                         _state.update { st ->
-                            st.copy(isListLoading = false, error = t.message ?: "Не удалось загрузить задачи")
+                            st.copy(
+                                taskList = tasks,
+                                isListLoading = false,
+                                fullScreenError = null
+                            )
                         }
                     }
-                )
+
+                    is AppResult.Failure -> {
+                        _state.update { st -> st.copy(isListLoading = false) }
+                        showUiError(result.error)
+                    }
+                }
             }
             .launchIn(viewModelScope)
+    }
+
+    private suspend fun <T> retryRequest(
+        block: suspend () -> AppResult<T>
+    ): AppResult<T> {
+        while (true) {
+            when (val result = block()) {
+                is AppResult.Failure -> {
+                    if (!shouldRetry(result.error)) return result
+                    delay(RETRY_DELAY_MS)
+                }
+
+                is AppResult.Success<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    return result as AppResult<T>
+                }
+            }
+        }
+    }
+
+    private fun shouldRetry(error: AppError): Boolean {
+        return when (error) {
+            is AppError.Network -> {
+                snackbarManager.show(UiText.Dynamic("Отсутствует подключение к интернету"))
+                true
+            }
+            else -> false
+        }
+    }
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toScreenUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                _state.value = _state.value.copy(fullScreenError = uiError.model)
+            }
+        }
     }
 }
 
@@ -192,6 +295,5 @@ data class TaskUiState(
     val employees: List<User> = emptyList(),
     val isScreenLoading: Boolean = false,
     val isListLoading: Boolean = false,
-    val error: String? = null
+    val fullScreenError: ErrorScreenModel? = null
 )
-
