@@ -60,6 +60,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -67,6 +68,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -84,6 +87,8 @@ fun UpdateQuizScreen(
     val viewModel: UpdateQuizViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState by viewModel.state.collectAsState()
 
+    val context = LocalContext.current
+
     LaunchedEffect(quizId) {
         viewModel.processCommand(UpdateQuizCommand.Init(quizId))
     }
@@ -93,9 +98,6 @@ fun UpdateQuizScreen(
             when (event) {
                 UpdateQuizEvent.Close -> onCancelClick()
                 UpdateQuizEvent.Updated -> onCancelClick()
-                is UpdateQuizEvent.ShowError -> {
-                    // snackbar по желанию
-                }
             }
         }
     }
@@ -115,13 +117,15 @@ fun UpdateQuizScreen(
             }
         }
 
-        is UpdateQuizUiState.Error -> Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = state.message,
-                color = MaterialTheme.colorScheme.onSurface
+        is UpdateQuizUiState.Error -> {
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = {
+                    viewModel.processCommand(UpdateQuizCommand.Refresh)
+                }
             )
         }
 
@@ -146,6 +150,20 @@ fun UpdateQuizScreen(
             var tempSeconds by remember(timeLimit) { mutableIntStateOf(initialSeconds) }
 
             var tempAttempts by remember(attempts) { mutableIntStateOf(attempts.coerceIn(1, 10)) }
+
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = {
+                        viewModel.processCommand(UpdateQuizCommand.Refresh)
+                    }
+                )
+                return
+            }
 
             LazyColumn(
                 modifier = modifier
@@ -820,7 +838,10 @@ private fun MaxAttemptsDialog(
                     style = MaterialTheme.typography.titleLarge
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_close))
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.cd_close)
+                    )
                 }
             }
         },

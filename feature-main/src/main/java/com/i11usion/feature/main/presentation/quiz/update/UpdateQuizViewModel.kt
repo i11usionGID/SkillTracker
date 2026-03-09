@@ -1,11 +1,17 @@
 package com.i11usion.feature.main.presentation.quiz.update
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.quiz.QuizCreate
 import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.core.domain.usecase.quiz.GetQuizByIdUseCase
 import com.i11usion.core.domain.usecase.quiz.UpdateQuizUseCase
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.mapper.toScreenUiError
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -16,7 +22,8 @@ import javax.inject.Inject
 
 class UpdateQuizViewModel @Inject constructor(
     private val getQuizByIdUseCase: GetQuizByIdUseCase,
-    private val updateQuizUseCase: UpdateQuizUseCase
+    private val updateQuizUseCase: UpdateQuizUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
     private var currentQuizId: Int? = null
@@ -35,7 +42,10 @@ class UpdateQuizViewModel @Inject constructor(
                 updateContent { it.copy(titleQuery = command.query) }
 
             is UpdateQuizCommand.ChangeDescription ->
-                updateContent { it.copy(descriptionQuery = command.query.trim().takeIf { s -> s.isNotEmpty() }) }
+                updateContent {
+                    it.copy(
+                        descriptionQuery = command.query.trim().takeIf { s -> s.isNotEmpty() })
+                }
 
             is UpdateQuizCommand.ChangePassPercent ->
                 updateContent { it.copy(pasPercent = command.value.coerceIn(0, 100)) }
@@ -63,6 +73,22 @@ class UpdateQuizViewModel @Inject constructor(
             UpdateQuizCommand.Cancel -> {
                 viewModelScope.launch { _events.emit(UpdateQuizEvent.Close) }
             }
+
+            UpdateQuizCommand.Refresh -> onErrorRefreshClick()
+        }
+    }
+
+    private fun onErrorRefreshClick() {
+        when (_state.value) {
+            is UpdateQuizUiState.Content -> _state.value =
+                (_state.value as UpdateQuizUiState.Content).copy(fullScreenError = null)
+
+            else -> {
+                val quizId = currentQuizId ?: return
+                init(
+                    quizId = quizId
+                )
+            }
         }
     }
 
@@ -71,27 +97,30 @@ class UpdateQuizViewModel @Inject constructor(
         _state.value = UpdateQuizUiState.Loading
 
         viewModelScope.launch {
-            try {
-                val quiz = getQuizByIdUseCase(quizId)
+            when (val result = getQuizByIdUseCase(quizId)) {
 
-                _state.value = UpdateQuizUiState.Content(
-                    titleQuery = quiz.title,
-                    descriptionQuery = quiz.description,
-                    pasPercent = quiz.passPercent,
-                    timeLimitSeconds = quiz.timeLimitSeconds,
-                    maxAttempts = quiz.maxAttempts,
-                    publish = when (quiz.status) {
-                        QuizStatus.DRAFT -> false
-                        QuizStatus.PUBLISHED -> true
-                    },
-                    shuffleAnswers = quiz.shuffleAnswers,
-                    shuffleQuestions = quiz.shuffleQuestions,
-                    allowReview = quiz.allowReview,
-                    canUpdate = true,
-                    isUpdating = false
-                ).recompute()
-            } catch (t: Throwable) {
-                _state.value = UpdateQuizUiState.Error(t.message ?: "Failed to load quiz")
+                is AppResult.Success -> {
+                    _state.value = UpdateQuizUiState.Content(
+                        titleQuery = result.data.title,
+                        descriptionQuery = result.data.description,
+                        pasPercent = result.data.passPercent,
+                        timeLimitSeconds = result.data.timeLimitSeconds,
+                        maxAttempts = result.data.maxAttempts,
+                        publish = when (result.data.status) {
+                            QuizStatus.DRAFT -> false
+                            QuizStatus.PUBLISHED -> true
+                        },
+                        shuffleAnswers = result.data.shuffleAnswers,
+                        shuffleQuestions = result.data.shuffleQuestions,
+                        allowReview = result.data.allowReview,
+                        canUpdate = false,
+                        isUpdating = false
+                    )
+                }
+
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -116,18 +145,21 @@ class UpdateQuizViewModel @Inject constructor(
                 c.copy(isUpdating = true, canUpdate = false)
             }
 
-            try {
-                updateQuizUseCase(
-                    quizId = quizId,
-                    quiz = content.toDomainForUpdate()
-                )
-                _events.emit(UpdateQuizEvent.Updated)
-            } catch (t: Throwable) {
-                _state.update { cur ->
-                    val c = cur as? UpdateQuizUiState.Content ?: return@update cur
-                    c.copy(isUpdating = false).recompute()
+            when (val result = updateQuizUseCase(
+                quizId = quizId,
+                quiz = content.toDomainForUpdate()
+            )) {
+                is AppResult.Success -> {
+                    _events.emit(UpdateQuizEvent.Updated)
                 }
-                _events.emit(UpdateQuizEvent.ShowError(t.message ?: "Failed to update quiz"))
+
+                is AppResult.Failure -> {
+                    _state.update { cur ->
+                        val c = cur as? UpdateQuizUiState.Content ?: return@update cur
+                        c.copy(isUpdating = false).recompute()
+                    }
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -137,8 +169,6 @@ class UpdateQuizViewModel @Inject constructor(
         return copy(canUpdate = titleOk && !isUpdating)
     }
 
-    // Я использую QuizCreate, потому что у тебя уже есть такая модель.
-    // Если UpdateQuizUseCase принимает другую модель — замени тут.
     private fun UpdateQuizUiState.Content.toDomainForUpdate(): QuizCreate {
         return QuizCreate(
             title = titleQuery.trim(),
@@ -152,12 +182,26 @@ class UpdateQuizViewModel @Inject constructor(
             publish = publish
         )
     }
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toScreenUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                val current = _state.value
+                if (current is UpdateQuizUiState.Content) {
+                    _state.value = current.copy(fullScreenError = uiError.model)
+                } else {
+                    _state.value = UpdateQuizUiState.Error(uiError.model)
+                }
+            }
+        }
+    }
 }
 
 sealed interface UpdateQuizEvent {
     data object Updated : UpdateQuizEvent
     data object Close : UpdateQuizEvent
-    data class ShowError(val message: String) : UpdateQuizEvent
 }
 
 sealed interface UpdateQuizCommand {
@@ -173,6 +217,7 @@ sealed interface UpdateQuizCommand {
     data object ToggleAllowReview : UpdateQuizCommand
     data object Update : UpdateQuizCommand
     data object Cancel : UpdateQuizCommand
+    data object Refresh : UpdateQuizCommand
 }
 
 sealed interface UpdateQuizUiState {
@@ -190,8 +235,9 @@ sealed interface UpdateQuizUiState {
         val shuffleQuestions: Boolean = false,
         val allowReview: Boolean = false,
         val canUpdate: Boolean = false,
-        val isUpdating: Boolean = false
+        val isUpdating: Boolean = false,
+        val fullScreenError: ErrorScreenModel? = null
     ) : UpdateQuizUiState
 
-    data class Error(val message: String) : UpdateQuizUiState
+    data class Error(val model: ErrorScreenModel) : UpdateQuizUiState
 }
