@@ -19,19 +19,23 @@ class UserRepositoryImpl @Inject constructor(
         perPage: Int?,
         search: String?,
         role: String?
-    ): List<User> {
-        return userService.getUserList(
-            page = page,
-            perPage = perPage,
-            search = search,
-            role = role
-        ).map {
-            it.userDtoToUser()
+    ): AppResult<List<User>> {
+        return safeApiCaller.call {
+            userService.getUserList(
+                page = page,
+                perPage = perPage,
+                search = search,
+                role = role
+            ).map {
+                it.userDtoToUser()
+            }
         }
     }
 
-    override suspend fun deleteUser(userId: Int) {
-        userService.deleteUser(userId)
+    override suspend fun deleteUser(userId: Int): AppResult<Unit> {
+        return safeApiCaller.call {
+            userService.deleteUser(userId)
+        }
     }
 
     override suspend fun createUser(

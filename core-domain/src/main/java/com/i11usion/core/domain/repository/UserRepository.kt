@@ -10,9 +10,9 @@ interface UserRepository {
         perPage: Int?,
         search: String?,
         role: String?
-    ): List<User>
+    ): AppResult<List<User>>
 
-    suspend fun deleteUser(userId: Int)
+    suspend fun deleteUser(userId: Int): AppResult<Unit>
 
     suspend fun createUser(username: String, name: String, role: String, password: String): AppResult<Unit>
 }

@@ -76,7 +76,8 @@ fun HomeTabsNavHost(
                     navController.navigate(HomeRoutes.CREATE_USER) {
                         launchSingleTop = true
                     }
-                }
+                },
+                onBackClick = { navController.safePopBackStack() }
             )
         }
         composable(HomeRoutes.NOTIFICATIONS) {

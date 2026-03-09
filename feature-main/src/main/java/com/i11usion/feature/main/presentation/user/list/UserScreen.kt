@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,17 +58,22 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.user.list.model.UserUiModel
 
 @Composable
 fun UserScreen(
     modifier: Modifier = Modifier,
-    onCreateUserClick: () -> Unit
+    onCreateUserClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     val viewModel: UserViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
+
+    val context = LocalContext.current
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -98,6 +104,21 @@ fun UserScreen(
 
         is UserUiState.Content -> {
             var userToDelete by remember { mutableStateOf<UserUiModel?>(null) }
+
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = {
+                        viewModel.processCommand(UserCommand.Refresh)
+                    },
+                    onBackClick = onBackClick
+                )
+                return
+            }
 
             LazyColumn(
                 modifier = modifier
@@ -243,8 +264,15 @@ fun UserScreen(
         }
 
         is UserUiState.Error -> {
-            Text(
-                text = state.message
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = {
+                    viewModel.processCommand(UserCommand.Refresh)
+                },
+                onBackClick = onBackClick
             )
         }
     }
