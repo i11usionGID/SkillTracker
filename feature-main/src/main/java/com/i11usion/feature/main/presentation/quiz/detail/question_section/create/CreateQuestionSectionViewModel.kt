@@ -1,9 +1,15 @@
 package com.i11usion.feature.main.presentation.quiz.detail.question_section.create
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.usecase.quiz.CreateQuestionSectionUseCase
 import com.i11usion.core.domain.usecase.quiz.GetQuestionsUseCase
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.mapper.toScreenUiError
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.mapper.domainToQuestionInQuestionSectionUiModel
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.model.QuestionInQuestionSectionUiModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,6 +22,7 @@ import javax.inject.Inject
 class CreateQuestionSectionViewModel @Inject constructor(
     private val getQuestionsUseCase: GetQuestionsUseCase,
     private val createSectionUseCase: CreateQuestionSectionUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
     private var currentQuizId: Int? = null
@@ -48,6 +55,19 @@ class CreateQuestionSectionViewModel @Inject constructor(
                 toggleQuestion(command.questionId, command.checked)
 
             CreateQuestionSectionCommand.CreateClicked -> create()
+            CreateQuestionSectionCommand.Refresh -> onErrorRefreshClick()
+        }
+    }
+
+    private fun onErrorRefreshClick() {
+        when (_state.value) {
+            is CreateQuestionSectionUiState.Content -> _state.value =
+                (_state.value as CreateQuestionSectionUiState.Content).copy(fullScreenError = null)
+
+            else -> {
+                val quizId = currentQuizId ?: return
+                init(quizId)
+            }
         }
     }
 
@@ -56,10 +76,11 @@ class CreateQuestionSectionViewModel @Inject constructor(
         _state.value = CreateQuestionSectionUiState.Loading
 
         viewModelScope.launch {
-            runCatching { getQuestionsUseCase(null) }
-                .onSuccess { questions ->
+            when (val result = getQuestionsUseCase(null)) {
+
+                is AppResult.Success -> {
                     _state.value = CreateQuestionSectionUiState.Content(
-                        questions = questions.map { it.domainToQuestionInQuestionSectionUiModel() },
+                        questions = result.data.map { it.domainToQuestionInQuestionSectionUiModel() },
                         titleQuery = "",
                         descriptionQuery = "",
                         orderIndex = 1,
@@ -68,12 +89,11 @@ class CreateQuestionSectionViewModel @Inject constructor(
                         isCreating = false
                     )
                 }
-                .onFailure { t ->
-                    _state.value =
-                        CreateQuestionSectionUiState.Error(
-                            t.message ?: "Не удалось загрузить вопросы"
-                        )
+
+                is AppResult.Failure -> {
+                    showUiError(result.error)
                 }
+            }
         }
     }
 
@@ -101,8 +121,8 @@ class CreateQuestionSectionViewModel @Inject constructor(
         val questionsOk = s.selectedQuestionIds.isNotEmpty()
 
         if (!titleOk || !questionsOk) {
-            _events.tryEmit(
-                CreateQuestionSectionEvent.ShowError(
+            showUiError(
+                AppError.Validation(
                     message = "Заполните название секции и выберите хотя бы 1 вопрос"
                 )
             )
@@ -116,7 +136,7 @@ class CreateQuestionSectionViewModel @Inject constructor(
         _state.value = s.copy(isCreating = true)
 
         viewModelScope.launch {
-            runCatching {
+            when (val result =
                 createSectionUseCase(
                     quizId = quizId,
                     title = s.titleQuery.trim(),
@@ -124,17 +144,16 @@ class CreateQuestionSectionViewModel @Inject constructor(
                     orderIndex = order,
                     pickCount = pick,
                     questionIds = s.selectedQuestionIds.toList()
-                )
-            }.onSuccess {
-                _events.tryEmit(CreateQuestionSectionEvent.Created)
-            }.onFailure { t ->
-                val cur = _state.value as? CreateQuestionSectionUiState.Content
-                if (cur != null) _state.value = cur.copy(isCreating = false)
-                _events.tryEmit(
-                    CreateQuestionSectionEvent.ShowError(
-                        message = t.message ?: "Не удалось создать секцию"
-                    )
-                )
+                )) {
+
+                is AppResult.Success -> {
+                    _events.tryEmit(CreateQuestionSectionEvent.Created)
+                }
+
+                is AppResult.Failure -> {
+                    _state.value = s.copy(isCreating = false)
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -149,6 +168,21 @@ class CreateQuestionSectionViewModel @Inject constructor(
         val selectedCount = selectedQuestionIds.size
         val fixedPick = if (selectedCount == 0) null else pickCount?.coerceIn(1, selectedCount)
         return copy(pickCount = fixedPick)
+    }
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toScreenUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                val current = _state.value
+                if (current is CreateQuestionSectionUiState.Content) {
+                    _state.value = current.copy(fullScreenError = uiError.model)
+                } else {
+                    _state.value = CreateQuestionSectionUiState.Error(uiError.model)
+                }
+            }
+        }
     }
 }
 
@@ -166,12 +200,12 @@ sealed interface CreateQuestionSectionCommand {
         CreateQuestionSectionCommand
 
     data object CreateClicked : CreateQuestionSectionCommand
+    data object Refresh : CreateQuestionSectionCommand
 }
 
 sealed interface CreateQuestionSectionEvent {
     data object Close : CreateQuestionSectionEvent
     data object Created : CreateQuestionSectionEvent
-    data class ShowError(val message: String) : CreateQuestionSectionEvent
 }
 
 sealed interface CreateQuestionSectionUiState {
@@ -185,12 +219,13 @@ sealed interface CreateQuestionSectionUiState {
         val orderIndex: Int,
         val pickCount: Int?,
         val selectedQuestionIds: Set<Int>,
-        val isCreating: Boolean
+        val isCreating: Boolean,
+        val fullScreenError: ErrorScreenModel? = null
     ) : CreateQuestionSectionUiState {
         val selectedCount: Int get() = selectedQuestionIds.size
         val canCreate: Boolean
             get() = titleQuery.trim().isNotEmpty() && selectedCount > 0 && !isCreating
     }
 
-    data class Error(val message: String) : CreateQuestionSectionUiState
+    data class Error(val model: ErrorScreenModel) : CreateQuestionSectionUiState
 }

@@ -58,6 +58,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -66,6 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.model.QuestionInQuestionSectionUiModel
 import kotlinx.coroutines.flow.collectLatest
@@ -86,6 +89,8 @@ fun CreateQuestionSectionScreen(
 
     val state by viewModel.state.collectAsState()
 
+    val context = LocalContext.current
+
     LaunchedEffect(quizId) {
         viewModel.processCommand(CreateQuestionSectionCommand.Init(quizId))
     }
@@ -95,9 +100,6 @@ fun CreateQuestionSectionScreen(
             when (event) {
                 CreateQuestionSectionEvent.Close -> onCancelClick()
                 CreateQuestionSectionEvent.Created -> onCancelClick()
-                is CreateQuestionSectionEvent.ShowError -> {
-                    // если у тебя есть snackbar-хост — покажешь там.
-                }
             }
         }
     }
@@ -110,17 +112,41 @@ fun CreateQuestionSectionScreen(
             contentAlignment = Alignment.Center
         ) { CircularProgressIndicator() }
 
-        is CreateQuestionSectionUiState.Error -> Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) { Text(s.message) }
+        is CreateQuestionSectionUiState.Error -> {
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = s.model.iconResId,
+                cdResId = s.model.cdResId,
+                errorText = s.model.text.asString(context),
+                onRefreshClick = {
+                    viewModel.processCommand(CreateQuestionSectionCommand.Refresh)
+                }
+            )
+        }
 
-        is CreateQuestionSectionUiState.Content -> CreateQuestionSectionContent(
-            modifier = modifier,
-            state = s,
-            onCommand = viewModel::processCommand,
-            onCreateQuestionsClick = onCreateQuestionsClick
-        )
+        is CreateQuestionSectionUiState.Content -> {
+
+            val fsError = s.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = {
+                        viewModel.processCommand(CreateQuestionSectionCommand.Refresh)
+                    }
+                )
+                return
+            }
+
+            CreateQuestionSectionContent(
+                modifier = modifier,
+                state = s,
+                onCommand = viewModel::processCommand,
+                onCreateQuestionsClick = onCreateQuestionsClick
+            )
+        }
     }
 }
 
