@@ -1,5 +1,6 @@
 package com.i11usion.core.domain.usecase.task
 
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.task.TaskStatus
 import com.i11usion.core.domain.repository.TaskRepository
 import java.time.Instant
@@ -16,8 +17,8 @@ class CreateTaskUseCase @Inject constructor(
         status: TaskStatus,
         progress: Int,
         employeeId: Int
-    ) {
-        repository.createTask(
+    ): AppResult<Unit> {
+        return repository.createTask(
             title = title ,
             description = description ,
             deadline = deadline ,

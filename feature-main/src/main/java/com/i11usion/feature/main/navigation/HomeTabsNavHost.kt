@@ -124,8 +124,7 @@ fun HomeTabsNavHost(
         }
         composable(HomeRoutes.CREATE_TASK) {
             CreateTaskScreen(
-                onCancelClick = { navController.safePopBackStack() },
-                onCreateTaskClick = { navController.safePopBackStack() }
+                onCancelClick = { navController.safePopBackStack() }
             )
         }
         composable(HomeRoutes.CREATE_USER) {

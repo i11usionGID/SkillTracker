@@ -1,24 +1,37 @@
 package com.i11usion.feature.main.presentation.task.create
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.task.TaskStatus
 import com.i11usion.core.domain.model.user.User
 import com.i11usion.core.domain.usecase.task.CreateTaskUseCase
 import com.i11usion.core.domain.usecase.user.GetUsersListUseCase
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.mapper.toScreenUiError
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
 
 class CreateTaskViewModel @Inject constructor(
     private val getUsersListUseCase: GetUsersListUseCase,
-    private val createTaskUseCase: CreateTaskUseCase
+    private val createTaskUseCase: CreateTaskUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<CreateTaskUiState>(CreateTaskUiState.Loading)
     val state = _state.asStateFlow()
+
+    private val _events = MutableSharedFlow<CreateTaskEvents>()
+    val events = _events.asSharedFlow()
 
     init {
         loadEmployees()
@@ -28,22 +41,25 @@ class CreateTaskViewModel @Inject constructor(
         _state.value = CreateTaskUiState.Loading
 
         viewModelScope.launch {
-            try {
-                val users = getUsersListUseCase(
+            when (val result =
+                getUsersListUseCase(
                     page = null,
                     perPage = null,
                     search = null,
                     role = "employee"
                 )
+            ) {
 
-                _state.value = CreateTaskUiState.Content(
-                    employeeList = users,
-                    selectedStatus = TaskStatus.PENDING
-                ).revalidate()
-            } catch (t: Throwable) {
-                _state.value = CreateTaskUiState.Error(
-                    message = t.message ?: "Не удалось загрузить список сотрудников"
-                )
+                is AppResult.Success -> {
+                    _state.value = CreateTaskUiState.Content(
+                        employeeList = result.data,
+                        selectedStatus = TaskStatus.PENDING
+                    ).revalidate()
+                }
+
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -55,29 +71,25 @@ class CreateTaskViewModel @Inject constructor(
         when (command) {
             is CreateTaskCommand.ChangeTaskNameQuery -> {
                 _state.value = current.copy(
-                    taskNameQuery = command.query,
-                    errorMessage = null
+                    taskNameQuery = command.query
                 ).revalidate()
             }
 
             is CreateTaskCommand.ChangeTaskDescriptionQuery -> {
                 _state.value = current.copy(
-                    taskDescriptionQuery = command.query,
-                    errorMessage = null
+                    taskDescriptionQuery = command.query
                 ).revalidate()
             }
 
             is CreateTaskCommand.ChangeEmployee -> {
                 _state.value = current.copy(
-                    selectedEmployeeId = command.userId,
-                    errorMessage = null
+                    selectedEmployeeId = command.userId
                 ).revalidate()
             }
 
             is CreateTaskCommand.ChangeDeadline -> {
                 _state.value = current.copy(
-                    deadlineMillis = command.dateMillis,
-                    errorMessage = null
+                    deadlineMillis = command.dateMillis
                 ).revalidate()
             }
 
@@ -91,8 +103,7 @@ class CreateTaskViewModel @Inject constructor(
 
                 _state.value = current.copy(
                     selectedStatus = command.status,
-                    progress = newProgress,
-                    errorMessage = null
+                    progress = newProgress
                 ).revalidate()
             }
 
@@ -116,51 +127,55 @@ class CreateTaskViewModel @Inject constructor(
             CreateTaskCommand.CreateTask -> {
                 createTask(current)
             }
+
+            CreateTaskCommand.Refresh -> onErrorRefreshClick()
+        }
+    }
+
+    private fun onErrorRefreshClick() {
+        when (_state.value) {
+            is CreateTaskUiState.Content -> _state.value =
+                (_state.value as CreateTaskUiState.Content).copy(fullScreenError = null)
+
+            else -> _state.value = CreateTaskUiState.Content()
         }
     }
 
     private fun createTask(current: CreateTaskUiState.Content) {
         if (!current.canCreate || current.isCreating) return
 
-        _state.value = current.copy(isCreating = true, errorMessage = null)
+        _state.value = current.copy(isCreating = true)
 
         viewModelScope.launch {
-            try {
-                val employeeId = current.selectedEmployeeId
-                    ?: error("Исполнитель задачи не выбран")
+            val employeeId = current.selectedEmployeeId
+                ?: error("Исполнитель задачи не выбран")
 
-                val title = current.taskNameQuery.trim()
-                val description = current.taskDescriptionQuery.trim().ifBlank { null }
+            val title = current.taskNameQuery.trim()
+            val description = current.taskDescriptionQuery.trim().ifBlank { null }
 
-                val deadline: Instant? = current.deadlineMillis?.let { millis ->
-                    Instant.ofEpochMilli(millis)
+            val deadline: Instant? = current.deadlineMillis?.let { millis ->
+                Instant.ofEpochMilli(millis)
+            }
+
+            when (val result = createTaskUseCase(
+                title = title,
+                description = description,
+                deadline = deadline,
+                status = current.selectedStatus,
+                progress = current.progress,
+                employeeId = employeeId
+            )) {
+                is AppResult.Success -> {
+                    _events.emit(CreateTaskEvents.Created)
                 }
 
-                createTaskUseCase(
-                    title = title,
-                    description = description,
-                    deadline = deadline,
-                    status = current.selectedStatus,
-                    progress = current.progress,
-                    employeeId = employeeId
-                )
+                is AppResult.Failure -> {
+                    _state.update { state ->
+                        val base = current.copy(isCreating = false)
+                        base.copy(canCreate = true)
+                    }
 
-                _state.value = current.copy(
-                    isCreating = false,
-                    errorMessage = null
-                ).revalidate()
-
-            } catch (t: Throwable) {
-                val latest = _state.value
-                if (latest is CreateTaskUiState.Content) {
-                    _state.value = latest.copy(
-                        isCreating = false,
-                        errorMessage = t.message ?: "Не удалось создать задачу"
-                    ).revalidate()
-                } else {
-                    _state.value = CreateTaskUiState.Error(
-                        message = t.message ?: "Не удалось создать задачу"
-                    )
+                    showUiError(result.error)
                 }
             }
         }
@@ -173,6 +188,25 @@ class CreateTaskViewModel @Inject constructor(
 
         return copy(canCreate = can)
     }
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toScreenUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                val current = _state.value
+                if (current is CreateTaskUiState.Content) {
+                    _state.value = current.copy(fullScreenError = uiError.model, isCreating = false)
+                } else {
+                    _state.value = CreateTaskUiState.Error(uiError.model)
+                }
+            }
+        }
+    }
+}
+
+sealed interface CreateTaskEvents {
+    data object Created : CreateTaskEvents
 }
 
 sealed interface CreateTaskCommand {
@@ -183,6 +217,7 @@ sealed interface CreateTaskCommand {
     data class ChangeStatus(val status: TaskStatus) : CreateTaskCommand
     data class ChangeProgress(val progress: Int) : CreateTaskCommand
     data object CreateTask : CreateTaskCommand
+    data object Refresh : CreateTaskCommand
 }
 
 
@@ -199,11 +234,11 @@ sealed interface CreateTaskUiState {
         val progress: Int = 0,
         val isCreating: Boolean = false,
         val canCreate: Boolean = false,
-        val errorMessage: String? = null
+        val fullScreenError: ErrorScreenModel? = null
     ) : CreateTaskUiState
 
 
     data class Error(
-        val message: String
+        val model: ErrorScreenModel
     ) : CreateTaskUiState
 }

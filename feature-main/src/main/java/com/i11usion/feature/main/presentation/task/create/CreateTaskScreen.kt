@@ -50,6 +50,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +60,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -68,7 +70,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.domain.model.task.TaskStatus
 import com.i11usion.core.domain.model.user.User
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
+import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -76,12 +81,23 @@ import java.util.Locale
 @Composable
 fun CreateTaskScreen(
     modifier: Modifier = Modifier,
-    onCancelClick: () -> Unit,
-    onCreateTaskClick: () -> Unit
+    onCancelClick: () -> Unit
 ) {
     val viewModel: CreateTaskViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
+
+    val context = LocalContext.current
+
+    LaunchedEffect(viewModel) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                CreateTaskEvents.Created -> {
+                    onCancelClick()
+                }
+            }
+        }
+    }
 
     when (state) {
         CreateTaskUiState.Initial -> {}
@@ -98,6 +114,21 @@ fun CreateTaskScreen(
         }
 
         is CreateTaskUiState.Content -> {
+
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = {
+                        viewModel.processCommand(CreateTaskCommand.Refresh)
+                    }
+                )
+                return
+            }
+
             var showProgressDialog by remember { mutableStateOf(false) }
 
             LazyColumn(
@@ -163,7 +194,6 @@ fun CreateTaskScreen(
                         onCancelClick = onCancelClick,
                         onCreateTaskClick = {
                             viewModel.processCommand(CreateTaskCommand.CreateTask)
-                            onCreateTaskClick()
                         }
                     )
 
@@ -188,7 +218,15 @@ fun CreateTaskScreen(
         }
 
         is CreateTaskUiState.Error -> {
-
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = {
+                    viewModel.processCommand(CreateTaskCommand.Refresh)
+                }
+            )
         }
     }
 }
@@ -306,7 +344,7 @@ private fun CreateTaskCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             val employeeOptions: List<Pair<String, Int>> =
-                employees.map { it.name + "@${it.username}" to it.id }
+                employees.map { it.name + " @${it.username}" to it.id }
 
             val selectedEmployeeTitle: String? =
                 employeeOptions.firstOrNull { it.second == selectedEmployeeId }?.first
@@ -621,7 +659,9 @@ fun DateField(
                 ) { Text(stringResource(R.string.done)) }
             },
             dismissButton = {
-                TextButton(onClick = { openDialog = false }) { Text(stringResource(R.string.cancel)) }
+                TextButton(onClick = {
+                    openDialog = false
+                }) { Text(stringResource(R.string.cancel)) }
             },
             colors = DatePickerDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.surface

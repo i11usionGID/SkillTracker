@@ -26,8 +26,11 @@ import com.i11usion.core.ui.helpers.asString
 import com.i11usion.core.ui.snackbar.LocalAppSnackbarHostState
 import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.navigation.HomeTabsNavHost
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 
+@OptIn(FlowPreview::class)
 @Composable
 fun HomeRoute(
     isDarkTheme: Boolean,
@@ -81,12 +84,14 @@ fun HomeRoute(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.snackbarManager.events.collectLatest { message ->
-            snackbarHostState.showSnackbar(
-                message = message.asString(context),
-                duration = SnackbarDuration.Short
-            )
-        }
+        viewModel.snackbarManager.events
+            .debounce(100)
+            .collect { message ->
+                snackbarHostState.showSnackbar(
+                    message = message.asString(context),
+                    duration = SnackbarDuration.Short
+                )
+            }
     }
 
     CompositionLocalProvider(
