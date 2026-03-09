@@ -1,13 +1,19 @@
 package com.i11usion.feature.main.presentation.quiz.question.create
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.quiz.MatcherType
 import com.i11usion.core.domain.model.quiz.Question
 import com.i11usion.core.domain.model.quiz.QuestionOption
 import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.TextAnswer
 import com.i11usion.core.domain.usecase.quiz.CreateQuestionUseCase
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.mapper.toScreenUiError
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -17,7 +23,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class CreateQuestionViewModel @Inject constructor(
-    private val createQuestionUseCase: CreateQuestionUseCase
+    private val createQuestionUseCase: CreateQuestionUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<CreateQuestionUiState>(
@@ -28,7 +35,7 @@ class CreateQuestionViewModel @Inject constructor(
     private val _events = MutableSharedFlow<CreateQuestionEvent>()
     val events = _events.asSharedFlow()
 
-    fun process(command: CreateQuestionCommand) {
+    fun processCommand(command: CreateQuestionCommand) {
         when (command) {
             is CreateQuestionCommand.ChangeType -> changeType(command.type)
             is CreateQuestionCommand.ChangeText -> updateContent { it.copy(text = command.value) }
@@ -85,6 +92,17 @@ class CreateQuestionViewModel @Inject constructor(
             CreateQuestionCommand.Cancel -> {
                 viewModelScope.launch { _events.emit(CreateQuestionEvent.Close) }
             }
+
+            CreateQuestionCommand.Refresh -> onErrorRefreshClick()
+        }
+    }
+
+    private fun onErrorRefreshClick() {
+        when (_state.value) {
+            is CreateQuestionUiState.Content -> _state.value =
+                (_state.value as CreateQuestionUiState.Content).copy(fullScreenError = null)
+
+            else -> _state.value = CreateQuestionUiState.Content()
         }
     }
 
@@ -92,7 +110,8 @@ class CreateQuestionViewModel @Inject constructor(
         reducer: (CreateQuestionUiState.Content) -> CreateQuestionUiState.Content
     ) {
         _state.update { current ->
-            val content = current as? CreateQuestionUiState.Content ?: CreateQuestionUiState.Content()
+            val content =
+                current as? CreateQuestionUiState.Content ?: CreateQuestionUiState.Content()
             val updated = reducer(content)
             updated.copy(canCreate = computeCanCreate(updated))
         }
@@ -182,16 +201,20 @@ class CreateQuestionViewModel @Inject constructor(
                 (it as CreateQuestionUiState.Content).copy(isCreating = true, canCreate = false)
             }
 
-            try {
-                val question = content.toDomainForCreate()
-                createQuestionUseCase(question)
-                _events.emit(CreateQuestionEvent.Created)
-            } catch (t: Throwable) {
-                _state.update { cur ->
-                    val c = cur as? CreateQuestionUiState.Content ?: return@update cur
-                    c.copy(isCreating = false, canCreate = computeCanCreate(c))
+            val question = content.toDomainForCreate()
+            when (val result = createQuestionUseCase(question)) {
+
+                is AppResult.Success -> {
+                    _events.emit(CreateQuestionEvent.Created)
                 }
-                _events.emit(CreateQuestionEvent.ShowError(t.message ?: "Failed to create question"))
+
+                is AppResult.Failure -> {
+                    _state.update { cur ->
+                        val c = cur as? CreateQuestionUiState.Content ?: return@update cur
+                        c.copy(isCreating = false, canCreate = true)
+                    }
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -263,12 +286,26 @@ class CreateQuestionViewModel @Inject constructor(
             }
         }
     }
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toScreenUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                val current = _state.value
+                if (current is CreateQuestionUiState.Content) {
+                    _state.value = current.copy(fullScreenError = uiError.model)
+                } else {
+                    _state.value = CreateQuestionUiState.Error(uiError.model)
+                }
+            }
+        }
+    }
 }
 
 sealed interface CreateQuestionEvent {
     data object Created : CreateQuestionEvent
     data object Close : CreateQuestionEvent
-    data class ShowError(val message: String) : CreateQuestionEvent
 }
 
 sealed interface CreateQuestionCommand {
@@ -288,6 +325,7 @@ sealed interface CreateQuestionCommand {
 
     data object Create : CreateQuestionCommand
     data object Cancel : CreateQuestionCommand
+    data object Refresh : CreateQuestionCommand
 }
 
 sealed interface CreateQuestionUiState {
@@ -306,8 +344,9 @@ sealed interface CreateQuestionUiState {
         ),
 
         val canCreate: Boolean = false,
-        val isCreating: Boolean = false
+        val isCreating: Boolean = false,
+        val fullScreenError: ErrorScreenModel? = null
     ) : CreateQuestionUiState
 
-    data class Error(val message: String) : CreateQuestionUiState
+    data class Error(val model: ErrorScreenModel) : CreateQuestionUiState
 }
