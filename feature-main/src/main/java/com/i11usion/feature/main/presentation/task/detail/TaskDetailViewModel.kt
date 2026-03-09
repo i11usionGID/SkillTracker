@@ -1,10 +1,12 @@
 package com.i11usion.feature.main.presentation.task.detail
 
+import AppError
 import android.app.Application
 import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.task.TaskStatus
 import com.i11usion.core.domain.model.user.User
 import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
@@ -20,12 +22,18 @@ import com.i11usion.core.domain.usecase.task.UpdateTaskCommentUseCase
 import com.i11usion.core.domain.usecase.task.UpdateTaskProgressUseCase
 import com.i11usion.core.domain.usecase.task.UploadTaskAttachmentUseCase
 import com.i11usion.core.ui.formatter.formatInstantToStringDataNullable
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.core.ui.model.UiText
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.mapper.toScreenUiError
 import com.i11usion.feature.main.presentation.dashboard.mapper.taskToTaskUi
 import com.i11usion.feature.main.presentation.model.TaskUi
 import com.i11usion.feature.main.presentation.task.detail.mapper.domainToUi
 import com.i11usion.feature.main.presentation.task.detail.model.AttachmentUiModel
 import com.i11usion.feature.main.presentation.task.detail.model.CommentBlock
 import com.i11usion.feature.main.presentation.task.detail.model.EditableComment
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -47,8 +55,13 @@ class TaskDetailViewModel @Inject constructor(
     private val getTaskCommentsUseCase: GetTaskCommentsUseCase,
     private val addTaskCommentUseCase: AddTaskCommentUseCase,
     private val updateTaskCommentUseCase: UpdateTaskCommentUseCase,
-    private val deleteTaskCommentUseCase: DeleteTaskCommentUseCase
+    private val deleteTaskCommentUseCase: DeleteTaskCommentUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
+
+    private companion object {
+        const val RETRY_DELAY_MS = 10_000L
+    }
 
     private var currentTaskId: Int? = null
 
@@ -71,7 +84,6 @@ class TaskDetailViewModel @Inject constructor(
 
     private val _events = MutableSharedFlow<TaskDetailEvent>()
     val events = _events.asSharedFlow()
-
 
     fun processCommand(command: TaskDetailCommand) {
         when (command) {
@@ -96,19 +108,28 @@ class TaskDetailViewModel @Inject constructor(
             is TaskDetailCommand.EditCommentTextChanged -> editCommentTextChanged(command.text)
 
             TaskDetailCommand.CancelEditComment -> cancelEditComment()
-
             TaskDetailCommand.FinishEditComment -> finishEditComment()
 
             is TaskDetailCommand.UploadAttachment -> uploadAttachment(command.taskId, command.uri)
-
             is TaskDetailCommand.DeleteAttachment -> deleteTaskAttachment(command.attachmentId)
-
             is TaskDetailCommand.DownloadAttachment -> downloadAttachment(command.attachmentId)
-
 
             is TaskDetailCommand.DeleteTask -> deleteTask(command.taskId)
 
             TaskDetailCommand.Retry -> retry()
+            TaskDetailCommand.Refresh -> onErrorRefreshClick()
+        }
+    }
+
+    private fun onErrorRefreshClick() {
+        when (_state.value) {
+            is TaskDetailUiState.Content -> _state.value =
+                (_state.value as TaskDetailUiState.Content).copy(fullScreenError = null)
+
+            else -> {
+                val taskId = currentTaskId ?: return
+                init(taskId)
+            }
         }
     }
 
@@ -119,35 +140,87 @@ class TaskDetailViewModel @Inject constructor(
         _state.value = TaskDetailUiState.Loading
 
         viewModelScope.launch {
-            try {
-                val u = getUserInfoUseCase()
-                user.value = u
+            val u = getUserInfoUseCase() ?: return@launch
+            user.value = u
 
-                val domainTask = getTaskByIdUseCase(taskId)
-                task.value = domainTask.taskToTaskUi(
-                    dateFormatter = { date ->
-                        formatInstantToStringDataNullable(date)
-                    }
-                )
+            attachments.value = emptyList()
+            commentsBlock.value = CommentBlock(
+                query = commentsBlock.value.query,
+                isLoading = false,
+                commentList = emptyList(),
+                editableComment = null
+            )
 
-                commentsBlock.update { it.copy(isLoading = true) }
-                publishContentIfReady()
-
-                val domainComments = getTaskCommentsUseCase(taskId)
-                commentsBlock.value = commentsBlock.value.copy(
-                    isLoading = false,
-                    commentList = domainComments.map { it.domainToUi() }
-                )
-
-                val attachmentList = getTaskAttachmentsUseCase(taskId)
-                attachments.value = attachmentList.map {
-                    it.domainToUi()
+            when (val result = retryRequest { getTaskByIdUseCase(taskId) }) {
+                is AppResult.Success -> {
+                    task.value = result.data.taskToTaskUi(
+                        dateFormatter = { date ->
+                            formatInstantToStringDataNullable(date)
+                        }
+                    )
                 }
 
-                publishContentIfReady()
-            } catch (t: Throwable) {
-                _state.value = TaskDetailUiState.Error(t.message ?: "Unknown error")
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                    return@launch
+                }
             }
+
+            commentsBlock.update { it.copy(isLoading = true) }
+            publishContentIfReady()
+
+            when (val result = retryRequest { getTaskCommentsUseCase(taskId) }) {
+                is AppResult.Success -> {
+                    commentsBlock.value = commentsBlock.value.copy(
+                        isLoading = false,
+                        commentList = result.data.map { it.domainToUi() }
+                    )
+                    publishContentIfReady()
+                }
+
+                is AppResult.Failure -> {
+                    commentsBlock.update { it.copy(isLoading = false) }
+                    publishContentIfReady()
+                    showUiError(result.error)
+                    return@launch
+                }
+            }
+
+            when (val result = retryRequest { getTaskAttachmentsUseCase(taskId) }) {
+                is AppResult.Success -> {
+                    attachments.value = result.data.map { it.domainToUi() }
+                    publishContentIfReady()
+                }
+
+                is AppResult.Failure -> {
+                    publishContentIfReady()
+                    showUiError(result.error)
+                }
+            }
+        }
+    }
+
+    private suspend fun <T> retryRequest(
+        block: suspend () -> AppResult<T>
+    ): AppResult<T> {
+        while (true) {
+            when (val result = block()) {
+                is AppResult.Success -> return result
+                is AppResult.Failure -> {
+                    if (!shouldRetry(result.error)) return result
+                    delay(RETRY_DELAY_MS)
+                }
+            }
+        }
+    }
+
+    private fun shouldRetry(error: AppError): Boolean {
+        return when (error) {
+            is AppError.Network -> {
+                snackbarManager.show(UiText.Dynamic("Отсутствует подключение к интернету"))
+                true
+            }
+            else -> false
         }
     }
 
@@ -170,23 +243,25 @@ class TaskDetailViewModel @Inject constructor(
 
     private fun updateProgress(taskId: Int, newProgress: Int) {
         viewModelScope.launch {
-            try {
-                val status = progressToStatus(newProgress)
+            val status = progressToStatus(newProgress)
 
-                val updatedTask = updateTaskProgressUseCase(
-                    taskId = taskId,
-                    progress = newProgress,
-                    status = status
-                )
+            when (val result = updateTaskProgressUseCase(
+                taskId = taskId,
+                progress = newProgress,
+                status = status
+            )) {
+                is AppResult.Success -> {
+                    task.value = result.data.taskToTaskUi(
+                        dateFormatter = { date ->
+                            formatInstantToStringDataNullable(date)
+                        }
+                    )
+                    publishContentIfReady()
+                }
 
-                task.value = updatedTask.taskToTaskUi(
-                    dateFormatter = { date ->
-                        formatInstantToStringDataNullable(date)
-                    }
-                )
-                publishContentIfReady()
-            } catch (t: Throwable) {
-                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to update progress")
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -206,35 +281,43 @@ class TaskDetailViewModel @Inject constructor(
         if (text.isBlank()) return
 
         viewModelScope.launch {
-            try {
-                commentsBlock.update { it.copy(isLoading = true) }
-                publishContentIfReady()
+            commentsBlock.update { it.copy(isLoading = true) }
+            publishContentIfReady()
 
-                val created = addTaskCommentUseCase(taskId = taskId, text = text)
+            when (val result = addTaskCommentUseCase(taskId = taskId, text = text)) {
+                is AppResult.Success -> {
+                    val newList = commentsBlock.value.commentList + result.data.domainToUi()
 
-                val newList = commentsBlock.value.commentList + created.domainToUi()
+                    commentsBlock.value = commentsBlock.value.copy(
+                        isLoading = false,
+                        query = "",
+                        commentList = newList
+                    )
+                    publishContentIfReady()
+                }
 
-                commentsBlock.value = commentsBlock.value.copy(
-                    isLoading = false,
-                    query = "",
-                    commentList = newList
-                )
-                publishContentIfReady()
-            } catch (t: Throwable) {
-                commentsBlock.update { it.copy(isLoading = false) }
-                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to add comment")
+                is AppResult.Failure -> {
+                    commentsBlock.update { it.copy(isLoading = false) }
+                    publishContentIfReady()
+                    showUiError(result.error)
+                }
             }
         }
     }
 
     private fun deleteTask(taskId: Int) {
         viewModelScope.launch {
-            try {
-                _state.value = TaskDetailUiState.Loading
-                deleteTaskUseCase(taskId)
-                _events.emit(TaskDetailEvent.NavigateBack)
-            } catch (t: Throwable) {
-                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to delete task")
+            val currentState = _state.value
+            _state.value = TaskDetailUiState.Loading
+            when (val result = deleteTaskUseCase(taskId)) {
+                is AppResult.Success -> {
+                    _events.emit(TaskDetailEvent.NavigateBack)
+                }
+
+                is AppResult.Failure -> {
+                    _state.value = currentState
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -245,19 +328,19 @@ class TaskDetailViewModel @Inject constructor(
 
         viewModelScope.launch {
             val old = commentsBlock.value
+            when (val result = deleteTaskCommentUseCase(taskId = taskId, commentId = commentId)) {
+                is AppResult.Success -> {
+                    commentsBlock.value = old.copy(
+                        commentList = old.commentList.filterNot { it.id == commentId },
+                        editableComment = if (old.editableComment?.commentId == commentId) null else old.editableComment
+                    )
+                    publishContentIfReady()
+                }
 
-            commentsBlock.value = old.copy(
-                commentList = old.commentList.filterNot { it.id == commentId },
-                editableComment = if (old.editableComment?.commentId == commentId) null else old.editableComment
-            )
-            publishContentIfReady()
-
-            try {
-                deleteTaskCommentUseCase(taskId = taskId, commentId = commentId)
-            } catch (t: Throwable) {
-                commentsBlock.value = old
-                publishContentIfReady()
-                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to delete comment")
+                is AppResult.Failure -> {
+                    publishContentIfReady()
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -298,44 +381,46 @@ class TaskDetailViewModel @Inject constructor(
         viewModelScope.launch {
             val old = commentsBlock.value
 
-            val updatedList = old.commentList.map {
-                if (it.id == editable.commentId) it.copy(text = newText) else it
-            }
-            commentsBlock.value = old.copy(commentList = updatedList, isLoading = true)
-            publishContentIfReady()
+            when (val result = updateTaskCommentUseCase(
+                taskId = taskId,
+                commentId = editable.commentId,
+                text = newText
+            )) {
+                is AppResult.Success -> {
+                    val updatedList = old.commentList.map {
+                        if (it.id == editable.commentId) it.copy(text = newText) else it
+                    }
+                    commentsBlock.value = old.copy(commentList = updatedList, isLoading = true)
 
-            try {
-                updateTaskCommentUseCase(
-                    taskId = taskId,
-                    commentId = editable.commentId,
-                    text = newText
-                )
+                    commentsBlock.value = commentsBlock.value.copy(
+                        isLoading = false,
+                        editableComment = null
+                    )
+                    publishContentIfReady()
+                }
 
-                commentsBlock.value = commentsBlock.value.copy(
-                    isLoading = false,
-                    editableComment = null
-                )
-                publishContentIfReady()
-            } catch (t: Throwable) {
-                commentsBlock.value = old.copy(isLoading = false)
-                publishContentIfReady()
-                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to update comment")
+                is AppResult.Failure -> {
+                    commentsBlock.value = old.copy(isLoading = false)
+                    publishContentIfReady()
+                    showUiError(result.error)
+                }
             }
         }
     }
 
     private fun uploadAttachment(taskId: Int, uri: Uri) {
         viewModelScope.launch {
-            try {
-                val created = uploadTaskAttachmentUseCase(taskId = taskId, uri = uri)
-
-                attachments.update { old ->
-                    old + created.domainToUi()
+            when (val result = uploadTaskAttachmentUseCase(taskId = taskId, uri = uri)) {
+                is AppResult.Success -> {
+                    attachments.update { old ->
+                        old + result.data.domainToUi()
+                    }
+                    publishContentIfReady()
                 }
 
-                publishContentIfReady()
-            } catch (t: Throwable) {
-                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to upload attachment")
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -347,37 +432,55 @@ class TaskDetailViewModel @Inject constructor(
         viewModelScope.launch {
             val old = attachments.value
 
-            attachments.value = old.filterNot { it.id == attachmentId }
-            publishContentIfReady()
+            when (val result =
+                deleteTaskAttachmentUseCase(taskId = taskId, attachmentId = attachmentId)) {
+                is AppResult.Success -> {
+                    attachments.value = old.filterNot { it.id == attachmentId }
+                    publishContentIfReady()
+                }
 
-            try {
-                deleteTaskAttachmentUseCase(taskId = taskId, attachmentId = attachmentId)
-            } catch (t: Throwable) {
-                attachments.value = old
-                publishContentIfReady()
-                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to delete attachment")
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                }
             }
         }
     }
-
 
     private fun downloadAttachment(attachmentId: Int) {
         val content = _state.value as? TaskDetailUiState.Content ?: return
         val taskId = content.task.id
 
         viewModelScope.launch {
-            try {
-                val downloaded = downloadTaskAttachmentUseCase(taskId = taskId, attachmentId = attachmentId)
+            when (val result =
+                downloadTaskAttachmentUseCase(taskId = taskId, attachmentId = attachmentId)) {
+                is AppResult.Success -> {
+                    val uri = FileProvider.getUriForFile(
+                        application,
+                        "${application.packageName}.fileprovider",
+                        result.data.file
+                    )
 
-                val uri = FileProvider.getUriForFile(
-                    application,
-                    "${application.packageName}.fileprovider",
-                    downloaded.file
-                )
+                    _events.emit(TaskDetailEvent.OpenDownloadedFile(uri, result.data.mimeType))
+                }
 
-                _events.emit(TaskDetailEvent.OpenDownloadedFile(uri, downloaded.mimeType))
-            } catch (t: Throwable) {
-                _state.value = TaskDetailUiState.Error(t.message ?: "Failed to download attachment")
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                }
+            }
+        }
+    }
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toScreenUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                val current = _state.value
+                if (current is TaskDetailUiState.Content) {
+                    _state.value = current.copy(fullScreenError = uiError.model)
+                } else {
+                    _state.value = TaskDetailUiState.Error(uiError.model)
+                }
             }
         }
     }
@@ -404,6 +507,7 @@ sealed interface TaskDetailCommand {
     data object CancelEditComment : TaskDetailCommand
     data class DeleteComment(val commentId: Int) : TaskDetailCommand
     data object Retry : TaskDetailCommand
+    data object Refresh : TaskDetailCommand
 }
 
 sealed interface TaskDetailUiState {
@@ -413,10 +517,11 @@ sealed interface TaskDetailUiState {
         val user: User,
         val task: TaskUi,
         val attachments: List<AttachmentUiModel>,
-        val comments: CommentBlock
+        val comments: CommentBlock,
+        val fullScreenError: ErrorScreenModel? = null
     ) : TaskDetailUiState
 
     data class Error(
-        val message: String
+        val model: ErrorScreenModel
     ) : TaskDetailUiState
 }

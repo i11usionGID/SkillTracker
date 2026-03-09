@@ -54,15 +54,17 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getTaskById(taskId: Int): Task {
-        return taskService.getTaskById(taskId).taskDtoToTask()
+    override suspend fun getTaskById(taskId: Int): AppResult<Task> {
+        return safeApiCaller.call {
+            taskService.getTaskById(taskId).taskDtoToTask()
+        }
     }
 
     override suspend fun updateProgress(
         taskId: Int,
         progress: Int,
         status: TaskStatus?
-    ): Task {
+    ): AppResult<Task> {
         val requestBody = UpdateProgressRequestDto(
             progress = progress,
             status = when (status) {
@@ -72,47 +74,63 @@ class TaskRepositoryImpl @Inject constructor(
                 else -> null
             }
         )
-        return taskService.updateProgress(taskId = taskId, body = requestBody).taskDtoToTask()
-    }
-
-    override suspend fun getTaskComments(taskId: Int): List<Comment> {
-        return taskService.getTaskComments(taskId).map {
-            it.dtoToDomain()
+        return safeApiCaller.call {
+            taskService.updateProgress(taskId = taskId, body = requestBody).taskDtoToTask()
         }
     }
 
-    override suspend fun getTaskAttachments(taskId: Int): List<Attachment> {
-        return taskService.getTaskAttachments(taskId).map {
-            it.dtoToDomain()
+    override suspend fun getTaskComments(taskId: Int): AppResult<List<Comment>> {
+        return safeApiCaller.call {
+            taskService.getTaskComments(taskId).map {
+                it.dtoToDomain()
+            }
         }
     }
 
-    override suspend fun deleteTask(taskId: Int) {
-        taskService.deleteTask(taskId)
+    override suspend fun getTaskAttachments(taskId: Int): AppResult<List<Attachment>> {
+        return safeApiCaller.call {
+            taskService.getTaskAttachments(taskId).map {
+                it.dtoToDomain()
+            }
+        }
     }
 
-    override suspend fun deleteTaskComment(taskId: Int, commentId: Int) {
-        taskService.deleteTaskComment(taskId = taskId, commentId = commentId)
+    override suspend fun deleteTask(taskId: Int): AppResult<Unit> {
+        return safeApiCaller.call {
+            taskService.deleteTask(taskId)
+        }
     }
 
-    override suspend fun deleteTaskAttachment(taskId: Int, attachmentId: Int) {
-        taskService.deleteTaskAttachment(taskId = taskId, attachmentId = attachmentId)
+    override suspend fun deleteTaskComment(taskId: Int, commentId: Int): AppResult<Unit> {
+        return safeApiCaller.call {
+            taskService.deleteTaskComment(taskId = taskId, commentId = commentId)
+        }
     }
 
-    override suspend fun addComment(taskId: Int, text: String): Comment {
-        return taskService.addComment(taskId = taskId, body = CommentRequestDto(text)).dtoToDomain()
+    override suspend fun deleteTaskAttachment(taskId: Int, attachmentId: Int): AppResult<Unit> {
+        return safeApiCaller.call {
+            taskService.deleteTaskAttachment(taskId = taskId, attachmentId = attachmentId)
+        }
+    }
+
+    override suspend fun addComment(taskId: Int, text: String): AppResult<Comment> {
+        return safeApiCaller.call {
+            taskService.addComment(taskId = taskId, body = CommentRequestDto(text)).dtoToDomain()
+        }
     }
 
     override suspend fun updateComment(
         taskId: Int,
         commentId: Int,
         text: String
-    ): Comment {
-        return taskService.updateComment(
-            taskId = taskId,
-            commentId = commentId,
-            body = CommentRequestDto(text)
-        ).dtoToDomain()
+    ): AppResult<Comment> {
+        return safeApiCaller.call {
+            taskService.updateComment(
+                taskId = taskId,
+                commentId = commentId,
+                body = CommentRequestDto(text)
+            ).dtoToDomain()
+        }
     }
 
     override suspend fun createTask(
@@ -122,7 +140,7 @@ class TaskRepositoryImpl @Inject constructor(
         status: TaskStatus,
         progress: Int,
         employeeId: Int
-    ) {
+    ): AppResult<Unit> {
         val body = TaskRequestDto(
             title = title,
             description = description,
@@ -135,13 +153,15 @@ class TaskRepositoryImpl @Inject constructor(
             progress = progress,
             employeeId = employeeId
         )
-        taskService.createTask(body)
+        return safeApiCaller.call {
+            taskService.createTask(body)
+        }
     }
 
     override suspend fun uploadAttachment(
         taskId: Int,
         uri: Uri
-    ): Attachment {
+    ): AppResult<Attachment> {
         val fileName = application.getDisplayName(uri)
         val mime = application.contentResolver.getType(uri)
 
@@ -154,52 +174,56 @@ class TaskRepositoryImpl @Inject constructor(
             body = requestBody
         )
 
-        val dto = taskService.uploadAttachment(taskId, part)
-
-        cacheFile.delete()
-
-        return dto.dtoToDomain()
+        return safeApiCaller.call {
+            val dto = taskService.uploadAttachment(taskId, part)
+            cacheFile.delete()
+            dto.dtoToDomain()
+        }
     }
 
     override suspend fun downloadAttachment(
         taskId: Int,
         attachmentId: Int
-    ): DownloadedFile {
+    ): AppResult<DownloadedFile> {
 
-        val response = taskService.downloadAttachment(taskId, attachmentId)
-        if (!response.isSuccessful) {
-            throw HttpException(response)
-        }
-
-        val body = response.body() ?: error("Empty body")
-
-        val mimeType = response.headers()["Content-Type"]
-            ?: body.contentType()?.toString()
-
-        val cd = response.headers()["Content-Disposition"]
-
-        var fileName = parseFileNameFromContentDisposition(cd)
-
-        if (fileName.isNullOrBlank()) {
-
-            val extension = mimeType
-                ?.let { android.webkit.MimeTypeMap.getSingleton()
-                    .getExtensionFromMimeType(it.substringBefore(";")) }
-
-            fileName = if (extension != null) {
-                "attachment_$attachmentId.$extension"
-            } else {
-                "attachment_$attachmentId"
+        return safeApiCaller.call {
+            val response = taskService.downloadAttachment(taskId, attachmentId)
+            if (!response.isSuccessful) {
+                throw HttpException(response)
             }
+
+            val body = response.body() ?: error("Empty body")
+
+            val mimeType = response.headers()["Content-Type"]
+                ?: body.contentType()?.toString()
+
+            val cd = response.headers()["Content-Disposition"]
+
+            var fileName = parseFileNameFromContentDisposition(cd)
+
+            if (fileName.isNullOrBlank()) {
+
+                val extension = mimeType
+                    ?.let {
+                        android.webkit.MimeTypeMap.getSingleton()
+                            .getExtensionFromMimeType(it.substringBefore(";"))
+                    }
+
+                fileName = if (extension != null) {
+                    "attachment_$attachmentId.$extension"
+                } else {
+                    "attachment_$attachmentId"
+                }
+            }
+
+            val file = application.saveResponseBodyToCache(body, fileName)
+
+            DownloadedFile(
+                file = file,
+                fileName = fileName,
+                mimeType = mimeType
+            )
         }
-
-        val file = application.saveResponseBodyToCache(body, fileName)
-
-        return DownloadedFile(
-            file = file,
-            fileName = fileName,
-            mimeType = mimeType
-        )
     }
 
     fun Context.getDisplayName(uri: Uri): String {

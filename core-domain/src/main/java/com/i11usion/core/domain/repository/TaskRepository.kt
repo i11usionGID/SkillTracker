@@ -18,23 +18,23 @@ interface TaskRepository {
         search: String? = null
     ): AppResult<List<Task>>
 
-    suspend fun getTaskById(taskId: Int): Task
+    suspend fun getTaskById(taskId: Int): AppResult<Task>
 
-    suspend fun updateProgress(taskId: Int, progress: Int, status: TaskStatus?): Task
+    suspend fun updateProgress(taskId: Int, progress: Int, status: TaskStatus?): AppResult<Task>
 
-    suspend fun getTaskComments(taskId: Int): List<Comment>
+    suspend fun getTaskComments(taskId: Int): AppResult<List<Comment>>
 
-    suspend fun getTaskAttachments(taskId: Int): List<Attachment>
+    suspend fun getTaskAttachments(taskId: Int): AppResult<List<Attachment>>
 
-    suspend fun deleteTask(taskId: Int)
+    suspend fun deleteTask(taskId: Int): AppResult<Unit>
 
-    suspend fun deleteTaskComment(taskId: Int, commentId: Int)
+    suspend fun deleteTaskComment(taskId: Int, commentId: Int): AppResult<Unit>
 
-    suspend fun deleteTaskAttachment(taskId: Int, attachmentId: Int)
+    suspend fun deleteTaskAttachment(taskId: Int, attachmentId: Int): AppResult<Unit>
 
-    suspend fun addComment(taskId: Int, text: String): Comment
+    suspend fun addComment(taskId: Int, text: String): AppResult<Comment>
 
-    suspend fun updateComment(taskId: Int, commentId: Int, text: String): Comment
+    suspend fun updateComment(taskId: Int, commentId: Int, text: String): AppResult<Comment>
 
     suspend fun createTask(
         title: String,
@@ -43,9 +43,9 @@ interface TaskRepository {
         status: TaskStatus,
         progress: Int,
         employeeId: Int,
-    )
+    ): AppResult<Unit>
 
-    suspend fun uploadAttachment(taskId: Int, uri: Uri): Attachment
+    suspend fun uploadAttachment(taskId: Int, uri: Uri): AppResult<Attachment>
 
-    suspend fun downloadAttachment(taskId: Int, attachmentId: Int): DownloadedFile
+    suspend fun downloadAttachment(taskId: Int, attachmentId: Int): AppResult<DownloadedFile>
 }

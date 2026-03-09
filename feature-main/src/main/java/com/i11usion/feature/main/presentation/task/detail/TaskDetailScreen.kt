@@ -74,6 +74,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.dashboard.model.TaskUiStatus
 import com.i11usion.feature.main.presentation.task.detail.model.AttachmentUiModel
@@ -174,6 +176,19 @@ fun TaskDetailScreen(
                     statusColor = MaterialTheme.colorScheme.tertiary
                     statusContainerColor = MaterialTheme.colorScheme.tertiaryContainer
                 }
+            }
+
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(LocalContext.current),
+                    onRefreshClick = { viewModel.processCommand(TaskDetailCommand.Refresh) },
+                    onBackClick = onBack
+                )
+                return
             }
 
             LazyColumn(
@@ -354,8 +369,13 @@ fun TaskDetailScreen(
         }
 
         is TaskDetailUiState.Error -> {
-            Text(
-                text = state.message
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = { viewModel.processCommand(TaskDetailCommand.Refresh) },
+                onBackClick = onBack
             )
         }
     }
