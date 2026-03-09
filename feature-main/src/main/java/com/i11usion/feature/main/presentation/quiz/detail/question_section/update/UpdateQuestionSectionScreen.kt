@@ -57,6 +57,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,6 +66,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.model.QuestionInQuestionSectionUiModel
 import kotlinx.coroutines.flow.collectLatest
@@ -86,6 +89,8 @@ fun UpdateQuestionSectionScreen(
 
     val state by viewModel.state.collectAsState()
 
+    val context = LocalContext.current
+
     LaunchedEffect(sectionId) {
         viewModel.processCommand(
             UpdateQuestionSectionCommand.Init(
@@ -100,9 +105,6 @@ fun UpdateQuestionSectionScreen(
             when (event) {
                 UpdateQuestionSectionEvent.Close -> onCancelClick()
                 UpdateQuestionSectionEvent.Saved -> onCancelClick()
-                is UpdateQuestionSectionEvent.ShowError -> {
-                    // snackbar при желании
-                }
             }
         }
     }
@@ -115,17 +117,41 @@ fun UpdateQuestionSectionScreen(
             contentAlignment = Alignment.Center
         ) { CircularProgressIndicator() }
 
-        is UpdateQuestionSectionUiState.Error -> Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) { Text(s.message) }
+        is UpdateQuestionSectionUiState.Error -> {
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = s.model.iconResId,
+                cdResId = s.model.cdResId,
+                errorText = s.model.text.asString(context),
+                onRefreshClick = {
+                    viewModel.processCommand(UpdateQuestionSectionCommand.Refresh)
+                }
+            )
+        }
 
-        is UpdateQuestionSectionUiState.Content -> UpdateQuestionSectionContent(
-            modifier = modifier,
-            state = s,
-            onCommand = viewModel::processCommand,
-            onCreateQuestionsClick = onCreateQuestionsClick
-        )
+        is UpdateQuestionSectionUiState.Content -> {
+
+            val fsError = s.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = {
+                        viewModel.processCommand(UpdateQuestionSectionCommand.Refresh)
+                    }
+                )
+                return
+            }
+
+            UpdateQuestionSectionContent(
+                modifier = modifier,
+                state = s,
+                onCommand = viewModel::processCommand,
+                onCreateQuestionsClick = onCreateQuestionsClick
+            )
+        }
     }
 }
 

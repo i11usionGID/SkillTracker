@@ -1,10 +1,17 @@
 package com.i11usion.feature.main.presentation.quiz.detail.question_section.update
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.helpers.zip
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.usecase.quiz.GetQuestionSectionByIdUseCase
 import com.i11usion.core.domain.usecase.quiz.GetQuestionsUseCase
 import com.i11usion.core.domain.usecase.quiz.UpdateQuestionSectionUseCase
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.mapper.toScreenUiError
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.mapper.domainToQuestionInQuestionSectionUiModel
 import com.i11usion.feature.main.presentation.quiz.detail.question_section.create.model.QuestionInQuestionSectionUiModel
 import kotlinx.coroutines.async
@@ -19,6 +26,7 @@ class UpdateQuestionSectionViewModel @Inject constructor(
     private val getQuestionsUseCase: GetQuestionsUseCase,
     private val getQuestionSectionByIdUseCase: GetQuestionSectionByIdUseCase,
     private val updateQuestionSectionUseCase: UpdateQuestionSectionUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
     private var currentQuizId: Int? = null
@@ -56,6 +64,23 @@ class UpdateQuestionSectionViewModel @Inject constructor(
                 toggleQuestion(command.questionId, command.checked)
 
             UpdateQuestionSectionCommand.SaveClicked -> save()
+            UpdateQuestionSectionCommand.Refresh -> onErrorRefreshClick()
+        }
+    }
+
+    private fun onErrorRefreshClick() {
+        when (_state.value) {
+            is UpdateQuestionSectionUiState.Content -> _state.value =
+                (_state.value as UpdateQuestionSectionUiState.Content).copy(fullScreenError = null)
+
+            else -> {
+                val quizId = currentQuizId ?: return
+                val sectionId = currentSectionId ?: return
+                init(
+                    quizId = quizId,
+                    sectionId = sectionId
+                )
+            }
         }
     }
 
@@ -73,27 +98,32 @@ class UpdateQuestionSectionViewModel @Inject constructor(
                 getQuestionSectionByIdUseCase(quizId = quizId, questionSectionId = sectionId)
             }
 
-            runCatching {
-                val questions = questionsDeferred.await()
-                val section = sectionDeferred.await()
+            val result = questionsDeferred.await()
+                .zip(sectionDeferred.await()) { question, section -> question to section }
 
-                UpdateQuestionSectionUiState.Content(
-                    questions = questions.map { it.domainToQuestionInQuestionSectionUiModel() },
-                    titleQuery = section.title,
-                    descriptionQuery = section.description ?: "",
-                    orderIndex = section.orderIndex.coerceIn(1, 100),
-                    pickCount = section.pickCount,
-                    selectedQuestionIds = section.questions.map {
-                        it.id
-                    }.toSet(),
-                    isSaving = false
-                ).normalize()
-            }.onSuccess { content ->
-                _state.value = content
-            }.onFailure { t ->
-                t.printStackTrace()
-                _state.value =
-                    UpdateQuestionSectionUiState.Error(t.message ?: "Не удалось загрузить секцию")
+            when (result) {
+
+                is AppResult.Success -> {
+                    val questions = result.data.first
+                    val section = result.data.second
+                    val content = UpdateQuestionSectionUiState.Content(
+                        questions = questions.map { it.domainToQuestionInQuestionSectionUiModel() },
+                        titleQuery = section.title,
+                        descriptionQuery = section.description ?: "",
+                        orderIndex = section.orderIndex.coerceIn(1, 100),
+                        pickCount = section.pickCount,
+                        selectedQuestionIds = section.questions.map {
+                            it.id
+                        }.toSet(),
+                        isSaving = false
+                    ).normalize()
+
+                    _state.value = content
+                }
+
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -123,8 +153,10 @@ class UpdateQuestionSectionViewModel @Inject constructor(
         val questionsOk = s.selectedQuestionIds.isNotEmpty()
 
         if (!titleOk || !questionsOk) {
-            _events.tryEmit(
-                UpdateQuestionSectionEvent.ShowError("Заполните название секции и выберите хотя бы 1 вопрос")
+            showUiError(
+                AppError.Validation(
+                    message = "Заполните название секции и выберите хотя бы 1 вопрос"
+                )
             )
             return
         }
@@ -136,25 +168,25 @@ class UpdateQuestionSectionViewModel @Inject constructor(
         _state.value = s.copy(isSaving = true)
 
         viewModelScope.launch {
-            runCatching {
-                updateQuestionSectionUseCase(
-                    quizId = quizId,
-                    questionSectionId = sectionId,
-                    title = s.titleQuery.trim(),
-                    description = s.descriptionQuery.trim().takeIf { it.isNotEmpty() },
-                    orderIndex = order,
-                    pickCount = pick,
-                    questionIds = s.selectedQuestionIds.toList()
-                )
-            }.onSuccess {
-                _events.tryEmit(UpdateQuestionSectionEvent.Saved)
-            }.onFailure { t ->
-                t.printStackTrace()
-                val cur = _state.value as? UpdateQuestionSectionUiState.Content
-                if (cur != null) _state.value = cur.copy(isSaving = false)
-                _events.tryEmit(
-                    UpdateQuestionSectionEvent.ShowError(t.message ?: "Не удалось сохранить секцию")
-                )
+            when (val result = updateQuestionSectionUseCase(
+                quizId = quizId,
+                questionSectionId = sectionId,
+                title = s.titleQuery.trim(),
+                description = s.descriptionQuery.trim().takeIf { it.isNotEmpty() },
+                orderIndex = order,
+                pickCount = pick,
+                questionIds = s.selectedQuestionIds.toList()
+            )) {
+
+                is AppResult.Success -> {
+                    _events.tryEmit(UpdateQuestionSectionEvent.Saved)
+                }
+
+                is AppResult.Failure -> {
+                    val cur = _state.value as? UpdateQuestionSectionUiState.Content
+                    if (cur != null) _state.value = cur.copy(isSaving = false)
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -169,6 +201,21 @@ class UpdateQuestionSectionViewModel @Inject constructor(
         val selectedCount = selectedQuestionIds.size
         val fixedPick = if (selectedCount == 0) null else pickCount?.coerceIn(1, selectedCount)
         return copy(pickCount = fixedPick)
+    }
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toScreenUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                val current = _state.value
+                if (current is UpdateQuestionSectionUiState.Content) {
+                    _state.value = current.copy(fullScreenError = uiError.model)
+                } else {
+                    _state.value = UpdateQuestionSectionUiState.Error(uiError.model)
+                }
+            }
+        }
     }
 }
 
@@ -186,12 +233,12 @@ sealed interface UpdateQuestionSectionCommand {
         UpdateQuestionSectionCommand
 
     data object SaveClicked : UpdateQuestionSectionCommand
+    data object Refresh : UpdateQuestionSectionCommand
 }
 
 sealed interface UpdateQuestionSectionEvent {
     data object Close : UpdateQuestionSectionEvent
     data object Saved : UpdateQuestionSectionEvent
-    data class ShowError(val message: String) : UpdateQuestionSectionEvent
 }
 
 sealed interface UpdateQuestionSectionUiState {
@@ -205,12 +252,13 @@ sealed interface UpdateQuestionSectionUiState {
         val orderIndex: Int,
         val pickCount: Int?,
         val selectedQuestionIds: Set<Int>,
-        val isSaving: Boolean
+        val isSaving: Boolean,
+        val fullScreenError: ErrorScreenModel? = null
     ) : UpdateQuestionSectionUiState {
         val selectedCount: Int get() = selectedQuestionIds.size
         val canSave: Boolean
             get() = titleQuery.trim().isNotEmpty() && selectedCount > 0 && !isSaving
     }
 
-    data class Error(val message: String) : UpdateQuestionSectionUiState
+    data class Error(val model: ErrorScreenModel) : UpdateQuestionSectionUiState
 }

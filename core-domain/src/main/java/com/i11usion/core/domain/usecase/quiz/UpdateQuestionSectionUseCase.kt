@@ -1,5 +1,6 @@
 package com.i11usion.core.domain.usecase.quiz
 
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.repository.QuizRepository
 import javax.inject.Inject
 
@@ -15,8 +16,8 @@ class UpdateQuestionSectionUseCase @Inject constructor(
         orderIndex: Int,
         pickCount: Int?,
         questionIds: List<Int>
-    ) {
-        repository.updateQuestionSection(
+    ): AppResult<Unit> {
+        return repository.updateQuestionSection(
             quizId = quizId,
             questionSectionId = questionSectionId,
             title = title,
