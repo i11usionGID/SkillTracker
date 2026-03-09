@@ -65,6 +65,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -72,6 +73,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -93,6 +96,8 @@ fun CreateAssignmentScreen(
         viewModel(factory = LocalViewModelFactory.current)
     val state by viewModel.state.collectAsState()
 
+    val context = LocalContext.current
+
     LaunchedEffect(quizId) {
         viewModel.processCommand(
             CreateAssignmentSectionCommand.Init(
@@ -106,9 +111,6 @@ fun CreateAssignmentScreen(
             when (event) {
                 CreateAssignmentSectionEvent.Close -> onCancelClick()
                 CreateAssignmentSectionEvent.Created -> onCancelClick()
-                is CreateAssignmentSectionEvent.ShowError -> {
-                    // сюда можно подключить SnackbarHostState
-                }
             }
         }
     }
@@ -121,16 +123,40 @@ fun CreateAssignmentScreen(
             contentAlignment = Alignment.Center
         ) { CircularProgressIndicator() }
 
-        is CreateAssignmentSectionUiState.Error -> Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) { Text(s.message) }
+        is CreateAssignmentSectionUiState.Error -> {
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = s.model.iconResId,
+                cdResId = s.model.cdResId,
+                errorText = s.model.text.asString(context),
+                onRefreshClick = {
+                    viewModel.processCommand(CreateAssignmentSectionCommand.Refresh)
+                }
+            )
+        }
 
-        is CreateAssignmentSectionUiState.Content -> CreateAssignmentSectionContent(
-            modifier = modifier,
-            state = s,
-            onCommand = viewModel::processCommand
-        )
+        is CreateAssignmentSectionUiState.Content -> {
+
+            val fsError = s.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = {
+                        viewModel.processCommand(CreateAssignmentSectionCommand.Refresh)
+                    }
+                )
+                return
+            }
+
+            CreateAssignmentSectionContent(
+                modifier = modifier,
+                state = s,
+                onCommand = viewModel::processCommand
+            )
+        }
     }
 }
 

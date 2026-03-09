@@ -1,5 +1,6 @@
 package com.i11usion.core.domain.usecase.quiz
 
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.repository.QuizRepository
 import java.time.Instant
 import javax.inject.Inject
@@ -15,8 +16,8 @@ class CreateAssignmentUseCase @Inject constructor(
         deadline: Instant? = null,
         maxAttempts: Int? = null,
         cooldownHours: Int
-    ) {
-        repository.createAssignment(
+    ): AppResult<Unit> {
+        return repository.createAssignment(
             quizId = quizId,
             assignedToUserId = assignedToUserId,
             taskId = taskId,
