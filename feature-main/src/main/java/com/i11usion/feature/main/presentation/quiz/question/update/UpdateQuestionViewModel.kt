@@ -1,7 +1,9 @@
 package com.i11usion.feature.main.presentation.quiz.question.update
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.quiz.MatcherType
 import com.i11usion.core.domain.model.quiz.Question
 import com.i11usion.core.domain.model.quiz.QuestionOption
@@ -9,6 +11,10 @@ import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.TextAnswer
 import com.i11usion.core.domain.usecase.quiz.GetQuestionByIdUseCase
 import com.i11usion.core.domain.usecase.quiz.UpdateQuestionUseCase
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.mapper.toScreenUiError
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -19,7 +25,8 @@ import javax.inject.Inject
 
 class UpdateQuestionViewModel @Inject constructor(
     private val getQuestionByIdUseCase: GetQuestionByIdUseCase,
-    private val updateQuestionUseCase: UpdateQuestionUseCase
+    private val updateQuestionUseCase: UpdateQuestionUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<UpdateQuestionUiState>(UpdateQuestionUiState.Initial)
@@ -28,13 +35,13 @@ class UpdateQuestionViewModel @Inject constructor(
     private val _events = MutableSharedFlow<UpdateQuestionEvent>()
     val events = _events.asSharedFlow()
 
-    private var initializedId: Int? = null
+    private var currentQuestionId: Int? = null
 
     init {
         _state.value = UpdateQuestionUiState.Loading
     }
 
-    fun process(command: UpdateQuestionCommand) {
+    fun processCommand(command: UpdateQuestionCommand) {
         when (command) {
             is UpdateQuestionCommand.Init -> init(command.questionId)
 
@@ -75,7 +82,8 @@ class UpdateQuestionViewModel @Inject constructor(
 
             is UpdateQuestionCommand.RemoveTextAnswer ->
                 updateContent { c ->
-                    val newList = c.textAnswers.dropLast(1).ensureMinTextAnswersForType(c.questionType)
+                    val newList =
+                        c.textAnswers.dropLast(1).ensureMinTextAnswersForType(c.questionType)
                     c.copy(textAnswers = newList)
                 }
 
@@ -84,22 +92,41 @@ class UpdateQuestionViewModel @Inject constructor(
             UpdateQuestionCommand.Cancel -> {
                 viewModelScope.launch { _events.emit(UpdateQuestionEvent.Close) }
             }
+
+            UpdateQuestionCommand.Refresh -> onErrorRefreshClick()
+        }
+    }
+
+    private fun onErrorRefreshClick() {
+        when (_state.value) {
+            is UpdateQuestionUiState.Content -> _state.value =
+                (_state.value as UpdateQuestionUiState.Content).copy(fullScreenError = null)
+
+            else -> {
+                val questionId = currentQuestionId ?: return
+                init(
+                    questionId = questionId
+                )
+            }
         }
     }
 
     private fun init(questionId: Int) {
-        if (initializedId == questionId) return
-        initializedId = questionId
+        if (currentQuestionId == questionId) return
+        currentQuestionId = questionId
 
         _state.value = UpdateQuestionUiState.Loading
 
         viewModelScope.launch {
-            try {
-                val question = getQuestionByIdUseCase(questionId)
-                _state.value = question.toUiContent()
-            } catch (t: Throwable) {
-                _state.value = UpdateQuestionUiState.Error(t.message ?: "Failed to load question")
-                _events.emit(UpdateQuestionEvent.ShowError(t.message ?: "Failed to load question"))
+            when (val result = getQuestionByIdUseCase(questionId)) {
+
+                is AppResult.Success -> {
+                    _state.value = result.data.toUiContent()
+                }
+
+                is AppResult.Failure -> {
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -122,7 +149,8 @@ class UpdateQuestionViewModel @Inject constructor(
                 QuestionType.TEXT -> {
                     base.copy(
                         options = emptyList(),
-                        textAnswers = base.textAnswers.ensureMinTextAnswersForType(type).reindexTextAnswers()
+                        textAnswers = base.textAnswers.ensureMinTextAnswersForType(type)
+                            .reindexTextAnswers()
                     )
                 }
 
@@ -200,16 +228,21 @@ class UpdateQuestionViewModel @Inject constructor(
                 c.copy(isSaving = true, canSave = false)
             }
 
-            try {
-                val domain = content.toDomainForUpdate()
-                updateQuestionUseCase(content.questionId, domain)
-                _events.emit(UpdateQuestionEvent.Saved)
-            } catch (t: Throwable) {
-                _state.update { cur ->
-                    val c = cur as? UpdateQuestionUiState.Content ?: return@update cur
-                    c.copy(isSaving = false, canSave = computeCanSave(c))
+
+            val domain = content.toDomainForUpdate()
+            when (val result = updateQuestionUseCase(content.questionId, domain)) {
+
+                is AppResult.Success -> {
+                    _events.emit(UpdateQuestionEvent.Saved)
                 }
-                _events.emit(UpdateQuestionEvent.ShowError(t.message ?: "Failed to update question"))
+
+                is AppResult.Failure -> {
+                    _state.update { cur ->
+                        val c = cur as? UpdateQuestionUiState.Content ?: return@update cur
+                        c.copy(isSaving = false, canSave = true)
+                    }
+                    showUiError(result.error)
+                }
             }
         }
     }
@@ -232,12 +265,28 @@ class UpdateQuestionViewModel @Inject constructor(
 
     private fun List<QuestionOption>.ensureMinOptionsForType(type: QuestionType): List<QuestionOption> {
         if (type == QuestionType.TEXT) return this
-        return if (this.isEmpty()) listOf(QuestionOption(id = 1, text = "", isCorrect = false)) else this
+        return this.ifEmpty {
+            listOf(
+                QuestionOption(
+                    id = 1,
+                    text = "",
+                    isCorrect = false
+                )
+            )
+        }
     }
 
     private fun List<TextAnswer>.ensureMinTextAnswersForType(type: QuestionType): List<TextAnswer> {
         if (type != QuestionType.TEXT) return this
-        return if (this.isEmpty()) listOf(TextAnswer(id = 1, matcherType = MatcherType.EQUALS, value = "")) else this
+        return this.ifEmpty {
+            listOf(
+                TextAnswer(
+                    id = 1,
+                    matcherType = MatcherType.EQUALS,
+                    value = ""
+                )
+            )
+        }
     }
 
     private fun UpdateQuestionUiState.Content.normalizeSingleCorrectIfNeeded(): UpdateQuestionUiState.Content {
@@ -271,7 +320,8 @@ class UpdateQuestionViewModel @Inject constructor(
         val ensured = when (type) {
             QuestionType.TEXT -> base.copy(
                 options = emptyList(),
-                textAnswers = base.textAnswers.ensureMinTextAnswersForType(type).reindexTextAnswers()
+                textAnswers = base.textAnswers.ensureMinTextAnswersForType(type)
+                    .reindexTextAnswers()
             )
 
             QuestionType.SINGLE, QuestionType.MULTIPLE -> {
@@ -283,7 +333,7 @@ class UpdateQuestionViewModel @Inject constructor(
             }
         }
 
-        return ensured.copy(canSave = computeCanSave(ensured))
+        return ensured
     }
 
     private fun UpdateQuestionUiState.Content.toDomainForUpdate(): Question {
@@ -319,10 +369,25 @@ class UpdateQuestionViewModel @Inject constructor(
             }
         }
     }
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toScreenUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                val current = _state.value
+                if (current is UpdateQuestionUiState.Content) {
+                    _state.value = current.copy(fullScreenError = uiError.model)
+                } else {
+                    _state.value = UpdateQuestionUiState.Error(uiError.model)
+                }
+            }
+        }
+    }
 }
 
 sealed interface UpdateQuestionUiState {
-    data object Initial: UpdateQuestionUiState
+    data object Initial : UpdateQuestionUiState
     data object Loading : UpdateQuestionUiState
 
     data class Content(
@@ -335,16 +400,16 @@ sealed interface UpdateQuestionUiState {
         val textAnswers: List<TextAnswer>,
 
         val canSave: Boolean,
-        val isSaving: Boolean
+        val isSaving: Boolean,
+        val fullScreenError: ErrorScreenModel? = null
     ) : UpdateQuestionUiState
 
-    data class Error(val message: String) : UpdateQuestionUiState
+    data class Error(val model: ErrorScreenModel) : UpdateQuestionUiState
 }
 
 sealed interface UpdateQuestionEvent {
     data object Saved : UpdateQuestionEvent
     data object Close : UpdateQuestionEvent
-    data class ShowError(val message: String) : UpdateQuestionEvent
 }
 
 sealed interface UpdateQuestionCommand {
@@ -366,4 +431,5 @@ sealed interface UpdateQuestionCommand {
 
     data object Save : UpdateQuestionCommand
     data object Cancel : UpdateQuestionCommand
+    data object Refresh : UpdateQuestionCommand
 }

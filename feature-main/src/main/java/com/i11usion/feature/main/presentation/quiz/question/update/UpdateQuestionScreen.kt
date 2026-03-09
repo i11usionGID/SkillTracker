@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +63,8 @@ import com.i11usion.core.domain.model.quiz.QuestionOption
 import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.domain.model.quiz.TextAnswer
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 
 @Composable
@@ -74,8 +77,10 @@ fun UpdateQuestionScreen(
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
 
+    val context = LocalContext.current
+
     LaunchedEffect(questionId) {
-        viewModel.process(UpdateQuestionCommand.Init(questionId))
+        viewModel.processCommand(UpdateQuestionCommand.Init(questionId))
     }
 
     LaunchedEffect(Unit) {
@@ -83,9 +88,6 @@ fun UpdateQuestionScreen(
             when (event) {
                 UpdateQuestionEvent.Saved -> onCancelClick()
                 UpdateQuestionEvent.Close -> onCancelClick()
-                is UpdateQuestionEvent.ShowError -> {
-                    // snackbar
-                }
             }
         }
     }
@@ -106,6 +108,21 @@ fun UpdateQuestionScreen(
         }
 
         is UpdateQuestionUiState.Content -> {
+
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = {
+                        viewModel.processCommand(UpdateQuestionCommand.Refresh)
+                    }
+                )
+                return
+            }
+
             Column(
                 modifier = modifier
                     .fillMaxSize()
@@ -137,19 +154,25 @@ fun UpdateQuestionScreen(
                     canCreate = state.canSave,
                     isCreating = state.isSaving,
 
-                    onTypeChanged = { viewModel.process(UpdateQuestionCommand.ChangeType(it)) },
-                    onTextQueryChanged = { viewModel.process(UpdateQuestionCommand.ChangeText(it)) },
+                    onTypeChanged = { viewModel.processCommand(UpdateQuestionCommand.ChangeType(it)) },
+                    onTextQueryChanged = {
+                        viewModel.processCommand(
+                            UpdateQuestionCommand.ChangeText(
+                                it
+                            )
+                        )
+                    },
                     onExplanationQueryChanged = {
-                        viewModel.process(
+                        viewModel.processCommand(
                             UpdateQuestionCommand.ChangeExplanation(
                                 it
                             )
                         )
                     },
-                    onAddAnswerClick = { viewModel.process(UpdateQuestionCommand.AddAnswerOrOption) },
+                    onAddAnswerClick = { viewModel.processCommand(UpdateQuestionCommand.AddAnswerOrOption) },
 
                     onTextAnswerChanged = { id, value ->
-                        viewModel.process(
+                        viewModel.processCommand(
                             UpdateQuestionCommand.ChangeTextAnswerValue(
                                 id,
                                 value
@@ -157,10 +180,15 @@ fun UpdateQuestionScreen(
                         )
                     },
                     onTextAnswerMatcherSelected = { id, type ->
-                        viewModel.process(UpdateQuestionCommand.SetTextAnswerMatcher(id, type))
+                        viewModel.processCommand(
+                            UpdateQuestionCommand.SetTextAnswerMatcher(
+                                id,
+                                type
+                            )
+                        )
                     },
                     onRemoveTextAnswer = { id ->
-                        viewModel.process(
+                        viewModel.processCommand(
                             UpdateQuestionCommand.RemoveTextAnswer(
                                 id
                             )
@@ -168,7 +196,7 @@ fun UpdateQuestionScreen(
                     },
 
                     onOptionTextChanged = { id, value ->
-                        viewModel.process(
+                        viewModel.processCommand(
                             UpdateQuestionCommand.ChangeOptionText(
                                 id,
                                 value
@@ -176,20 +204,36 @@ fun UpdateQuestionScreen(
                         )
                     },
                     onToggleOptionCorrect = { id ->
-                        viewModel.process(
+                        viewModel.processCommand(
                             UpdateQuestionCommand.ToggleOptionCorrect(
                                 id
                             )
                         )
                     },
-                    onRemoveOption = { id -> viewModel.process(UpdateQuestionCommand.RemoveOption(id)) },
-                    onCancelClick = { viewModel.process(UpdateQuestionCommand.Cancel) },
-                    onCreateTaskClick = { viewModel.process(UpdateQuestionCommand.Save) }
+                    onRemoveOption = { id ->
+                        viewModel.processCommand(
+                            UpdateQuestionCommand.RemoveOption(
+                                id
+                            )
+                        )
+                    },
+                    onCancelClick = { viewModel.processCommand(UpdateQuestionCommand.Cancel) },
+                    onCreateTaskClick = { viewModel.processCommand(UpdateQuestionCommand.Save) }
                 )
             }
         }
 
-        is UpdateQuestionUiState.Error -> {}
+        is UpdateQuestionUiState.Error -> {
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = {
+                    viewModel.processCommand(UpdateQuestionCommand.Refresh)
+                }
+            )
+        }
     }
 }
 
@@ -624,7 +668,6 @@ private fun MatcherPicker(
         }
     }
 }
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
