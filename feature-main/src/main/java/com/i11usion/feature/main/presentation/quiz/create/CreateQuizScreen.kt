@@ -95,9 +95,6 @@ fun CreateQuizScreen(
                 CreateQuizEvent.Created -> {
                     onCancelClick()
                 }
-
-                is CreateQuizEvent.ShowError -> {
-                }
             }
         }
     }

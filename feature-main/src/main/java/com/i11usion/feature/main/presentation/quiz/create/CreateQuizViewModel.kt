@@ -163,7 +163,6 @@ class CreateQuizViewModel @Inject constructor(
 sealed interface CreateQuizEvent {
     data object Created : CreateQuizEvent
     data object Close : CreateQuizEvent
-    data class ShowError(val message: String) : CreateQuizEvent
 }
 
 sealed interface CreateQuizCommand {
