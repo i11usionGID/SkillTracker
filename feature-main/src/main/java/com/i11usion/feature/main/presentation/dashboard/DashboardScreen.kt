@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +42,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.dashboard.model.TaskUiStatus
 
@@ -52,9 +56,27 @@ fun DashboardScreen(
     val viewModel: DashboardViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
+
+    val context = LocalContext.current
+
     when (state) {
         is DashboardUiState.Content -> {
             val latestTask = state.dashboardData.latest
+
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = {
+                        viewModel.processCommand(DashboardCommand.Refresh)
+                    }
+                )
+                return
+            }
+
             LazyColumn(
                 modifier = modifier
                     .fillMaxSize()
@@ -233,7 +255,15 @@ fun DashboardScreen(
         }
 
         is DashboardUiState.Error -> {
-            Text(text = "Error ${state.message}")
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = {
+                    viewModel.processCommand(DashboardCommand.Refresh)
+                }
+            )
         }
 
         DashboardUiState.Initial -> {}
@@ -354,20 +384,26 @@ private fun TaskCard(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Text(
+                    modifier = Modifier.weight(1f),
                     text = title,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Box(
-                    modifier = Modifier.background(
-                        color = statusContainerColor,
-                        shape = RoundedCornerShape(50.dp)
-                    ),
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .background(
+                            color = statusContainerColor,
+                            shape = RoundedCornerShape(50.dp)
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -375,7 +411,9 @@ private fun TaskCard(
                         text = statusText,
                         color = statusColor,
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Clip
                     )
                 }
             }
