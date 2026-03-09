@@ -1,7 +1,9 @@
 package com.i11usion.feature.main.presentation.quiz.list
 
+import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.domain.model.user.User
@@ -11,6 +13,11 @@ import com.i11usion.core.domain.usecase.quiz.GetQuizListUseCase
 import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
 import com.i11usion.core.ui.formatter.formatInstantToStringData
 import com.i11usion.core.ui.formatter.formatInstantToStringDataNullable
+import com.i11usion.core.ui.model.ErrorScreenModel
+import com.i11usion.core.ui.model.UiError
+import com.i11usion.core.ui.model.UiText
+import com.i11usion.feature.main.manager.SnackbarManager
+import com.i11usion.feature.main.mapper.toScreenUiError
 import com.i11usion.feature.main.presentation.quiz.list.mapper.quizToQuizEmployeeUi
 import com.i11usion.feature.main.presentation.quiz.list.mapper.quizToQuizManagerUi
 import com.i11usion.feature.main.presentation.quiz.list.model.QuizEmployeeUiModel
@@ -18,6 +25,7 @@ import com.i11usion.feature.main.presentation.quiz.list.model.QuizFilters
 import com.i11usion.feature.main.presentation.quiz.list.model.QuizManagerUiModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,8 +46,14 @@ class QuizViewModel @Inject constructor(
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val getQuizListUseCase: GetQuizListUseCase,
     private val getMyQuizAssignmentsUseCase: GetMyQuizAssignmentsUseCase,
-    private val deleteQuizUseCase: DeleteQuizUseCase
+    private val deleteQuizUseCase: DeleteQuizUseCase,
+    private val snackbarManager: SnackbarManager
 ) : ViewModel() {
+
+    private companion object {
+        const val RETRY_DELAY_MS = 10_000L
+    }
+
     private val filters = MutableStateFlow(QuizFilters())
     private val currentUser = MutableStateFlow<User?>(null)
     private val reloadQuizzes = MutableSharedFlow<Unit>(
@@ -74,9 +88,7 @@ class QuizViewModel @Inject constructor(
                     reloadQuizzes.tryEmit(Unit)
                 },
                 onFailure = { t ->
-                    _state.value = QuizUiState.Error(
-                        message = t.message ?: "Не удалось загрузить данные"
-                    )
+                    showUiError(AppError.Validation(message = "Не удалось загрузить данные"))
                 }
             )
         }
@@ -115,12 +127,18 @@ class QuizViewModel @Inject constructor(
 
             is QuizCommand.DeleteQuiz -> {
                 viewModelScope.launch {
-                    deleteQuizUseCase(command.quizId)
-                    reloadQuizzes.emit(Unit)
+                    viewModelScope.launch {
+                        when (val result = deleteQuizUseCase(command.quizId)) {
+                            is AppResult.Success -> reloadQuizzes.tryEmit(Unit)
+                            is AppResult.Failure -> showUiError(result.error)
+                        }
+                    }
                 }
             }
 
-            QuizCommand.Refresh -> { reloadQuizzes.tryEmit(Unit) }
+            QuizCommand.Refresh -> {
+                reloadQuizzes.tryEmit(Unit)
+            }
         }
     }
 
@@ -150,20 +168,29 @@ class QuizViewModel @Inject constructor(
         ) { f, user ->
             user to f
         }
-            .onEach { (user, _) ->
+            .onEach { (user, currentFilters) ->
                 _state.update { st ->
                     when (st) {
-                        is QuizUiState.Content -> st.copy(isListLoading = true)
+                        is QuizUiState.Content -> st.copy(
+                            user = user,
+                            quizFilters = currentFilters,
+                            isListLoading = true,
+                            fullScreenError = null
+                        )
+
                         else -> QuizUiState.Content(
                             user = user,
-                            quizFilters = QuizFilters(),
-                            isListLoading = true
+                            quizFilters = currentFilters,
+                            quizList = emptyList(),
+                            assignmentsList = emptyList(),
+                            isListLoading = true,
+                            fullScreenError = null
                         )
                     }
                 }
             }
             .mapLatest { (user, currentFilters) ->
-                runCatching {
+                retryRequest {
                     val status = when (currentFilters.status) {
                         QuizStatus.PUBLISHED -> "published"
                         QuizStatus.DRAFT -> "draft"
@@ -171,48 +198,127 @@ class QuizViewModel @Inject constructor(
                     }
 
                     if (user.role == Role.MANAGER) {
-                        val quizzes = getQuizListUseCase(
+                        when (val res = getQuizListUseCase(
                             page = null,
                             perPage = null,
                             search = currentFilters.query,
                             status = status
-                        )
-                        val ui = quizzes.map { it.quizToQuizManagerUi(::formatInstantToStringData) }
-                        Triple(user, ui, emptyList())
+                        )) {
+                            is AppResult.Success -> {
+                                val ui = res.data.map {
+                                    it.quizToQuizManagerUi(::formatInstantToStringData)
+                                }
+                                AppResult.Success(
+                                    Loaded(
+                                        user = user,
+                                        manager = ui,
+                                        employee = emptyList()
+                                    )
+                                )
+                            }
+
+                            is AppResult.Failure -> {
+                                AppResult.Failure(res.error)
+                            }
+                        }
                     } else {
-                        val assignments = getMyQuizAssignmentsUseCase()
-                        val ui =
-                            assignments.map { it.quizToQuizEmployeeUi(::formatInstantToStringDataNullable) }
-                        Triple(user, emptyList<QuizManagerUiModel>(), ui)
+                        when (val res = getMyQuizAssignmentsUseCase()) {
+                            is AppResult.Success -> {
+                                val ui = res.data.map {
+                                    it.quizToQuizEmployeeUi(::formatInstantToStringDataNullable)
+                                }
+                                AppResult.Success(
+                                    Loaded(
+                                        user = user,
+                                        manager = emptyList(),
+                                        employee = ui
+                                    )
+                                )
+                            }
+
+                            is AppResult.Failure -> {
+                                AppResult.Failure(res.error)
+                            }
+                        }
                     }
                 }
             }
             .onEach { result ->
-                result.fold(
-                    onSuccess = { (user, managerQuizzes, employeeAssignments) ->
-                        _state.update { st ->
-                            val uiFilters = (st as? QuizUiState.Content)?.quizFilters
+                when (result) {
+                    is AppResult.Success -> {
+                        val uiFilters =
+                            (_state.value as? QuizUiState.Content)?.quizFilters
                                 ?: QuizFilters(
                                     query = filters.value.query,
                                     status = filters.value.status
                                 )
-                            QuizUiState.Content(
-                                user = user,
-                                quizFilters = uiFilters,
-                                quizList = managerQuizzes,
-                                assignmentsList = employeeAssignments,
-                                isListLoading = false
-                            )
-                        }
-                    },
-                    onFailure = { t ->
-                        _state.value = QuizUiState.Error(
-                            message = t.message ?: "Не удалось загрузить тесты"
+
+                        _state.value = QuizUiState.Content(
+                            user = result.data.user,
+                            quizFilters = uiFilters,
+                            quizList = result.data.manager,
+                            assignmentsList = result.data.employee,
+                            isListLoading = false,
+                            fullScreenError = null
                         )
                     }
-                )
+
+                    is AppResult.Failure -> {
+                        val cur = _state.value
+                        if (cur is QuizUiState.Content) {
+                            _state.value = cur.copy(isListLoading = false)
+                        }
+                        showUiError(result.error)
+                    }
+                }
             }
             .launchIn(viewModelScope)
+    }
+
+    private suspend fun <T> retryRequest(
+        block: suspend () -> AppResult<T>
+    ): AppResult<T> {
+        while (true) {
+            when (val result = block()) {
+                is AppResult.Success -> return result
+                is AppResult.Failure -> {
+                    if (!shouldRetry(result.error)) return result
+                    delay(RETRY_DELAY_MS)
+                }
+            }
+        }
+    }
+
+    private fun shouldRetry(error: AppError): Boolean {
+        return when (error) {
+            is AppError.Network -> {
+                snackbarManager.show(UiText.Dynamic("Отсутствует подключение к интернету"))
+                true
+            }
+
+            else -> false
+        }
+    }
+
+    private data class Loaded(
+        val user: User,
+        val manager: List<QuizManagerUiModel>,
+        val employee: List<QuizEmployeeUiModel>
+    )
+
+    private fun showUiError(error: AppError) {
+        when (val uiError = error.toScreenUiError()) {
+            is UiError.SnackBar -> snackbarManager.show(uiError.message)
+
+            is UiError.FullScreen -> {
+                val current = _state.value
+                if (current is QuizUiState.Content) {
+                    _state.value = current.copy(fullScreenError = uiError.model)
+                } else {
+                    _state.value = QuizUiState.Error(uiError.model)
+                }
+            }
+        }
     }
 }
 
@@ -231,10 +337,11 @@ sealed interface QuizUiState {
         val quizFilters: QuizFilters = QuizFilters(),
         val quizList: List<QuizManagerUiModel> = emptyList(),
         val assignmentsList: List<QuizEmployeeUiModel> = emptyList(),
-        val isListLoading: Boolean = false
+        val isListLoading: Boolean = false,
+        val fullScreenError: ErrorScreenModel? = null
     ) : QuizUiState
 
     data class Error(
-        val message: String
+        val model: ErrorScreenModel
     ) : QuizUiState
 }

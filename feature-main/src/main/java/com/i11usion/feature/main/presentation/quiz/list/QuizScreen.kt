@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,6 +61,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.quiz.list.model.QuizManagerUiModel
 
@@ -70,13 +73,16 @@ fun QuizScreen(
     onGenerateQuizClick: () -> Unit,
     onOpenQuestionListClick: () -> Unit,
     onOpenQuizClick: (Int) -> Unit,
-    onStartTestingClick: (Int) -> Unit
+    onStartTestingClick: (Int) -> Unit,
+    onBackClick: () -> Unit
 ) {
     val viewModel: QuizViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
 
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    val context = LocalContext.current
 
     DisposableEffect(lifecycleOwner, viewModel) {
         val observer = LifecycleEventObserver { _, event ->
@@ -105,6 +111,21 @@ fun QuizScreen(
 
         is QuizUiState.Content -> {
             var showDeleteQuizDialog by remember { mutableStateOf<QuizManagerUiModel?>(null) }
+
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = {
+                        viewModel.processCommand(QuizCommand.Refresh)
+                    },
+                    onBackClick = onBackClick
+                )
+                return
+            }
 
             LazyColumn(
                 modifier = modifier
@@ -295,7 +316,16 @@ fun QuizScreen(
         }
 
         is QuizUiState.Error -> {
-            Text(state.message)
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = {
+                    viewModel.processCommand(QuizCommand.Refresh)
+                },
+                onBackClick = onBackClick
+            )
         }
     }
 }
