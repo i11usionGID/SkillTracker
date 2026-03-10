@@ -1,0 +1,13 @@
+package com.i11usion.feature.main.presentation.user.list.model
+
+import com.i11usion.core.domain.model.user.Role
+
+data class UserUiModel(
+    val id: Int,
+    val username: String,
+    val name: String,
+    val shortName: String,
+    val role: Role,
+    val roleText: String,
+    val createdAt: String
+)
