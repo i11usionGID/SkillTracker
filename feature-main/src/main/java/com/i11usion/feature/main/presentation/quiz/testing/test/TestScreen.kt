@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -32,12 +34,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
+import com.i11usion.feature.main.R
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -49,6 +58,8 @@ fun TestScreen(
 ) {
     val viewModel: TestViewModel = viewModel(factory = LocalViewModelFactory.current)
     val state by viewModel.state.collectAsState()
+
+    val context = LocalContext.current
 
     LaunchedEffect(quizId) {
         viewModel.processCommand(TestCommand.Init(quizId))
@@ -70,16 +81,36 @@ fun TestScreen(
             onBack = onBack
         )
 
-        is TestUiState.Error -> ErrorContent(
-            modifier = modifier,
-            message = s.message
-        )
+        is TestUiState.Error -> {
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = s.model.iconResId,
+                cdResId = s.model.cdResId,
+                errorText = s.model.text.asString(context),
+                onBackClick = onBack
+            )
+        }
 
-        is TestUiState.Content -> TestContent(
-            modifier = modifier,
-            state = s,
-            onCommand = viewModel::processCommand
-        )
+        is TestUiState.Content -> {
+
+            val fsError = s.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(LocalContext.current),
+                    onBackClick = onBack
+                )
+                return
+            }
+
+            TestContent(
+                modifier = modifier,
+                state = s,
+                onCommand = viewModel::processCommand
+            )
+        }
     }
 }
 
@@ -125,38 +156,29 @@ private fun TimeoutContent(
                 color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
             )
         ) {
-            Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
+            Column(
+                modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
                     text = "Вы не успели завершить тест до окончания таймера",
+                    fontSize = 18.sp,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center
                 )
                 Spacer(Modifier.height(16.dp))
                 Button(
                     onClick = onBack,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Вернуться к тестам")
+                    Text(
+                        text = stringResource(R.string.back_to_tests),
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ErrorContent(
-    modifier: Modifier = Modifier,
-    message: String,
-) {
-    Box(
-        modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = message)
-            Spacer(Modifier.height(12.dp))
         }
     }
 }
@@ -387,49 +409,71 @@ fun QuestionCard(
 
                 QuestionType.SINGLE -> {
                     val selected = (answer as? UserAnswer.Single)?.optionId
+
                     options.forEach { (id, optionText) ->
                         Row(
-                            Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = selected == id,
+                                    enabled = enabled,
+                                    role = Role.RadioButton,
+                                    onClick = {
+                                        onCommand(
+                                            TestCommand.Answer.Single(
+                                                attemptQuestionId,
+                                                id
+                                            )
+                                        )
+                                    }
+                                )
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             RadioButton(
                                 selected = selected == id,
-                                onClick = {
-                                    if (enabled) onCommand(
-                                        TestCommand.Answer.Single(
-                                            attemptQuestionId,
-                                            id
-                                        )
-                                    )
-                                },
+                                onClick = null,
                                 enabled = enabled
                             )
-                            Text(optionText, modifier = Modifier.padding(top = 12.dp))
+                            Text(optionText)
                         }
                     }
                 }
 
                 QuestionType.MULTIPLE -> {
                     val selected = (answer as? UserAnswer.Multiple)?.optionIds ?: emptySet()
+
                     options.forEach { (id, optionText) ->
+                        val isChecked = selected.contains(id)
+
                         Row(
-                            Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .toggleable(
+                                    value = isChecked,
+                                    enabled = enabled,
+                                    role = Role.Checkbox,
+                                    onValueChange = { checked ->
+                                        onCommand(
+                                            TestCommand.Answer.MultipleToggle(
+                                                attemptQuestionId,
+                                                id,
+                                                checked
+                                            )
+                                        )
+                                    }
+                                )
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Checkbox(
-                                checked = selected.contains(id),
-                                onCheckedChange = { checked ->
-                                    if (enabled) onCommand(
-                                        TestCommand.Answer.MultipleToggle(
-                                            attemptQuestionId,
-                                            id,
-                                            checked
-                                        )
-                                    )
-                                },
+                                checked = isChecked,
+                                onCheckedChange = null,
                                 enabled = enabled
                             )
-                            Text(optionText, modifier = Modifier.padding(top = 12.dp))
+                            Text(optionText)
                         }
                     }
                 }

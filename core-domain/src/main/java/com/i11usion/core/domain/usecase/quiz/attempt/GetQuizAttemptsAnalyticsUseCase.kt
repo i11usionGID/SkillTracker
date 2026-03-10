@@ -1,5 +1,6 @@
 package com.i11usion.core.domain.usecase.quiz.attempt
 
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.quiz.attempt.Attempt
 import com.i11usion.core.domain.model.quiz.attempt.AttemptStatus
 import com.i11usion.core.domain.repository.QuizRepository
@@ -16,7 +17,7 @@ class GetQuizAttemptsAnalyticsUseCase @Inject constructor(
         status: AttemptStatus? = null,
         page: Int? = null,
         perPage: Int? = null
-    ): List<Attempt> {
+    ): AppResult<List<Attempt>> {
         return repository.getQuizAttempts(
             quizId = quizId,
             userId = userId,
