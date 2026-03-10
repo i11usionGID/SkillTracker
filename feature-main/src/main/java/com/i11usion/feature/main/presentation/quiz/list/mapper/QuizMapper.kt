@@ -52,12 +52,27 @@ fun MyQuizAssignment.quizToQuizEmployeeUi(formatter: (Instant?) -> String): com.
 }
 
 private fun formatTime(title: String, seconds: Int): String {
-    return if (seconds < 60) {
-        title + seconds.toString() + " сек."
-    } else if (seconds % 60 == 0) {
-        title + (seconds / 60).toString() + " мин."
-    } else {
-        title + (seconds / 60).toString() + " мин. " + (seconds % 60).toString() + " сек."
+    val hours = seconds / 3600
+    val minutes = (seconds % 3600) / 60
+    val secs = seconds % 60
+
+    return buildString {
+        append(title)
+
+        when {
+            hours > 0 -> {
+                append(hours).append(" ч.")
+                if (minutes > 0) append(" ").append(minutes).append(" мин.")
+                if (secs > 0) append(" ").append(secs).append(" сек.")
+            }
+            minutes > 0 -> {
+                append(minutes).append(" мин.")
+                if (secs > 0) append(" ").append(secs).append(" сек.")
+            }
+            else -> {
+                append(secs).append(" сек.")
+            }
+        }
     }
 }
 

@@ -18,24 +18,24 @@ import com.i11usion.core.domain.model.quiz.attempt.AttemptSubmitRequest
 import java.time.Instant
 
 interface QuizRepository {
-    suspend fun getQuizzes(page: Int?, perPage: Int?, status: String?, search: String?): List<Quiz>
+    suspend fun getQuizzes(page: Int?, perPage: Int?, status: String?, search: String?): AppResult<List<Quiz>>
     suspend fun createQuiz(quiz: QuizCreate): AppResult<Unit>
     suspend fun generateQuiz(topic: String): AppResult<Unit>
-    suspend fun deleteQuiz(quizId: Int)
-    suspend fun getQuizById(quizId: Int): Quiz
-    suspend fun getQuestions(questionType: QuestionType?): List<Question>
-    suspend fun deleteQuestion(questionId: Int)
-    suspend fun createQuestion(question: Question)
-    suspend fun getQuestionById(questionId: Int): Question
-    suspend fun updateQuestion(questionId: Int, question: Question)
-    suspend fun getMyAssignments(): List<MyQuizAssignment>
-    suspend fun getQuizAssignments(quizId: Int): List<AssignmentDetail>
-    suspend fun deleteAssignment(assignmentId: Int)
-    suspend fun getQuestionSections(quizId: Int): List<QuestionSection>
-    suspend fun deleteSection(quizId: Int, sectionId: Int)
-    suspend fun getQuizAnalytics(quizId: Int): QuizAnalytics
-    suspend fun startAttempt(quizId: Int): AttemptStart
-    suspend fun submitAttempt(attemptId: Int, request: AttemptSubmitRequest): AttemptSubmit
+    suspend fun deleteQuiz(quizId: Int): AppResult<Unit>
+    suspend fun getQuizById(quizId: Int): AppResult<Quiz>
+    suspend fun getQuestions(questionType: QuestionType?): AppResult<List<Question>>
+    suspend fun deleteQuestion(questionId: Int): AppResult<Unit>
+    suspend fun createQuestion(question: Question): AppResult<Unit>
+    suspend fun getQuestionById(questionId: Int): AppResult<Question>
+    suspend fun updateQuestion(questionId: Int, question: Question): AppResult<Unit>
+    suspend fun getMyAssignments(): AppResult<List<MyQuizAssignment>>
+    suspend fun getQuizAssignments(quizId: Int): AppResult<List<AssignmentDetail>>
+    suspend fun deleteAssignment(assignmentId: Int): AppResult<Unit>
+    suspend fun getQuestionSections(quizId: Int): AppResult<List<QuestionSection>>
+    suspend fun deleteSection(quizId: Int, sectionId: Int): AppResult<Unit>
+    suspend fun getQuizAnalytics(quizId: Int): AppResult<QuizAnalytics>
+    suspend fun startAttempt(quizId: Int): AppResult<AttemptStart>
+    suspend fun submitAttempt(attemptId: Int, request: AttemptSubmitRequest): AppResult<AttemptSubmit>
     suspend fun getAttemptInfoById(attemptId: Int): AppResult<AttemptRead>
     suspend fun createQuestionSection(
         quizId: Int,
@@ -44,7 +44,7 @@ interface QuizRepository {
         orderIndex: Int,
         pickCount: Int?,
         questionIds: List<Int>
-    )
+    ): AppResult<Unit>
 
     suspend fun updateQuestionSection(
         quizId: Int,
@@ -54,9 +54,9 @@ interface QuizRepository {
         orderIndex: Int,
         pickCount: Int?,
         questionIds: List<Int>
-    )
+    ): AppResult<Unit>
 
-    suspend fun getQuestionSectionById(quizId: Int, questionSectionId: Int): QuestionSection
+    suspend fun getQuestionSectionById(quizId: Int, questionSectionId: Int): AppResult<QuestionSection>
 
     suspend fun createAssignment(
         quizId: Int,
@@ -66,9 +66,9 @@ interface QuizRepository {
         deadline: Instant?,
         maxAttempts: Int?,
         cooldownHours: Int
-    )
+    ): AppResult<Unit>
 
-    suspend fun updateQuiz(quizId: Int, quiz: QuizCreate)
+    suspend fun updateQuiz(quizId: Int, quiz: QuizCreate): AppResult<Unit>
 
     suspend fun getQuizAttempts(
         quizId: Int,
@@ -77,5 +77,5 @@ interface QuizRepository {
         status: AttemptStatus? = null,
         page: Int? = null,
         perPage: Int? = null
-    ): List<Attempt>
+    ): AppResult<List<Attempt>>
 }

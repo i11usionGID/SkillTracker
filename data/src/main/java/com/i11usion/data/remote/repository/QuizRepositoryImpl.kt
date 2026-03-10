@@ -1,6 +1,5 @@
 package com.i11usion.data.remote.repository
 
-import android.util.Log
 import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.quiz.AssignmentDetail
 import com.i11usion.core.domain.model.quiz.MyQuizAssignment
@@ -39,14 +38,16 @@ class QuizRepositoryImpl @Inject constructor(
         perPage: Int?,
         status: String?,
         search: String?
-    ): List<Quiz> {
-        return quizService.getQuizzes(
-            page = page,
-            perPage = perPage,
-            status = status,
-            search = search
-        ).map {
-            it.quizDtoToQuiz()
+    ): AppResult<List<Quiz>> {
+        return safeApiCaller.call {
+            quizService.getQuizzes(
+                page = page,
+                perPage = perPage,
+                status = status,
+                search = search
+            ).map {
+                it.quizDtoToQuiz()
+            }
         }
     }
 
@@ -64,72 +65,77 @@ class QuizRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteQuiz(quizId: Int) {
-        quizService.deleteQuiz(quizId)
+    override suspend fun deleteQuiz(quizId: Int): AppResult<Unit> {
+        return safeApiCaller.call {
+            quizService.deleteQuiz(quizId)
+        }
     }
 
-    override suspend fun getQuestions(questionType: QuestionType?): List<Question> {
+    override suspend fun getQuestions(questionType: QuestionType?): AppResult<List<Question>> {
         val type = when (questionType) {
             QuestionType.SINGLE -> "single"
             QuestionType.MULTIPLE -> "multiple"
             QuestionType.TEXT -> "text"
             null -> null
         }
-        return quizService.getQuestions(type).map {
-            it.dtoToDomain()
+        return safeApiCaller.call {
+            quizService.getQuestions(type).map {
+                it.dtoToDomain()
+            }
         }
     }
 
-    override suspend fun deleteQuestion(questionId: Int) {
-        quizService.deleteQuestion(questionId)
+    override suspend fun deleteQuestion(questionId: Int): AppResult<Unit> {
+        return safeApiCaller.call {
+            quizService.deleteQuestion(questionId)
+        }
     }
 
-    override suspend fun createQuestion(question: Question) {
+    override suspend fun createQuestion(question: Question): AppResult<Unit> {
         val body = question.domainToDto()
-        quizService.createQuestion(body)
+        return safeApiCaller.call {
+            quizService.createQuestion(body)
+        }
     }
 
-    override suspend fun getQuestionById(questionId: Int): Question {
-        return quizService.getQuestionById(questionId).dtoToDomain()
+    override suspend fun getQuestionById(questionId: Int): AppResult<Question> {
+        return safeApiCaller.call {
+            quizService.getQuestionById(questionId).dtoToDomain()
+        }
     }
 
     override suspend fun updateQuestion(
         questionId: Int,
         question: Question
-    ) {
+    ): AppResult<Unit> {
         val body = question.domainToDto()
-        quizService.updateQuestion(questionId = questionId, body = body)
-    }
-
-    override suspend fun getMyAssignments(): List<MyQuizAssignment> {
-        return try {
-            Log.d("QuizRepo", "start")
-            val dto = quizService.getMyAssignments()
-            Log.d("QuizRepo", "dto size=${dto.size}")
-            dto.mapIndexed { idx, item ->
-                try {
-                    item.dtoToDomain()
-                } catch (t: Throwable) {
-                    Log.e("QuizRepo", "mapping failed at index=$idx item=$item", t)
-                    throw t
-                }
-            }
-        } catch (t: Throwable) {
-            Log.e("QuizRepo", "getMyAssignments failed: ${t::class.java.name}", t)
-            throw t
+        return safeApiCaller.call {
+            quizService.updateQuestion(questionId = questionId, body = body)
         }
     }
 
-    override suspend fun startAttempt(quizId: Int): AttemptStart {
-        return quizService.startAttempt(quizId).dtoToDomain()
+    override suspend fun getMyAssignments(): AppResult<List<MyQuizAssignment>> {
+        return safeApiCaller.call {
+            quizService.getMyAssignments().map {
+                it.dtoToDomain()
+            }
+        }
+    }
+
+    override suspend fun startAttempt(quizId: Int): AppResult<AttemptStart> {
+        return safeApiCaller.call {
+            quizService.startAttempt(quizId).dtoToDomain()
+        }
     }
 
     override suspend fun submitAttempt(
         attemptId: Int,
         request: AttemptSubmitRequest
-    ): AttemptSubmit {
+    ): AppResult<AttemptSubmit> {
         val body = request.domainToDto()
-        return quizService.submitAttempt(attemptId = attemptId, body = body).dtoToDomain()
+        return safeApiCaller.call {
+            quizService.submitAttempt(attemptId = attemptId, body = body).dtoToDomain()
+        }
     }
 
     override suspend fun getAttemptInfoById(attemptId: Int): AppResult<AttemptRead> {
@@ -138,28 +144,40 @@ class QuizRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getQuizById(quizId: Int): Quiz {
-        return quizService.getQuizById(quizId).quizDtoToQuiz()
+    override suspend fun getQuizById(quizId: Int): AppResult<Quiz> {
+        return safeApiCaller.call {
+            quizService.getQuizById(quizId).quizDtoToQuiz()
+        }
     }
 
-    override suspend fun getQuizAssignments(quizId: Int): List<AssignmentDetail> {
-        return quizService.getQuizAssignments(quizId).map { it.dtoToDomain() }
+    override suspend fun getQuizAssignments(quizId: Int): AppResult<List<AssignmentDetail>> {
+        return safeApiCaller.call {
+            quizService.getQuizAssignments(quizId).map { it.dtoToDomain() }
+        }
     }
 
-    override suspend fun deleteAssignment(assignmentId: Int) {
-        quizService.deleteAssignment(assignmentId)
+    override suspend fun deleteAssignment(assignmentId: Int): AppResult<Unit> {
+        return safeApiCaller.call {
+            quizService.deleteAssignment(assignmentId)
+        }
     }
 
-    override suspend fun getQuestionSections(quizId: Int): List<QuestionSection> {
-        return quizService.getQuestionSections(quizId).map { it.dtoToDomain() }
+    override suspend fun getQuestionSections(quizId: Int): AppResult<List<QuestionSection>> {
+        return safeApiCaller.call {
+            quizService.getQuestionSections(quizId).map { it.dtoToDomain() }
+        }
     }
 
-    override suspend fun deleteSection(quizId: Int, sectionId: Int) {
-        quizService.deleteSection(quizId = quizId, sectionId = sectionId)
+    override suspend fun deleteSection(quizId: Int, sectionId: Int): AppResult<Unit> {
+        return safeApiCaller.call {
+            quizService.deleteSection(quizId = quizId, sectionId = sectionId)
+        }
     }
 
-    override suspend fun getQuizAnalytics(quizId: Int): QuizAnalytics {
-        return quizService.getQuizAnalytics(quizId).dtoToDomain()
+    override suspend fun getQuizAnalytics(quizId: Int): AppResult<QuizAnalytics> {
+        return safeApiCaller.call {
+            quizService.getQuizAnalytics(quizId).dtoToDomain()
+        }
     }
 
     override suspend fun createQuestionSection(
@@ -169,7 +187,7 @@ class QuizRepositoryImpl @Inject constructor(
         orderIndex: Int,
         pickCount: Int?,
         questionIds: List<Int>
-    ) {
+    ): AppResult<Unit> {
         val body = QuestionSectionRequestDto(
             title = title,
             description = description,
@@ -177,7 +195,9 @@ class QuizRepositoryImpl @Inject constructor(
             pickCount = pickCount,
             questionIds = questionIds
         )
-        return quizService.createQuestionSection(quizId, body)
+        return safeApiCaller.call {
+            quizService.createQuestionSection(quizId, body)
+        }
     }
 
     override suspend fun updateQuestionSection(
@@ -188,7 +208,7 @@ class QuizRepositoryImpl @Inject constructor(
         orderIndex: Int,
         pickCount: Int?,
         questionIds: List<Int>
-    ) {
+    ): AppResult<Unit> {
         val body = QuestionSectionRequestDto(
             title = title,
             description = description,
@@ -196,21 +216,25 @@ class QuizRepositoryImpl @Inject constructor(
             pickCount = pickCount,
             questionIds = questionIds
         )
-        return quizService.updateQuestionSection(
-            quizId = quizId,
-            sectionId = questionSectionId,
-            body = body
-        )
+        return safeApiCaller.call {
+            quizService.updateQuestionSection(
+                quizId = quizId,
+                sectionId = questionSectionId,
+                body = body
+            )
+        }
     }
 
     override suspend fun getQuestionSectionById(
         quizId: Int,
         questionSectionId: Int
-    ): QuestionSection {
-        return quizService.getQuestionSectionById(
-            quizId = quizId,
-            sectionId = questionSectionId
-        ).dtoToDomain()
+    ): AppResult<QuestionSection> {
+        return safeApiCaller.call {
+            quizService.getQuestionSectionById(
+                quizId = quizId,
+                sectionId = questionSectionId
+            ).dtoToDomain()
+        }
     }
 
     override suspend fun createAssignment(
@@ -221,7 +245,7 @@ class QuizRepositoryImpl @Inject constructor(
         deadline: Instant?,
         maxAttempts: Int?,
         cooldownHours: Int
-    ) {
+    ): AppResult<Unit> {
         val body = AssignmentRequestDto(
             assignedToUserId = assignedToUserId,
             taskId = taskId,
@@ -230,15 +254,19 @@ class QuizRepositoryImpl @Inject constructor(
             maxAttempts = maxAttempts,
             cooldownHours = cooldownHours
         )
-        quizService.createAssignment(quizId, body)
+        return safeApiCaller.call {
+            quizService.createAssignment(quizId, body)
+        }
     }
 
     override suspend fun updateQuiz(
         quizId: Int,
         quiz: QuizCreate
-    ) {
+    ): AppResult<Unit> {
         val body = quiz.domainToDto()
-        quizService.updateQuiz(quizId, body)
+        return safeApiCaller.call {
+            quizService.updateQuiz(quizId, body)
+        }
     }
 
     override suspend fun getQuizAttempts(
@@ -248,23 +276,25 @@ class QuizRepositoryImpl @Inject constructor(
         status: AttemptStatus?,
         page: Int?,
         perPage: Int?
-    ): List<Attempt> {
-        return quizService.getQuizAttempts(
-            quizId = quizId,
-            userId = userId,
-            assignmentId = assignmentId,
-            status = status.let {
-                when (status) {
-                    AttemptStatus.IN_PROGRESS -> "in_progress"
-                    AttemptStatus.COMPLETED -> "completed"
-                    AttemptStatus.EXPIRED -> "expired"
-                    null -> null
-                }
-            },
-            page = page,
-            perPage = perPage
-        ).map {
-            it.toDomain()
+    ): AppResult<List<Attempt>> {
+        return safeApiCaller.call {
+            quizService.getQuizAttempts(
+                quizId = quizId,
+                userId = userId,
+                assignmentId = assignmentId,
+                status = status.let {
+                    when (status) {
+                        AttemptStatus.IN_PROGRESS -> "in_progress"
+                        AttemptStatus.COMPLETED -> "completed"
+                        AttemptStatus.EXPIRED -> "expired"
+                        null -> null
+                    }
+                },
+                page = page,
+                perPage = perPage
+            ).map {
+                it.toDomain()
+            }
         }
     }
 }

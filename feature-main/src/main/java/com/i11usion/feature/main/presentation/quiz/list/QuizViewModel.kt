@@ -62,6 +62,8 @@ class QuizViewModel @Inject constructor(
     private val _state = MutableStateFlow<QuizUiState>(QuizUiState.Initial)
     val state = _state.asStateFlow()
 
+    private var isFirstLoading: Boolean = true
+
     init {
         observeFiltersAndLoadQuizzes()
         loadInitial()
@@ -137,7 +139,12 @@ class QuizViewModel @Inject constructor(
             }
 
             QuizCommand.Refresh -> {
-                reloadQuizzes.tryEmit(Unit)
+                if (isFirstLoading) {
+                    isFirstLoading = false
+                    return
+                } else {
+                    reloadQuizzes.tryEmit(Unit)
+                }
             }
         }
     }
@@ -171,12 +178,14 @@ class QuizViewModel @Inject constructor(
             .onEach { (user, currentFilters) ->
                 _state.update { st ->
                     when (st) {
-                        is QuizUiState.Content -> st.copy(
-                            user = user,
-                            quizFilters = currentFilters,
-                            isListLoading = true,
-                            fullScreenError = null
-                        )
+                        is QuizUiState.Content -> {
+                            st.copy(
+                                user = user,
+                                quizFilters = currentFilters,
+                                isListLoading = true,
+                                fullScreenError = null
+                            )
+                        }
 
                         else -> QuizUiState.Content(
                             user = user,

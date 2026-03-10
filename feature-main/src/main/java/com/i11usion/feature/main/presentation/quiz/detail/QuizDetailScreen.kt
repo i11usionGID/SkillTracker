@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -51,6 +52,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.domain.model.quiz.QuizAnalytics
 import com.i11usion.core.domain.model.quiz.QuizStatus
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
 import com.i11usion.feature.main.presentation.quiz.detail.model.SectionQuestionsUiModel
 
@@ -69,6 +72,8 @@ fun QuizDetailScreen(
     val viewModel: QuizDetailViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
+
+    val context = LocalContext.current
 
     LaunchedEffect(quizId) {
         viewModel.processCommand(QuizDetailCommand.Init(quizId))
@@ -89,6 +94,20 @@ fun QuizDetailScreen(
         }
 
         is QuizDetailUiState.Content -> {
+
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(LocalContext.current),
+                    onRefreshClick = { viewModel.processCommand(QuizDetailCommand.Refresh) },
+                    onBackClick = onBack
+                )
+                return
+            }
+
             LazyColumn(
                 modifier = modifier
                     .fillMaxSize()
@@ -309,7 +328,14 @@ fun QuizDetailScreen(
         }
 
         is QuizDetailUiState.Error -> {
-
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = { viewModel.processCommand(QuizDetailCommand.Refresh) },
+                onBackClick = onBack
+            )
         }
     }
 }
@@ -463,7 +489,7 @@ private fun QuizDetailCard(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = passPercent + "%",
+                        text = "$passPercent%",
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
