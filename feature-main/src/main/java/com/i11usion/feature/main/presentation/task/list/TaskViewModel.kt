@@ -58,6 +58,8 @@ class TaskViewModel @Inject constructor(
     private val _state = MutableStateFlow(TaskUiState(isScreenLoading = true))
     val state = _state.asStateFlow()
 
+    private var isFirstLoading: Boolean = true
+
     init {
         observeFiltersAndLoadTasks()
         loadInitial()
@@ -90,7 +92,12 @@ class TaskViewModel @Inject constructor(
 
             TaskCommand.RetryLoadTasks -> onRetry()
             TaskCommand.Refresh -> {
-                reloadTasks.tryEmit(Unit)
+                if (isFirstLoading) {
+                    isFirstLoading = false
+                    return
+                } else {
+                    reloadTasks.tryEmit(Unit)
+                }
             }
         }
     }

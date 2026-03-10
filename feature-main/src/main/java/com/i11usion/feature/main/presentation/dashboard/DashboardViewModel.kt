@@ -9,10 +9,12 @@ import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
 import com.i11usion.core.domain.usecase.task.GetDashboardDataUseCase
 import com.i11usion.core.ui.model.ErrorScreenModel
 import com.i11usion.core.ui.model.UiError
+import com.i11usion.core.ui.model.UiText
 import com.i11usion.feature.main.manager.SnackbarManager
 import com.i11usion.feature.main.mapper.toScreenUiError
 import com.i11usion.feature.main.presentation.dashboard.mapper.dashboardDataToDashboardDataUi
 import com.i11usion.feature.main.presentation.dashboard.model.DashboardDataUi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -23,6 +25,10 @@ class DashboardViewModel @Inject constructor(
     private val getDashboardDataUseCase: GetDashboardDataUseCase,
     private val snackbarManager: SnackbarManager
 ) : ViewModel() {
+
+    private companion object {
+        const val RETRY_DELAY_MS = 10_000L
+    }
 
     private val _state = MutableStateFlow<DashboardUiState>(DashboardUiState.Initial)
     val state = _state.asStateFlow()
@@ -51,12 +57,14 @@ class DashboardViewModel @Inject constructor(
 
         viewModelScope.launch {
             val user = getUserInfoUseCase()
-            when (val result = getDashboardDataUseCase()) {
+
+            when (val result = retryDashboardRequest()) {
                 is AppResult.Success -> {
                     user?.let {
                         _state.value = DashboardUiState.Content(
                             user = it,
-                            dashboardData = result.data.dashboardDataToDashboardDataUi()
+                            dashboardData = result.data.dashboardDataToDashboardDataUi(),
+                            fullScreenError = null
                         )
                     }
                 }
@@ -65,6 +73,34 @@ class DashboardViewModel @Inject constructor(
                     showUiError(result.error)
                 }
             }
+        }
+    }
+
+    private suspend fun retryDashboardRequest() = retryRequest {
+        getDashboardDataUseCase()
+    }
+
+    private suspend fun <T> retryRequest(
+        block: suspend () -> AppResult<T>
+    ): AppResult<T> {
+        while (true) {
+            when (val result = block()) {
+                is AppResult.Success -> return result
+                is AppResult.Failure -> {
+                    if (!shouldRetry(result.error)) return result
+                    delay(RETRY_DELAY_MS)
+                }
+            }
+        }
+    }
+
+    private fun shouldRetry(error: AppError): Boolean {
+        return when (error) {
+            is AppError.Network -> {
+                snackbarManager.show(UiText.Dynamic("Отсутствует подключение к интернету"))
+                true
+            }
+            else -> false
         }
     }
 

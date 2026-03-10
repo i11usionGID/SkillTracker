@@ -14,6 +14,7 @@ import com.i11usion.core.ui.model.UiText
 import com.i11usion.feature.main.manager.NotificationManager
 import com.i11usion.feature.main.manager.SnackbarManager
 import com.i11usion.feature.main.mapper.toHomeUiError
+import com.i11usion.feature.main.presentation.HomeState.*
 import com.i11usion.feature.main.presentation.drawer.DrawerConfig
 import com.i11usion.feature.main.presentation.drawer.DrawerItem
 import kotlinx.coroutines.Job
@@ -38,7 +39,7 @@ class HomeViewModel @Inject constructor(
     val snackbarManager: SnackbarManager
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<HomeState>(HomeState.Initial)
+    private val _state = MutableStateFlow<HomeState>(Initial)
     val state = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<HomeEvent>(extraBufferCapacity = 1)
@@ -46,10 +47,9 @@ class HomeViewModel @Inject constructor(
 
     private var notificationsJob: Job? = null
     private var retryAction: (() -> Unit)? = null
-    private var notificationsHadError: Boolean = false
 
     init {
-        _state.value = HomeState.Loading
+        _state.value = Loading
         loadUser()
 
         viewModelScope.launch {
@@ -89,7 +89,7 @@ class HomeViewModel @Inject constructor(
 
         val user = getUserInfoUseCase()
         if (user == null) {
-            _state.value = HomeState.Error(
+            _state.value = Error(
                 model = ErrorScreenModel(
                     iconResId = com.i11usion.core.ui.R.drawable.ic_fail,
                     cdResId = com.i11usion.core.ui.R.string.cd_unknown_error,
@@ -101,7 +101,7 @@ class HomeViewModel @Inject constructor(
 
         val filtered = DrawerConfig.items.filter { user.role in it.allowedRoles }
 
-        _state.value = HomeState.Content(
+        _state.value = Content(
             userName = user.name,
             role = user.role,
             drawerItems = filtered,
@@ -143,15 +143,11 @@ class HomeViewModel @Inject constructor(
             offset = 0
         )) {
             is AppResult.Failure -> {
-                if (!notificationsHadError) {
-                    notificationsHadError = true
-                    snackbarManager.show(UiText.Dynamic("Не удалось обновить уведомления"))
-                }
+                showUiError(result.error)
                 null
             }
 
             is AppResult.Success -> {
-                notificationsHadError = false
                 result.data.size
             }
         }
@@ -163,33 +159,35 @@ class HomeViewModel @Inject constructor(
 
             is UiError.FullScreen -> {
                 val s = _state.value
-                if (s is HomeState.Content) {
+                if (s is Content) {
                     _state.value = s.copy(fullScreenError = uiError.model, isLoadingOverlay = false)
                 } else {
-                    _state.value = HomeState.Error(uiError.model)
+                    _state.value = Error(uiError.model)
                 }
             }
+
+            null -> null
         }
     }
 
-    private fun updateContent(block: (HomeState.Content) -> HomeState.Content) {
+    private fun updateContent(block: (Content) -> Content) {
         val s = _state.value
-        if (s is HomeState.Content) _state.value = block(s)
+        if (s is Content) _state.value = block(s)
     }
 
     private fun setLoadingOverlay(isLoading: Boolean) {
         when (val s = _state.value) {
-            is HomeState.Content -> _state.value =
+            is Content -> _state.value =
                 s.copy(isLoadingOverlay = isLoading, fullScreenError = null)
 
-            else -> if (isLoading) _state.value = HomeState.Loading
+            else -> if (isLoading) _state.value = Loading
         }
     }
 
     private fun clearFullScreenErrorIfNeeded() {
         when (val s = _state.value) {
-            is HomeState.Content -> _state.value = s.copy(fullScreenError = null)
-            is HomeState.Error -> Unit
+            is Content -> _state.value = s.copy(fullScreenError = null)
+            is Error -> Unit
             else -> Unit
         }
     }

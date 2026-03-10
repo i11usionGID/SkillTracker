@@ -67,7 +67,8 @@ fun HomeTabsNavHost(
                     navController.navigate(HomeRoutes.taskDetail(taskId)) {
                         launchSingleTop = true
                     }
-                }
+                },
+                onBackClick = { navController.safePopBackStack() }
             )
         }
         composable(HomeRoutes.USERS) {
@@ -109,7 +110,8 @@ fun HomeTabsNavHost(
                     navController.navigate(HomeRoutes.quizTesting(quizId)) {
                         launchSingleTop = true
                     }
-                }
+                },
+                onBackClick = { navController.safePopBackStack() }
             )
         }
         composable(

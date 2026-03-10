@@ -1,5 +1,6 @@
 package com.i11usion.core.domain.usecase.user
 
+import com.i11usion.core.domain.model.network.AppResult
 import com.i11usion.core.domain.model.user.User
 import com.i11usion.core.domain.repository.UserRepository
 import javax.inject.Inject
@@ -12,7 +13,7 @@ class GetUsersListUseCase @Inject constructor(
         perPage: Int? = null,
         search: String? = null,
         role: String? = null
-    ): List<User> {
+    ): AppResult<List<User>> {
         return repository.getUserList(page = page, perPage = perPage, search = search, role = role)
     }
 }

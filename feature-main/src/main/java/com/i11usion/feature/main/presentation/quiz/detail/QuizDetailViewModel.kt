@@ -72,6 +72,9 @@ class QuizDetailViewModel @Inject constructor(
     }
 
     private fun init(quizId: Int) {
+        val previousTab = (_state.value as? QuizDetailUiState.Content)?.selectedTab
+            ?: QuizDetailTab.SECTIONS
+
         currentQuizId = quizId
         initJob?.cancel()
         _state.value = QuizDetailUiState.Loading
@@ -89,7 +92,7 @@ class QuizDetailViewModel @Inject constructor(
             ) { quiz, sections, assignments, analytics ->
                 QuizDetailUiState.Content(
                     quiz = quiz.toUiModel(),
-                    selectedTab = QuizDetailTab.SECTIONS,
+                    selectedTab = previousTab,
                     sections = sections.map { it.toUiModel() },
                     assignments = assignments.map { it.toUiModel() },
                     analytics = analytics,

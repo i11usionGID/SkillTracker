@@ -56,6 +56,8 @@ class UserViewModel @Inject constructor(
     private val _state = MutableStateFlow<UserUiState>(Initial)
     val state = _state.asStateFlow()
 
+    private var isFirstLoading: Boolean = true
+
     init {
         _state.value = Loading
         observeFiltersAndLoadUsers()
@@ -97,7 +99,17 @@ class UserViewModel @Inject constructor(
             }
 
             UserCommand.RetryLoadUsers -> reloadUsers.tryEmit(Unit)
-            UserCommand.Refresh -> reloadUsers.tryEmit(Unit)
+            UserCommand.Refresh -> {
+                if (isFirstLoading) {
+                    isFirstLoading = false
+                    return
+                } else {
+                    _state.update { state ->
+                        (state as Content).copy(userList = emptyList())
+                    }
+                    reloadUsers.tryEmit(Unit)
+                }
+            }
         }
     }
 

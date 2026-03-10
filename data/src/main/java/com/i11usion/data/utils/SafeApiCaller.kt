@@ -29,6 +29,12 @@ class SafeApiCaller @Inject constructor(
                     val detail = extractDetail(rawBody)
 
                     when (code) {
+                        400 -> AppResult.Failure(
+                            AppError.Validation(
+                                message = detail?.takeIf { it.isNotBlank() }
+                                    ?: "Попробуйте удалить все, что находится внутри"
+                            )
+                        )
                         401 -> {
                             val request = e.response()?.raw()?.request
                             val unauthorizedType = resolveUnauthorizedType(detail, request)

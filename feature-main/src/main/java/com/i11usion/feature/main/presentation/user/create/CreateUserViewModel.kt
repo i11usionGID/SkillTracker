@@ -96,7 +96,7 @@ class CreateUserViewModel @Inject constructor(
                 password = password
             )) {
                 is AppResult.Success -> {
-                    _events.tryEmit(CreateUserEvent.Back)
+                    _events.emit(CreateUserEvent.Back)
                 }
 
                 is AppResult.Failure -> {
