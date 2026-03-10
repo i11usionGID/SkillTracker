@@ -25,6 +25,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -36,10 +37,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -56,7 +62,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.i11usion.core.domain.model.quiz.QuestionOption
 import com.i11usion.core.domain.model.quiz.QuestionType
 import com.i11usion.core.ui.di.LocalViewModelFactory
+import com.i11usion.core.ui.helpers.asString
+import com.i11usion.core.ui.template.ErrorScreen
 import com.i11usion.feature.main.R
+import com.i11usion.feature.main.presentation.quiz.question.list.model.QuestionUiModel
 import com.i11usion.feature.main.presentation.quiz.question.list.model.TextAnswerUiModel
 
 @Composable
@@ -69,6 +78,8 @@ fun QuestionScreen(
     val viewModel: QuestionViewModel = viewModel(factory = LocalViewModelFactory.current)
     val uiState = viewModel.state.collectAsState()
     val state = uiState.value
+
+    val context = LocalContext.current
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -87,6 +98,23 @@ fun QuestionScreen(
         QuestionUiState.Initial -> {}
 
         is QuestionUiState.Content -> {
+            var showDeleteQuestionDialog by remember { mutableStateOf<QuestionUiModel?>(null) }
+
+            val fsError = state.fullScreenError
+            if (fsError != null) {
+                ErrorScreen(
+                    modifier = modifier.fillMaxSize(),
+                    iconResId = fsError.iconResId,
+                    cdResId = fsError.cdResId,
+                    errorText = fsError.text.asString(context),
+                    onRefreshClick = {
+                        viewModel.processCommand(QuestionCommand.Refresh)
+                    },
+                    onBackClick = onBackClick
+                )
+                return
+            }
+
             LazyColumn(
                 modifier = modifier
                     .fillMaxSize()
@@ -141,18 +169,81 @@ fun QuestionScreen(
                             onEditQuestionClick = {
                                 onUpdateQuestionClick(question.id)
                             },
-                            onDeleteQuestionClick = {
-                                viewModel.processCommand(QuestionCommand.DeleteQuestion(question.id))
-                            }
+                            onDeleteQuestionClick = { showDeleteQuestionDialog = question }
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
             }
+
+            if (showDeleteQuestionDialog != null) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteQuestionDialog = null },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.delete_question_question),
+                            fontSize = 24.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(R.string.confirmation_delete_question),
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val id = showDeleteQuestionDialog!!.id
+                                showDeleteQuestionDialog = null
+                                viewModel.processCommand(
+                                    QuestionCommand.DeleteQuestion(
+                                        id
+                                    )
+                                )
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.delete),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { showDeleteQuestionDialog = null },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceBright)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.Cancel),
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
 
-        is QuestionUiState.Error -> {}
+
+        is QuestionUiState.Error -> {
+            ErrorScreen(
+                modifier = modifier.fillMaxSize(),
+                iconResId = state.model.iconResId,
+                cdResId = state.model.cdResId,
+                errorText = state.model.text.asString(context),
+                onRefreshClick = {
+                    viewModel.processCommand(QuestionCommand.Refresh)
+                },
+                onBackClick = onBackClick
+            )
+        }
     }
 }
 
@@ -279,7 +370,7 @@ private fun FilterItem(
         Text(
             text = text,
             color = if (isSelect)
-                MaterialTheme.colorScheme.onPrimary
+                Color.White
             else
                 MaterialTheme.colorScheme.onSurface,
             fontSize = 16.sp,
