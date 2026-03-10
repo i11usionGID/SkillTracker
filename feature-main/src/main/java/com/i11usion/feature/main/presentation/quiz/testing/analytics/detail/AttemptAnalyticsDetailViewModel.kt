@@ -1,5 +1,6 @@
 package com.i11usion.feature.main.presentation.quiz.testing.analytics.detail
 
+
 import AppError
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +10,7 @@ import com.i11usion.core.domain.usecase.quiz.attempt.GetAttemptInfoByIdUseCase
 import com.i11usion.core.domain.usecase.session.GetUserInfoUseCase
 import com.i11usion.core.ui.model.ErrorScreenModel
 import com.i11usion.core.ui.model.UiError
+import com.i11usion.core.ui.model.UiText
 import com.i11usion.feature.main.manager.SnackbarManager
 import com.i11usion.feature.main.mapper.toScreenUiError
 import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.AttemptAnalyticsDetailUiState.Content
@@ -16,6 +18,7 @@ import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.Atte
 import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.mapper.toUiModel
 import com.i11usion.feature.main.presentation.quiz.testing.analytics.detail.model.AttemptReadUiModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -28,6 +31,10 @@ class AttemptAnalyticsDetailViewModel @Inject constructor(
     private val getAttemptInfoByIdUseCase: GetAttemptInfoByIdUseCase,
     private val snackbarManager: SnackbarManager
 ) : ViewModel() {
+
+    private companion object {
+        const val RETRY_DELAY_MS = 10_000L
+    }
 
     private var currentAttemptId: Int? = null
     private var loadJob: Job? = null
@@ -60,9 +67,17 @@ class AttemptAnalyticsDetailViewModel @Inject constructor(
     }
 
     private fun onErrorRefreshClick() {
-        when (_state.value) {
-            is Content -> _state.value = (_state.value as Content).copy(fullScreenError = null)
-            else -> loadAttempt(requireNotNull(currentAttemptId))
+        val attemptId = currentAttemptId ?: return
+
+        when (val current = _state.value) {
+            is Content -> {
+                _state.value = current.copy(fullScreenError = null)
+                loadAttempt(attemptId)
+            }
+
+            else -> {
+                loadAttempt(attemptId)
+            }
         }
     }
 
@@ -75,14 +90,14 @@ class AttemptAnalyticsDetailViewModel @Inject constructor(
             requireNotNull(user) { "Не удалось получить пользователя" }
             val role: Role = user.role
 
-            when (val result = getAttemptInfoByIdUseCase(attemptId)) {
-
+            when (val result = retryRequest { getAttemptInfoByIdUseCase(attemptId) }) {
                 is AppResult.Success -> {
                     val attemptUi: AttemptReadUiModel = result.data.toUiModel()
 
                     _state.value = Content(
                         user = role,
-                        attempt = attemptUi
+                        attempt = attemptUi,
+                        fullScreenError = null
                     )
                 }
 
@@ -90,6 +105,31 @@ class AttemptAnalyticsDetailViewModel @Inject constructor(
                     showUiError(result.error)
                 }
             }
+        }
+    }
+
+    private suspend fun <T> retryRequest(
+        block: suspend () -> AppResult<T>
+    ): AppResult<T> {
+        while (true) {
+            when (val result = block()) {
+                is AppResult.Success -> return result
+                is AppResult.Failure -> {
+                    if (!shouldRetry(result.error)) return result
+                    delay(RETRY_DELAY_MS)
+                }
+            }
+        }
+    }
+
+    private fun shouldRetry(error: AppError): Boolean {
+        return when (error) {
+            is AppError.Network -> {
+                snackbarManager.show(UiText.Dynamic("Отсутствует подключение к интернету"))
+                true
+            }
+
+            else -> false
         }
     }
 

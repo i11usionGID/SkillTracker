@@ -91,6 +91,7 @@ fun AttemptAnalyticsDetailScreen(
         }
 
         is AttemptAnalyticsDetailUiState.Content -> {
+
             val fsError = state.fullScreenError
             if (fsError != null) {
                 ErrorScreen(
