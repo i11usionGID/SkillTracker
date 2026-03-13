@@ -45,6 +45,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -379,7 +380,7 @@ private fun QuizDetailHeader(
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.width(16.dp))
 
         Box(
             modifier = Modifier.background(
@@ -903,13 +904,15 @@ private fun AssignmentCard(
             color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.3f)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)) {
-
+        Column(
+            modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
+                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
@@ -922,7 +925,7 @@ private fun AssignmentCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = allowedUserName?.get(0).toString(),
+                            text = allowedUserName?.firstOrNull()?.toString() ?: "",
                             color = MaterialTheme.colorScheme.surfaceVariant,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 24.sp
@@ -931,23 +934,29 @@ private fun AssignmentCard(
 
                     Spacer(modifier = Modifier.width(4.dp))
 
-                    Column {
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
                         Text(
                             text = allowedUserName ?: "Неизвестно",
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
 
                         Text(
                             text = "@$allowedUserUsername",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(8.dp))
 
                 if (attemptsTaken != 0) {
                     Box(
@@ -973,15 +982,17 @@ private fun AssignmentCard(
                             Spacer(modifier = Modifier.width(4.dp))
 
                             Text(
-                                text = stringResource(R.string.attempts) + "($attemptsTaken)",
+                                text = stringResource(R.string.attempts) + " ($attemptsTaken)",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 16.sp
+                                fontSize = 16.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
 
                 Box(
                     modifier = Modifier
@@ -991,9 +1002,7 @@ private fun AssignmentCard(
                             color = MaterialTheme.colorScheme.onError,
                             shape = RoundedCornerShape(50)
                         )
-                        .clickable {
-                            onDeleteAssignment()
-                        },
+                        .clickable { onDeleteAssignment() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(

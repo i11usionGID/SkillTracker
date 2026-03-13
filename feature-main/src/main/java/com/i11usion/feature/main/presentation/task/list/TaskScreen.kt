@@ -184,6 +184,12 @@ fun TaskScreen(
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.create_first_task),
+                                    fontSize = 16.sp,
+                                    color = MaterialTheme.colorScheme.surfaceVariant
+                                )
                             }
                         }
                     } else {

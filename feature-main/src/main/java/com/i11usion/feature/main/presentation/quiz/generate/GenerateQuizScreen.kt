@@ -290,7 +290,8 @@ private fun GenerateQuizCard(
                     if (!isCreating) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_sparkles),

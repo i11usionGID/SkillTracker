@@ -155,24 +155,55 @@ fun QuestionScreen(
                         }
                     }
                 } else {
-                    items(
-                        items = state.questionList,
-                        key = { question -> question.id }
-                    ) { question ->
-                        QuestionCard(
-                            text = question.text,
-                            type = question.questionType,
-                            typeText = question.questionTypeText,
-                            questionOptions = question.options,
-                            textAnswers = question.textAnswers,
-                            explanation = question.explanation,
-                            onEditQuestionClick = {
-                                onUpdateQuestionClick(question.id)
-                            },
-                            onDeleteQuestionClick = { showDeleteQuestionDialog = question }
-                        )
+                    if (state.questionList.isEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(32.dp))
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_circle_question_mark),
+                                    contentDescription = stringResource(R.string.cd_no_questions_yet),
+                                    modifier = Modifier.size(64.dp),
+                                    tint = MaterialTheme.colorScheme.surfaceTint
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(R.string.questions_not_found),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.create_first_question),
+                                    fontSize = 16.sp,
+                                    color = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            }
+                        }
+                    } else {
+                        items(
+                            items = state.questionList,
+                            key = { question -> question.id }
+                        ) { question ->
+                            QuestionCard(
+                                text = question.text,
+                                type = question.questionType,
+                                typeText = question.questionTypeText,
+                                questionOptions = question.options,
+                                textAnswers = question.textAnswers,
+                                explanation = question.explanation,
+                                onEditQuestionClick = {
+                                    onUpdateQuestionClick(question.id)
+                                },
+                                onDeleteQuestionClick = { showDeleteQuestionDialog = question }
+                            )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
                     }
                 }
             }

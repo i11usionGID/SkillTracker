@@ -49,7 +49,7 @@
     <string name="created_at">"Создан"</string>
     <string name="delete">Удалить</string>
     <string name="delete_user_question">Удалить пользователя?</string>
-    <string name="confirmation_delete_user">Вы уверены, что хотите удалить пользователя @</string>
+    <string name="confirmation_delete_user">"Вы уверены, что хотите удалить пользователя - "</string>
     <string name="Cancel">Отмена</string>
     <string name="user_not_found">Пользователей не найдено</string>
     <string name="cd_user_not_found">Пользователей не найдено</string>
@@ -246,4 +246,8 @@
     <string name="confirmation_delete_task">"Вы уверены, что хотите удалить задачу "</string>
     <string name="confirmation_delete_quiz">"Вы уверены, что хотите удалить тест "</string>
     <string name="confirmation_delete_question">"Вы уверены, что хотите удалить вопрос?"</string>
+    <string name="cd_no_questions_yet">Вопросов пока нет</string>
+    <string name="questions_not_found">Вопросов не найдено</string>
+    <string name="create_first_question">Создайте первый вопрос</string>
+    <string name="create_first_task">Создайте первую задачу</string>
 </resources>
