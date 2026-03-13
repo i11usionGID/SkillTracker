@@ -152,20 +152,45 @@ fun NotificationScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                items(
-                    items = state.notificationList,
-                    key = { notification -> notification.id }
-                ) { notification ->
-                    NotificationCard(
-                        type = notification.type,
-                        title = notification.title,
-                        body = notification.body,
-                        isRead = notification.isRead,
-                        createdAt = notification.createdAt,
-                        onCardClick = {
-                            viewModel.onNotificationClick(notification)
+                if (state.notificationList.isEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_notifications),
+                                contentDescription = stringResource(R.string.cd_no_notifications),
+                                modifier = Modifier.size(64.dp),
+                                tint = MaterialTheme.colorScheme.surfaceTint
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.no_notifications),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.surfaceVariant
+                            )
                         }
-                    )
+                    }
+                } else {
+                    items(
+                        items = state.notificationList,
+                        key = { notification -> notification.id }
+                    ) { notification ->
+                        NotificationCard(
+                            type = notification.type,
+                            title = notification.title,
+                            body = notification.body,
+                            isRead = notification.isRead,
+                            createdAt = notification.createdAt,
+                            onCardClick = {
+                                viewModel.onNotificationClick(notification)
+                            }
+                        )
+                    }
                 }
             }
             if (state.isLoadingOverlay) {
