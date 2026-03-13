@@ -250,4 +250,6 @@
     <string name="questions_not_found">Вопросов не найдено</string>
     <string name="create_first_question">Создайте первый вопрос</string>
     <string name="create_first_task">Создайте первую задачу</string>
+    <string name="cd_no_notifications">Нет уведомлений</string>
+    <string name="no_notifications">Нет уведомлений</string>
 </resources>
