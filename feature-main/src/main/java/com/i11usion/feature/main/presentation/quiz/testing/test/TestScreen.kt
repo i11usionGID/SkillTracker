@@ -69,6 +69,7 @@ fun TestScreen(
         viewModel.events.collectLatest { event ->
             when (event) {
                 is TestEvent.NavigateToAnalytics -> onNavigateToAnalytics(event.attemptId)
+                is TestEvent.Back -> onBack()
             }
         }
     }

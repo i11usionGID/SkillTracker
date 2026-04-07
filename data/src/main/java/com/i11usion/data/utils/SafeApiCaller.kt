@@ -35,6 +35,7 @@ class SafeApiCaller @Inject constructor(
                                     ?: "Попробуйте удалить все, что находится внутри"
                             )
                         )
+
                         401 -> {
                             val request = e.response()?.raw()?.request
                             val unauthorizedType = resolveUnauthorizedType(detail, request)
@@ -57,6 +58,13 @@ class SafeApiCaller @Inject constructor(
                             AppError.Validation(
                                 message = detail?.takeIf { it.isNotBlank() }
                                     ?: "Проверьте введённые данные"
+                            )
+                        )
+
+                        429 -> AppResult.Failure(
+                            AppError.Validation(
+                                message = "Для этого теста есть ограничение на перепрохождение. " +
+                                        "Следующая попытка сейчас недоступна."
                             )
                         )
 

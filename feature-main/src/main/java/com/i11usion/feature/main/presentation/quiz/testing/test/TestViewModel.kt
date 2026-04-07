@@ -97,6 +97,9 @@ class TestViewModel @Inject constructor(
 
                 is AppResult.Failure -> {
                     showUiError(result.error)
+                    if (result.error is AppError.Validation) {
+                        _events.tryEmit(TestEvent.Back)
+                    }
                 }
             }
         }
@@ -305,6 +308,7 @@ sealed interface TestCommand {
 
 sealed interface TestEvent {
     data class NavigateToAnalytics(val attemptId: Int, val finishedByTimer: Boolean) : TestEvent
+    data object Back : TestEvent
 }
 
 sealed interface TestUiState {

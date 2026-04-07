@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -45,6 +47,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -910,11 +913,12 @@ private fun AssignmentCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
+                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .requiredSize(40.dp)
                             .background(
                                 color = MaterialTheme.colorScheme.surfaceBright,
                                 shape = CircleShape
@@ -922,32 +926,41 @@ private fun AssignmentCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = allowedUserName?.get(0).toString(),
+                            text = allowedUserName?.firstOrNull()?.toString() ?: "?",
                             color = MaterialTheme.colorScheme.surfaceVariant,
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 24.sp
+                            fontSize = 24.sp,
+                            maxLines = 1
                         )
                     }
 
                     Spacer(modifier = Modifier.width(4.dp))
 
-                    Column {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .widthIn(min = 24.dp)
+                    ) {
                         Text(
                             text = allowedUserName ?: "Неизвестно",
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
 
                         Text(
                             text = "@$allowedUserUsername",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(8.dp))
 
                 if (attemptsTaken != 0) {
                     Box(
@@ -960,7 +973,7 @@ private fun AssignmentCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Row(
-                            modifier = Modifier.padding(4.dp),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -973,19 +986,20 @@ private fun AssignmentCard(
                             Spacer(modifier = Modifier.width(4.dp))
 
                             Text(
-                                text = stringResource(R.string.attempts) + "($attemptsTaken)",
+                                text = stringResource(R.string.attempts) + " ($attemptsTaken)",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 16.sp
+                                fontSize = 16.sp,
+                                maxLines = 1
                             )
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
 
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
+                        .requiredSize(36.dp)
                         .clip(RoundedCornerShape(50))
                         .background(
                             color = MaterialTheme.colorScheme.onError,
@@ -1028,7 +1042,7 @@ private fun AssignmentCard(
                             )
                         }
 
-                        Spacer(modifier = Modifier.weight(1f))
+                        Spacer(modifier = Modifier.width(16.dp))
                     }
 
                     Icon(
@@ -1041,7 +1055,7 @@ private fun AssignmentCard(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = stringResource(R.string.task) + taskTitle,
+                        text = stringResource(R.string.assign_to) + taskTitle,
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         fontSize = 16.sp
                     )

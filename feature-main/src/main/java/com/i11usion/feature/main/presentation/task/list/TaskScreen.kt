@@ -175,7 +175,7 @@ fun TaskScreen(
                                     painter = painterResource(R.drawable.ic_list),
                                     contentDescription = stringResource(R.string.tasks_not_found),
                                     modifier = Modifier.size(64.dp),
-                                    tint = MaterialTheme.colorScheme.surfaceTint
+                                    tint = MaterialTheme.colorScheme.surfaceVariant
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
