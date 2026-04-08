@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.i11usion.core.navigation.HomeRoutes
 import com.i11usion.feature.main.presentation.dashboard.DashboardScreen
 import com.i11usion.feature.main.presentation.notification.NotificationScreen
+import com.i11usion.feature.main.presentation.profile.ProfileScreen
 import com.i11usion.feature.main.presentation.quiz.create.CreateQuizScreen
 import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailScreen
 import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentScreen
@@ -32,12 +33,19 @@ import com.i11usion.feature.main.presentation.user.list.UserScreen
 
 @Composable
 fun HomeTabsNavHost(
-    navController: NavHostController
+    navController: NavHostController,
+    onLogoutNavigate: () -> Unit
 ) {
     NavHost(
         navController = navController,
         startDestination = HomeRoutes.DASHBOARD
     ) {
+        composable(HomeRoutes.PROFILE) {
+            ProfileScreen(
+                onBackClick = { navController.safePopBackStack() },
+                onLogoutNavigate = onLogoutNavigate
+            )
+        }
         composable(HomeRoutes.DASHBOARD) {
             DashboardScreen(
                 onCheckAllTaskClick = {

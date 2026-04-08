@@ -5,6 +5,7 @@ import com.i11usion.di.ViewModelKey
 import com.i11usion.feature.main.presentation.HomeViewModel
 import com.i11usion.feature.main.presentation.dashboard.DashboardViewModel
 import com.i11usion.feature.main.presentation.notification.NotificationViewModel
+import com.i11usion.feature.main.presentation.profile.ProfileViewModel
 import com.i11usion.feature.main.presentation.quiz.create.CreateQuizViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.QuizDetailViewModel
 import com.i11usion.feature.main.presentation.quiz.detail.assignment_section.CreateAssignmentViewModel
@@ -30,6 +31,12 @@ import dagger.multibindings.IntoMap
 
 @Module
 interface MainViewModelModule {
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ProfileViewModel::class)
+    fun bindProfileViewModel(vm: ProfileViewModel): ViewModel
+
     @Binds
     @IntoMap
     @ViewModelKey(HomeViewModel::class)

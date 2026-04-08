@@ -49,6 +49,8 @@ fun HomeRoute(
 
 
     val selected = when (currentRoute) {
+        HomeRoutes.PROFILE -> HomeRoutes.PROFILE
+
         HomeRoutes.DASHBOARD -> HomeRoutes.DASHBOARD
 
         HomeRoutes.TASKS,
@@ -154,7 +156,12 @@ fun HomeRoute(
                         }
                     },
                     onSwitchThemeClick = onSwitchThemeClick,
-                    content = { HomeTabsNavHost(navController = homeNavController) }
+                    content = {
+                        HomeTabsNavHost(
+                            navController = homeNavController,
+                            onLogoutNavigate = viewModel::onLogoutClick
+                        )
+                    }
                 )
             }
 
