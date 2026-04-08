@@ -39,7 +39,8 @@ class DashboardViewModel @Inject constructor(
 
     fun processCommand(command: DashboardCommand) {
         when (command) {
-            DashboardCommand.Refresh -> onErrorRefreshClick()
+            DashboardCommand.ErrorRefresh -> onErrorRefreshClick()
+            DashboardCommand.Refresh -> loadDashboardData()
         }
     }
 
@@ -122,6 +123,7 @@ class DashboardViewModel @Inject constructor(
 
 sealed interface DashboardCommand {
     data object Refresh : DashboardCommand
+    data object ErrorRefresh : DashboardCommand
 }
 
 sealed interface DashboardUiState {

@@ -1,6 +1,7 @@
 package com.i11usion.data.remote.repository
 
 import com.i11usion.core.domain.model.network.AppResult
+import com.i11usion.core.domain.model.user.Role
 import com.i11usion.core.domain.model.user.User
 import com.i11usion.core.domain.repository.UserRepository
 import com.i11usion.core.network.model.user.UserRequestDto
@@ -47,6 +48,35 @@ class UserRepositoryImpl @Inject constructor(
         return safeApiCaller.call {
             userService.createUser(
                 UserRequestDto(
+                    username = username,
+                    name = name,
+                    role = role,
+                    password = password
+                )
+            )
+        }
+    }
+
+    override suspend fun changePassword(
+        userId: Int,
+        username: String,
+        name: String,
+        role: Role,
+        password: String
+    ): AppResult<Unit> {
+        return safeApiCaller.call {
+            val role = when (role) {
+                Role.MANAGER -> {
+                    "manager"
+                }
+
+                Role.EMPLOYEE -> {
+                    "employee"
+                }
+            }
+            userService.updateUser(
+                userId = userId,
+                body = UserRequestDto(
                     username = username,
                     name = name,
                     role = role,

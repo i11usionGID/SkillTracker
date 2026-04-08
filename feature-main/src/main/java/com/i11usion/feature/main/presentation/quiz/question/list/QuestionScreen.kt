@@ -154,6 +154,12 @@ fun QuestionScreen(
                             )
                         }
                     }
+                } else if (state.questionList.isEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        EmptyQuestionList()
+                    }
                 } else {
                     if (state.questionList.isEmpty()) {
                         item {
@@ -361,7 +367,8 @@ private fun FilterBlock(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.Center
     ) {
         QuestionFilter.entries.forEachIndexed { index, filter ->
             FilterItem(
@@ -407,6 +414,37 @@ private fun FilterItem(
             fontSize = 16.sp,
             textAlign = TextAlign.Center,
             maxLines = 2
+        )
+    }
+}
+
+@Composable
+private fun EmptyQuestionList(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_not_found),
+            contentDescription = stringResource(R.string.no_questions_yet),
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.surfaceVariant
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(R.string.questions_not_found),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(R.string.you_not_add_questions_yet),
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.surfaceVariant
         )
     }
 }

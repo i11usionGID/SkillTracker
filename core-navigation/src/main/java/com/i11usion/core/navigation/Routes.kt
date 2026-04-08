@@ -7,11 +7,13 @@ object RootRoute {
 
 object HomeRoutes {
     val TOP_LEVEL = setOf(
+        PROFILE,
         DASHBOARD,
         TASKS,
         USERS,
         TESTS
     )
+    const val PROFILE = "home/profile"
     const val DASHBOARD = "home/dashboard"
     const val TASKS = "home/tasks"
     const val USERS = "home/users"

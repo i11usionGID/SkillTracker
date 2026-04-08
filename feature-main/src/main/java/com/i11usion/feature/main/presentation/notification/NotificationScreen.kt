@@ -129,15 +129,24 @@ fun NotificationScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         colors = ButtonDefaults.buttonColors()
-                            .copy(containerColor = MaterialTheme.colorScheme.surfaceBright),
+                            .copy(
+                                containerColor = MaterialTheme.colorScheme.surfaceBright,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceBright.copy(
+                                    alpha = 0.5f
+                                ),
+                                disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(
+                                    alpha = 0.5f
+                                )
+                            ),
                         shape = RoundedCornerShape(16.dp),
-                        onClick = { viewModel.readAllNotifications() }
+                        onClick = { viewModel.readAllNotifications() },
+                        enabled = state.notificationList.isNotEmpty()
                     ) {
                         Icon(
                             painterResource(R.drawable.ic_eye),
                             contentDescription = stringResource(R.string.cd_read_all_notifications),
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurface
+                            modifier = Modifier.size(20.dp)
                         )
 
                         Spacer(modifier = Modifier.width(4.dp))
@@ -154,23 +163,15 @@ fun NotificationScreen(
 
                 if (state.notificationList.isEmpty()) {
                     item {
-                        Spacer(modifier = Modifier.height(32.dp))
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
                         ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_notifications),
-                                contentDescription = stringResource(R.string.cd_no_notifications),
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.surfaceTint
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = stringResource(R.string.no_notifications),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                text = stringResource(R.string.no_notifications_yet),
+                                fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.surfaceVariant
                             )
                         }
@@ -290,6 +291,7 @@ fun NotificationCard(
                 NotificationType.QUIZ_AI_READY -> {
                     notificationIconResId = R.drawable.ic_sparkles
                 }
+
                 NotificationType.QUIZ_AI_FAILED -> {
                     notificationIconResId = R.drawable.ic_fail
                 }

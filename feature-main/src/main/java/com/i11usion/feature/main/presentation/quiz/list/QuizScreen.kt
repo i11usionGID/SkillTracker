@@ -942,7 +942,7 @@ private fun QuizNotFound(
             painter = painterResource(R.drawable.ic_not_found),
             contentDescription = stringResource(iconCdResId),
             modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.surfaceTint
+            tint = MaterialTheme.colorScheme.surfaceVariant
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(

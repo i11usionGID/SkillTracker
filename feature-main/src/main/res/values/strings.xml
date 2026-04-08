@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="profile_manager_employee">Профиль</string>
     <string name="dashboard_manager_employee">Дашборд</string>
     <string name="tasks_manager_employee">Задачи</string>
     <string name="users_manager">Пользователи</string>
@@ -24,7 +25,7 @@
     <string name="latest_tasks">Последние задачи</string>
     <string name="check_all">Посмотреть все</string>
     <string name="check_all_tasks">Посмотреть все задачи</string>
-    <string name="no_task_yet">Пока нет задач</string>
+    <string name="no_task_yet">Задач пока нет</string>
     <string name="tasks">Задачи</string>
     <string name="manage_task_and_projects">Управление задачами и проектами</string>
     <string name="cd_add_task">Создать задачу</string>
@@ -48,8 +49,12 @@
     <string name="deadline_with_colon">"Срок: "</string>
     <string name="created_at">"Создан"</string>
     <string name="delete">Удалить</string>
+    <string name="delete_account">Удалить аккаунт</string>
+    <string name="change_password">Изменить пароль</string>
     <string name="delete_user_question">Удалить пользователя?</string>
-    <string name="confirmation_delete_user">"Вы уверены, что хотите удалить пользователя - "</string>
+    <string name="are_you_sure_want_delete_account">Удалить аккаунт?</string>
+    <string name="confirmation_delete_user">Вы уверены, что хотите удалить пользователя @</string>
+    <string name="confirmation_delete_account">Вы уверены, что хотите удалить аккаунт? Это действие необратимо</string>
     <string name="Cancel">Отмена</string>
     <string name="user_not_found">Пользователей не найдено</string>
     <string name="cd_user_not_found">Пользователей не найдено</string>
@@ -122,6 +127,7 @@
     <string name="name">Полное имя</string>
     <string name="sample_name">Иванов Иван Иванович</string>
     <string name="password">Пароль</string>
+    <string name="repeat_password">Повторите пароль</string>
     <string name="back_to_tests">Вернуться к тестам</string>
     <string name="all_questions">Банк вопросов</string>
     <string name="create_and_manage_questions_for_quiz">Создавайте и управляйте вопросами для тестов</string>
@@ -176,8 +182,8 @@
     <string name="questions">"Вопросы "</string>
     <string name="question">"Вопрос"</string>
     <string name="required">Обязательно</string>
-    <string name="cd_assignment_attach_to_task">Назначениепривязано к этой задаче</string>
-    <string name="task">"Задача: "</string>
+    <string name="cd_assignment_attach_to_task">Назначение привязано к этой задаче</string>
+    <string name="assign_to">"Прикреплено к задаче: "</string>
     <string name="total_assignments">Всего назначений</string>
     <string name="total_attempts">Всего попыток</string>
     <string name="completed">Завершено</string>
@@ -246,10 +252,13 @@
     <string name="confirmation_delete_task">"Вы уверены, что хотите удалить задачу "</string>
     <string name="confirmation_delete_quiz">"Вы уверены, что хотите удалить тест "</string>
     <string name="confirmation_delete_question">"Вы уверены, что хотите удалить вопрос?"</string>
-    <string name="cd_no_questions_yet">Вопросов пока нет</string>
+    <string name="profile">Профиль</string>
+    <string name="status_manager">Статус: менеджер</string>
+    <string name="status_employee">Статус: сотрудник</string>
+    <string name="no_questions_yet">Вопросов пока нет</string>
     <string name="questions_not_found">Вопросов не найдено</string>
-    <string name="create_first_question">Создайте первый вопрос</string>
-    <string name="create_first_task">Создайте первую задачу</string>
-    <string name="cd_no_notifications">Нет уведомлений</string>
-    <string name="no_notifications">Нет уведомлений</string>
+    <string name="you_not_add_questions_yet">Вы пока не добавили вопросов</string>
+    <string name="create_questions">Создайте вопросы</string>
+    <string name="no_questions_available">"Нет доступных вопросов. "</string>
+    <string name="no_notifications_yet">Уведомлений пока нет</string>
 </resources>

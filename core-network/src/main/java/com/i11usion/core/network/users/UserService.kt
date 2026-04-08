@@ -6,6 +6,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -26,6 +27,12 @@ interface UserService {
 
     @POST("/api/users")
     suspend fun createUser(
+        @Body body: UserRequestDto
+    )
+
+    @PUT("/api/users/{user_id}")
+    suspend fun updateUser(
+        @Path("user_id") userId: Int,
         @Body body: UserRequestDto
     )
 }
