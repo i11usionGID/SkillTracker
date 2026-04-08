@@ -1,6 +1,7 @@
 package com.i11usion.feature.main.presentation.drawer
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Home
@@ -12,6 +13,18 @@ import com.i11usion.feature.main.R
 object DrawerConfig {
 
     val items = listOf(
+        DrawerItem(
+            screenRoute = HomeRoutes.PROFILE,
+            titleResByRole = mapOf(
+                Role.EMPLOYEE to R.string.profile_manager_employee,
+                Role.MANAGER to R.string.profile_manager_employee
+            ),
+            icon = Icons.Outlined.AccountCircle,
+            allowedRoles = setOf(
+                Role.EMPLOYEE,
+                Role.MANAGER
+            )
+        ),
         DrawerItem(
             screenRoute = HomeRoutes.DASHBOARD,
             titleResByRole = mapOf(

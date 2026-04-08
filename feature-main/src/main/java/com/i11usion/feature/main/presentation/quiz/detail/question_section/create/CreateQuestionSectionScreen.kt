@@ -410,16 +410,21 @@ private fun QuestionsPickerList(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Нет доступных вопросов. ",
+                        modifier = Modifier.weight(1f),
+                        text = stringResource(R.string.no_questions_available),
                         color = MaterialTheme.colorScheme.surfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
                     )
 
                     Text(
-                        text = "Создайте вопросы",
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onCreateQuestionsClick() },
+                        text = stringResource(R.string.create_questions),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.clickable { onCreateQuestionsClick() }
+                        textAlign = TextAlign.Center
                     )
                 }
             }
